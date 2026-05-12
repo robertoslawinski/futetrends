@@ -1,0 +1,18 @@
+.shell { min-height: 100vh; display: flex; flex-direction: column; }
+.header { position: sticky; top: 0; z-index: 10; display: flex; align-items: center; gap: 24px; padding: 14px clamp(16px, 4vw, 48px); background: rgba(6, 28, 25, 0.94); backdrop-filter: blur(14px); border-bottom: 1px solid rgba(255,255,255,.08); }
+.brand { display: inline-flex; align-items: center; color: var(--paper); }
+.brand img { display: block; width: 218px; height: auto; }
+.nav { display: flex; align-items: center; gap: 16px; flex: 1; flex-wrap: wrap; }
+.nav a, .actions a, .footer a { color: var(--muted); font-weight: 650; font-size: .92rem; }
+.nav a[class*="active"], .actions a[class*="active"], .footer a:hover, .nav a:hover { color: var(--paper); }
+.actions { display: flex; align-items: center; gap: 10px; }
+.actions button, .cta { border: 1px solid rgba(240,200,75,.55); background: rgba(240,200,75,.12); color: var(--paper); padding: 9px 12px; border-radius: 8px; font-weight: 750; cursor: pointer; }
+.user { max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.main { flex: 1; }
+.footer { display: flex; gap: 18px; align-items: center; padding: 28px clamp(16px, 4vw, 48px); background: #061c19; border-top: 1px solid rgba(255,255,255,.08); color: var(--muted); flex-wrap: wrap; }
+.footer img { display: block; width: 206px; height: auto; margin-right: auto; }
+@media (max-width: 760px) {
+  .header { align-items: flex-start; flex-direction: column; gap: 12px; position: static; }
+  .nav, .actions { width: 100%; }
+  .actions { justify-content: space-between; }
+}
