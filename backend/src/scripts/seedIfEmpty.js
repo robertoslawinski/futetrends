@@ -7,14 +7,14 @@ export async function seedIfEmpty() {
   const count = await Prediction.countDocuments();
   if (count > 0) {
     console.log(`Seed skipped: ${count} markets already exist`);
-    return;
+    return { seeded: false, count };
   }
 
   const adminEmail = process.env.ADMIN_EMAIL || "admin@futetrends.com";
   const adminPassword = process.env.ADMIN_PASSWORD;
   if (!adminPassword) {
     console.log("Seed skipped: ADMIN_PASSWORD is required when SEED_ON_START=true");
-    return;
+    return { seeded: false, reason: "missing_admin_password" };
   }
 
   let admin = await User.findOne({ email: adminEmail });
@@ -34,4 +34,5 @@ export async function seedIfEmpty() {
   })));
 
   console.log(`Seeded ${seedMarkets.length} markets because database was empty`);
+  return { seeded: true, count: seedMarkets.length };
 }

@@ -7,6 +7,7 @@ import authRoutes from "./routes/auth.js";
 import predictionRoutes from "./routes/predictions.js";
 import rankingRoutes from "./routes/ranking.js";
 import userRoutes from "./routes/users.js";
+import { seedIfEmpty } from "./scripts/seedIfEmpty.js";
 import { errorHandler, notFound } from "./middleware/errorHandler.js";
 
 const app = express();
@@ -34,6 +35,17 @@ app.use(morgan("dev"));
 app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 300 }));
 
 app.get("/health", (_req, res) => res.json({ ok: true, name: "FuteTrends API" }));
+app.post("/admin/seed", async (req, res, next) => {
+  try {
+    if (!process.env.SEED_TOKEN || req.headers["x-seed-token"] !== process.env.SEED_TOKEN) {
+      return res.status(403).json({ message: "Forbidden" });
+    }
+    const result = await seedIfEmpty();
+    res.json({ message: "Seed checked", result });
+  } catch (err) {
+    next(err);
+  }
+});
 app.use("/auth", authRoutes);
 app.use("/api/predictions", predictionRoutes);
 app.use("/api/ranking", rankingRoutes);
