@@ -10,16 +10,21 @@ import userRoutes from "./routes/users.js";
 import { errorHandler, notFound } from "./middleware/errorHandler.js";
 
 const app = express();
+function normalizeOrigin(origin) {
+  return origin?.replace(/\/$/, "");
+}
+
 const allowedOrigins = new Set([
-  process.env.CLIENT_ORIGIN || "http://localhost:5173",
+  normalizeOrigin(process.env.CLIENT_ORIGIN) || "http://localhost:5173",
   "http://localhost:5173",
-  "http://127.0.0.1:5173"
+  "http://127.0.0.1:5173",
+  "https://futetrends.netlify.app"
 ]);
 
 app.use(helmet());
 app.use(cors({
   origin(origin, callback) {
-    if (!origin || allowedOrigins.has(origin)) return callback(null, true);
+    if (!origin || allowedOrigins.has(normalizeOrigin(origin))) return callback(null, true);
     return callback(new Error("Not allowed by CORS"));
   },
   credentials: true

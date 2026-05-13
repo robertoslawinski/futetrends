@@ -1,6 +1,7 @@
 import dotenv from "dotenv";
 import app from "./app.js";
 import { connectDB } from "./config/db.js";
+import { seedIfEmpty } from "./scripts/seedIfEmpty.js";
 
 dotenv.config();
 
@@ -11,7 +12,10 @@ if (!process.env.JWT_SECRET) {
 }
 
 connectDB()
-  .then(() => {
+  .then(async () => {
+    if (process.env.SEED_ON_START === "true") {
+      await seedIfEmpty();
+    }
     app.listen(port, () => console.log(`FuteTrends API listening on ${port}`));
   })
   .catch((err) => {
