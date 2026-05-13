@@ -19,7 +19,9 @@ const allowedOrigins = new Set([
   normalizeOrigin(process.env.CLIENT_ORIGIN) || "http://localhost:5173",
   "http://localhost:5173",
   "http://127.0.0.1:5173",
-  "https://futetrends.netlify.app"
+  "https://futetrends.netlify.app",
+  "https://futetrends.com",
+  "https://www.futetrends.com"
 ]);
 
 app.use(helmet());
