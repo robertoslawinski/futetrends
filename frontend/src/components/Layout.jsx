@@ -1,6 +1,6 @@
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
-import logo from "../assets/futetrends-logo.svg";
+import logo from "../assets/futetrends-logo-ai.png";
 import styles from "./Layout.module.css";
 
 export default function Layout() {
