@@ -21,7 +21,9 @@ const allowedOrigins = new Set([
   "http://127.0.0.1:5173",
   "https://futetrends.netlify.app",
   "https://futetrends.com",
-  "https://www.futetrends.com"
+  "https://www.futetrends.com",
+  "http://futetrends.com",
+  "http://www.futetrends.com"
 ]);
 
 app.use(helmet());
