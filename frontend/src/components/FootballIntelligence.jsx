@@ -140,6 +140,7 @@ export default function FootballIntelligence() {
   }, []);
 
   if (!data) return <section className={styles.shell}><div className="notice">Carregando jogos da rodada...</div></section>;
+  const isDemo = data.summary.provider !== "api-football";
 
   return (
     <section id="live-radar" className={styles.shell} aria-label="Jogos mudando narrativas ao vivo">
@@ -148,29 +149,39 @@ export default function FootballIntelligence() {
           <span>Jogos ao vivo</span>
           <h2>Jogos mudando narrativas ao vivo</h2>
         </div>
-        <p>{data.summary.provider === "api-football" ? "Dados ao vivo via API-Football" : "Demonstração com dados simulados"}</p>
+        <p>{isDemo ? "Dados reais aguardando conexão com API-Football." : "Dados ao vivo via API-Football."}</p>
       </div>
 
-      <div className={styles.liveGrid}>
-        {data.liveMatches.length ? data.liveMatches.slice(0, 2).map((match) => <LiveMatchCard key={match.id} match={match} />) : (
-          <div className={styles.emptyCard}>Nenhum jogo ao vivo agora. Quando a bola rolar, o radar mostra o que está mudando.</div>
-        )}
-      </div>
+      {isDemo ? (
+        <div className={styles.setupCard}>
+          <span>Radar em preparação</span>
+          <strong>Os jogos reais aparecem aqui quando a API-Football estiver conectada.</strong>
+          <p>Para evitar confusão, escondemos partidas simuladas da página pública. Assim o usuário nunca confunde exemplo com jogo real.</p>
+        </div>
+      ) : (
+        <>
+          <div className={styles.liveGrid}>
+            {data.liveMatches.length ? data.liveMatches.slice(0, 2).map((match) => <LiveMatchCard key={match.id} match={match} />) : (
+              <div className={styles.emptyCard}>Nenhum jogo ao vivo agora. Quando a bola rolar, o radar mostra o que está mudando.</div>
+            )}
+          </div>
 
-      <div className={styles.contextGrid}>
-        <div>
-          <h3>Resultados recentes</h3>
-          <div className={styles.stack}>
-            {data.recentResults.slice(0, 2).map((match) => <ResultCard key={match.id} match={match} />)}
+          <div className={styles.contextGrid}>
+            <div>
+              <h3>Resultados recentes</h3>
+              <div className={styles.stack}>
+                {data.recentResults.slice(0, 2).map((match) => <ResultCard key={match.id} match={match} />)}
+              </div>
+            </div>
+            <div>
+              <h3>Próximos jogos</h3>
+              <div className={styles.stack}>
+                {data.upcomingFixtures.slice(0, 2).map((match) => <FixtureCard key={match.id} match={match} />)}
+              </div>
+            </div>
           </div>
-        </div>
-        <div>
-          <h3>Próximos jogos</h3>
-          <div className={styles.stack}>
-            {data.upcomingFixtures.slice(0, 2).map((match) => <FixtureCard key={match.id} match={match} />)}
-          </div>
-        </div>
-      </div>
+        </>
+      )}
     </section>
   );
 }
