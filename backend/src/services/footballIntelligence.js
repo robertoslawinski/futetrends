@@ -19,13 +19,42 @@ function isoDate(date) {
 }
 
 function clamp(value, min = 0, max = 99) {
-  return Math.max(min, Math.min(max, value));
+  return Math.max(min, Math.min(max, Math.round(value)));
 }
 
-function trendFromScore(homeGoals = 0, awayGoals = 0, isHome = true) {
-  if (homeGoals === awayGoals) return "stable";
-  const winningHome = homeGoals > awayGoals;
-  return winningHome === isHome ? "up" : "down";
+function teamSide(event, fixture) {
+  if (event.team?.id === fixture.teams?.home?.id) return "home";
+  if (event.team?.id === fixture.teams?.away?.id) return "away";
+  return "neutral";
+}
+
+function extractEvents(fixture) {
+  const events = Array.isArray(fixture.events) ? fixture.events : [];
+  const goals = [];
+  const cards = [];
+  const redCards = { home: 0, away: 0 };
+
+  events.forEach((event) => {
+    const side = teamSide(event, fixture);
+    const detail = event.detail || "";
+    const item = {
+      minute: event.time?.elapsed,
+      extra: event.time?.extra,
+      team: event.team?.name,
+      player: event.player?.name,
+      detail
+    };
+
+    if (event.type === "Goal") goals.push(item);
+    if (event.type === "Card") {
+      cards.push(item);
+      if (detail.toLowerCase().includes("red") && side !== "neutral") {
+        redCards[side] += 1;
+      }
+    }
+  });
+
+  return { goals: goals.slice(-4), cards: cards.slice(-4), redCards };
 }
 
 function statusLabel(status) {
@@ -37,32 +66,38 @@ function statusLabel(status) {
   return status?.long || code || "Status";
 }
 
+function trendFromScore(homeGoals = 0, awayGoals = 0, isHome = true) {
+  if (homeGoals === awayGoals) return "stable";
+  const winningHome = homeGoals > awayGoals;
+  return winningHome === isHome ? "up" : "down";
+}
+
 function buildMetrics(fixture, mode = "upcoming") {
   const elapsed = fixture.fixture?.status?.elapsed || 0;
-  const homeGoals = fixture.goals?.home || 0;
-  const awayGoals = fixture.goals?.away || 0;
+  const homeGoals = fixture.goals?.home ?? fixture.score?.fulltime?.home ?? 0;
+  const awayGoals = fixture.goals?.away ?? fixture.score?.fulltime?.away ?? 0;
   const totalGoals = homeGoals + awayGoals;
-  const redCards = {
-    home: fixture.teams?.home?.redCards || 0,
-    away: fixture.teams?.away?.redCards || 0
-  };
+  const redCards = fixture.intelligenceEvents?.redCards || { home: 0, away: 0 };
+  const cardCount = (fixture.intelligenceEvents?.cards || []).length;
   const scoreGap = Math.abs(homeGoals - awayGoals);
-  const pressureBase = mode === "live" ? 48 : mode === "result" ? 38 : 34;
+  const derbyBoost = /flamengo|palmeiras|corinthians|santos|vasco|fluminense|botafogo|são paulo|sao paulo/i.test(
+    `${fixture.teams?.home?.name} ${fixture.teams?.away?.name}`
+  ) ? 8 : 0;
+  const pressureBase = mode === "live" ? 46 : mode === "result" ? 38 : 34;
 
   return {
-    pressureIndex: clamp(pressureBase + elapsed / 3 + scoreGap * 8 + (redCards.home + redCards.away) * 12),
-    fanHeat: clamp(42 + totalGoals * 9 + elapsed / 4),
-    narrativeScore: clamp(40 + totalGoals * 8 + scoreGap * 7 + (fixture.league?.name?.includes("Serie") ? 8 : 0)),
-    clubMomentum: clamp(46 + scoreGap * 12 + (mode === "result" ? 10 : 0)),
-    varImpact: clamp(24 + (redCards.home + redCards.away) * 18 + (mode === "live" && elapsed > 70 ? 12 : 0))
+    pressureIndex: clamp(pressureBase + elapsed / 4 + scoreGap * 8 + (redCards.home + redCards.away) * 14 + cardCount * 2),
+    fanHeat: clamp(40 + totalGoals * 9 + derbyBoost + elapsed / 5),
+    narrativeScore: clamp(42 + totalGoals * 7 + scoreGap * 6 + derbyBoost + cardCount * 3),
+    clubMomentum: clamp(44 + scoreGap * 12 + (mode === "result" ? 10 : 0) + (homeGoals !== awayGoals ? 6 : 0)),
+    varImpact: clamp(22 + (redCards.home + redCards.away) * 20 + cardCount * 4 + (mode === "live" && elapsed > 70 ? 12 : 0))
   };
 }
 
 function mapFixture(fixture, mode) {
   const homeGoals = fixture.goals?.home ?? fixture.score?.fulltime?.home ?? 0;
   const awayGoals = fixture.goals?.away ?? fixture.score?.fulltime?.away ?? 0;
-  const homeWinner = fixture.teams?.home?.winner;
-  const awayWinner = fixture.teams?.away?.winner;
+  const intelligenceEvents = fixture.intelligenceEvents || extractEvents(fixture);
 
   return {
     id: fixture.fixture?.id,
@@ -82,7 +117,7 @@ function mapFixture(fixture, mode) {
       name: fixture.teams?.home?.name,
       logo: fixture.teams?.home?.logo,
       goals: homeGoals,
-      winner: homeWinner,
+      winner: fixture.teams?.home?.winner,
       trend: trendFromScore(homeGoals, awayGoals, true)
     },
     away: {
@@ -90,14 +125,13 @@ function mapFixture(fixture, mode) {
       name: fixture.teams?.away?.name,
       logo: fixture.teams?.away?.logo,
       goals: awayGoals,
-      winner: awayWinner,
+      winner: fixture.teams?.away?.winner,
       trend: trendFromScore(homeGoals, awayGoals, false)
     },
-    redCards: {
-      home: fixture.teams?.home?.redCards || 0,
-      away: fixture.teams?.away?.redCards || 0
-    },
-    metrics: buildMetrics(fixture, mode)
+    redCards: intelligenceEvents.redCards,
+    goals: intelligenceEvents.goals,
+    cards: intelligenceEvents.cards,
+    metrics: buildMetrics({ ...fixture, intelligenceEvents }, mode)
   };
 }
 
@@ -109,17 +143,20 @@ function summarize(liveMatches, recentResults, upcomingFixtures) {
   const heatMatch = all.reduce((top, match) => (
     !top || match.metrics.fanHeat > top.metrics.fanHeat ? match : top
   ), null);
+  const narrativeMatch = all.reduce((top, match) => (
+    !top || match.metrics.narrativeScore > top.metrics.narrativeScore ? match : top
+  ), null);
 
   return {
     provider: process.env.APIFOOTBALL_API_KEY ? "api-football" : "demo",
     updatedAt: new Date().toISOString(),
     trendingNow: heatMatch ? `${heatMatch.home.name} x ${heatMatch.away.name}` : "Rodada brasileira",
     pressureRising: pressureMatch ? `${pressureMatch.home.name} sob pressão` : "Pressão de rodada",
-    mostDiscussed: liveMatches[0] ? `${liveMatches[0].home.name} x ${liveMatches[0].away.name}` : "Narrativas da rodada",
+    mostDiscussed: narrativeMatch ? `${narrativeMatch.home.name} x ${narrativeMatch.away.name}` : "Narrativas da rodada",
     indexes: {
       pressureIndex: pressureMatch?.metrics.pressureIndex || 58,
       fanHeat: heatMatch?.metrics.fanHeat || 62,
-      narrativeScore: heatMatch?.metrics.narrativeScore || 61,
+      narrativeScore: narrativeMatch?.metrics.narrativeScore || 61,
       clubMomentum: pressureMatch?.metrics.clubMomentum || 55,
       varImpact: pressureMatch?.metrics.varImpact || 38
     }
@@ -148,9 +185,23 @@ async function apiFootballFetch(path, params = {}) {
   return data.response || [];
 }
 
+async function enrichFixtures(fixtures) {
+  const fixtureIds = fixtures.map((item) => item.fixture?.id).filter(Boolean).slice(0, 12);
+  if (!fixtureIds.length) return fixtures;
+
+  const detailed = await apiFootballFetch("/fixtures", { ids: fixtureIds.join("-") });
+  const detailsById = new Map(detailed.map((item) => [item.fixture?.id, item]));
+
+  return fixtures.map((fixture) => {
+    const detail = detailsById.get(fixture.fixture?.id);
+    if (!detail) return fixture;
+    return { ...fixture, events: detail.events || [], intelligenceEvents: extractEvents(detail) };
+  });
+}
+
 async function fetchFromApiFootball() {
   const today = new Date();
-  const [live, recent, upcoming] = await Promise.all([
+  const [liveRaw, recentRaw, upcomingRaw] = await Promise.all([
     apiFootballFetch("/fixtures", { live: BRAZIL_LEAGUE_ID }),
     apiFootballFetch("/fixtures", {
       league: BRAZIL_LEAGUE_ID,
@@ -168,9 +219,14 @@ async function fetchFromApiFootball() {
     })
   ]);
 
-  const liveMatches = live.slice(0, 6).map((fixture) => mapFixture(fixture, "live"));
-  const recentResults = recent.slice(-8).reverse().map((fixture) => mapFixture(fixture, "result"));
-  const upcomingFixtures = upcoming.slice(0, 8).map((fixture) => mapFixture(fixture, "upcoming"));
+  const [live, recent] = await Promise.all([
+    enrichFixtures(liveRaw.slice(0, 6)),
+    enrichFixtures(recentRaw.slice(-8).reverse())
+  ]);
+
+  const liveMatches = live.map((fixture) => mapFixture(fixture, "live"));
+  const recentResults = recent.map((fixture) => mapFixture(fixture, "result"));
+  const upcomingFixtures = upcomingRaw.slice(0, 8).map((fixture) => mapFixture(fixture, "upcoming"));
 
   return {
     summary: summarize(liveMatches, recentResults, upcomingFixtures),
@@ -188,7 +244,7 @@ function demoTeam(name, id) {
   };
 }
 
-function demoFixture({ id, mode, home, away, homeGoals = 0, awayGoals = 0, elapsed, status, dateOffset = 0, competition = "Brasileirão Série A" }) {
+function demoFixture({ id, mode, home, away, homeGoals = 0, awayGoals = 0, elapsed, status, dateOffset = 0, competition = "Brasileirão Série A", redCards = { home: 0, away: 0 } }) {
   const fixture = {
     fixture: {
       id,
@@ -205,7 +261,12 @@ function demoFixture({ id, mode, home, away, homeGoals = 0, awayGoals = 0, elaps
       home: { ...home, winner: homeGoals > awayGoals },
       away: { ...away, winner: awayGoals > homeGoals }
     },
-    goals: { home: homeGoals, away: awayGoals }
+    goals: { home: homeGoals, away: awayGoals },
+    intelligenceEvents: {
+      goals: homeGoals + awayGoals ? [{ minute: elapsed || 45, team: homeGoals >= awayGoals ? home.name : away.name, player: "Atacante em destaque", detail: "Gol" }] : [],
+      cards: redCards.home + redCards.away ? [{ minute: elapsed || 72, team: redCards.home ? home.name : away.name, player: "Defensor", detail: "Red Card" }] : [],
+      redCards
+    }
   };
   return mapFixture(fixture, mode);
 }
@@ -222,7 +283,7 @@ function fallbackPayload() {
 
   const liveMatches = [
     demoFixture({ id: 9001, mode: "live", home: flamengo, away: palmeiras, homeGoals: 1, awayGoals: 1, elapsed: 68, status: "2H" }),
-    demoFixture({ id: 9002, mode: "live", home: corinthians, away: saoPaulo, homeGoals: 0, awayGoals: 1, elapsed: 54, status: "2H" })
+    demoFixture({ id: 9002, mode: "live", home: corinthians, away: saoPaulo, homeGoals: 0, awayGoals: 1, elapsed: 54, status: "2H", redCards: { home: 1, away: 0 } })
   ];
   const recentResults = [
     demoFixture({ id: 9003, mode: "result", home: botafogo, away: fluminense, homeGoals: 2, awayGoals: 0, status: "FT", dateOffset: -1 }),

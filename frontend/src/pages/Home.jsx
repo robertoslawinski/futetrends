@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { api, errorMessage } from "../api/client.js";
+import FootballIntelligence from "../components/FootballIntelligence.jsx";
 import MarketCard from "../components/MarketCard.jsx";
 
 const pressureTerms = ["pressão", "tecnico", "técnico", "demitido", "crise", "arbitragem", "var"];
@@ -137,6 +138,8 @@ export default function Home() {
       </section>
 
       {error && <div className="error">{error}</div>}
+
+      <FootballIntelligence />
 
       <Section
         id="trending"

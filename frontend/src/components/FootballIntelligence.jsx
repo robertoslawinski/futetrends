@@ -27,7 +27,7 @@ function demoTeam(name, id) {
   };
 }
 
-function demoMatch(id, mode, home, away, homeGoals, awayGoals, offsetDays, statusLabel = "Ao vivo") {
+function demoMatch(id, mode, home, away, homeGoals, awayGoals, offsetDays, statusLabel = "Ao vivo", redCards = { home: 0, away: 0 }) {
   const date = new Date();
   date.setDate(date.getDate() + offsetDays);
   const scoreGap = Math.abs(homeGoals - awayGoals);
@@ -39,25 +39,17 @@ function demoMatch(id, mode, home, away, homeGoals, awayGoals, offsetDays, statu
     competition: "Brasileirão Série A",
     date: date.toISOString(),
     status: { label: statusLabel },
-    home: {
-      ...home,
-      goals: homeGoals,
-      winner: homeGoals > awayGoals,
-      trend: homeGoals >= awayGoals ? "up" : "down"
-    },
-    away: {
-      ...away,
-      goals: awayGoals,
-      winner: awayGoals > homeGoals,
-      trend: awayGoals >= homeGoals ? "up" : "down"
-    },
-    redCards: { home: 0, away: 0 },
+    home: { ...home, goals: homeGoals, winner: homeGoals > awayGoals, trend: homeGoals >= awayGoals ? "up" : "down" },
+    away: { ...away, goals: awayGoals, winner: awayGoals > homeGoals, trend: awayGoals >= homeGoals ? "up" : "down" },
+    redCards,
+    goals: totalGoals ? [{ minute: 42, team: homeGoals >= awayGoals ? home.name : away.name, player: "Atacante em destaque", detail: "Gol" }] : [],
+    cards: redCards.home + redCards.away ? [{ minute: 72, team: redCards.home ? home.name : away.name, detail: "Red Card" }] : [],
     metrics: {
-      pressureIndex: Math.min(96, 48 + scoreGap * 12 + totalGoals * 4),
-      fanHeat: Math.min(96, 52 + totalGoals * 8),
-      narrativeScore: Math.min(96, 50 + totalGoals * 7 + scoreGap * 6),
-      clubMomentum: Math.min(96, 48 + scoreGap * 12),
-      varImpact: Math.min(80, 28 + scoreGap * 8)
+      pressureIndex: Math.min(96, 46 + scoreGap * 12 + totalGoals * 4 + (redCards.home + redCards.away) * 14),
+      fanHeat: Math.min(96, 48 + totalGoals * 8),
+      narrativeScore: Math.min(96, 48 + totalGoals * 7 + scoreGap * 6),
+      clubMomentum: Math.min(96, 44 + scoreGap * 12),
+      varImpact: Math.min(82, 28 + scoreGap * 8 + (redCards.home + redCards.away) * 18)
     }
   };
 }
@@ -72,7 +64,7 @@ function clientFallback() {
 
   const liveMatches = [
     demoMatch(8001, "live", flamengo, palmeiras, 1, 1, 0, "68'"),
-    demoMatch(8002, "live", corinthians, saoPaulo, 0, 1, 0, "54'")
+    demoMatch(8002, "live", corinthians, saoPaulo, 0, 1, 0, "54'", { home: 1, away: 0 })
   ];
   const recentResults = [
     demoMatch(8003, "result", botafogo, fluminense, 2, 0, -1, "Final"),
@@ -89,13 +81,7 @@ function clientFallback() {
       trendingNow: "Flamengo x Palmeiras",
       pressureRising: "Corinthians sob pressão",
       mostDiscussed: "Clássicos e arbitragem",
-      indexes: {
-        pressureIndex: 74,
-        fanHeat: 77,
-        narrativeScore: 68,
-        clubMomentum: 62,
-        varImpact: 42
-      }
+      indexes: { pressureIndex: 74, fanHeat: 77, narrativeScore: 68, clubMomentum: 62, varImpact: 42 }
     },
     liveMatches,
     recentResults,
@@ -134,6 +120,17 @@ function MatchScore({ match, compact = false }) {
   );
 }
 
+function EventSummary({ match }) {
+  const redTotal = (match.redCards?.home || 0) + (match.redCards?.away || 0);
+  const goalCount = match.goals?.length || Math.max(0, (match.home.goals || 0) + (match.away.goals || 0));
+  return (
+    <div className={styles.eventSummary}>
+      <span>{goalCount} gols registrados</span>
+      <span>{redTotal} cartões vermelhos</span>
+    </div>
+  );
+}
+
 function LiveMatchCard({ match }) {
   const pressureTone = match.metrics.pressureIndex > 72 ? "red" : "orange";
 
@@ -144,12 +141,13 @@ function LiveMatchCard({ match }) {
         <small>{match.competition}</small>
       </div>
       <MatchScore match={match} />
+      <EventSummary match={match} />
       <div className={styles.matchSignals}>
         <Metric label="Pressure Index™" value={match.metrics.pressureIndex} tone={pressureTone} />
         <Metric label="Club Momentum™" value={match.metrics.clubMomentum} />
       </div>
       <div className={styles.narrativeLine}>
-        <strong>{match.metrics.pressureIndex > 70 ? "Pressure Rising" : "Narrativa ativa"}</strong>
+        <strong>{match.metrics.pressureIndex > 70 ? "Pressão subindo" : "Narrativa ativa"}</strong>
         <span>{match.home.name} {trendIcon(match.home.trend)} · {match.away.name} {trendIcon(match.away.trend)}</span>
       </div>
     </article>
@@ -196,44 +194,38 @@ function FixtureCard({ match }) {
 
 export default function FootballIntelligence() {
   const [data, setData] = useState(null);
-  const [error, setError] = useState("");
 
   useEffect(() => {
     api.get("/api/football/intelligence")
-      .then(({ data }) => {
-        setData(data);
-        setError("");
-      })
+      .then(({ data }) => setData(data))
       .catch((err) => {
         console.warn("Using demo football intelligence fallback:", errorMessage(err));
         setData(clientFallback());
-        setError("");
       });
   }, []);
 
   const summaryCards = useMemo(() => {
     if (!data) return [];
     return [
-      { label: "Trending Now", value: data.summary.trendingNow, tone: "blue" },
-      { label: "Pressure Rising", value: data.summary.pressureRising, tone: "orange" },
-      { label: "Most Discussed", value: data.summary.mostDiscussed, tone: "blue" }
+      { label: "Trending Now", value: data.summary.trendingNow },
+      { label: "Pressure Rising", value: data.summary.pressureRising },
+      { label: "Most Discussed", value: data.summary.mostDiscussed }
     ];
   }, [data]);
 
-  if (error) return <section className={styles.shell}><div className="error">{error}</div></section>;
-  if (!data) return <section className={styles.shell}><div className="notice">Carregando dados de futebol...</div></section>;
+  if (!data) return <section className={styles.shell}><div className="notice">Carregando radar da rodada...</div></section>;
 
   return (
-    <section className={styles.shell} aria-label="FuteTrends football intelligence">
+    <section className={styles.shell} aria-label="Radar de jogos e narrativas">
       <div className={styles.heading}>
         <div>
-          <span className="eyebrow">Football intelligence</span>
-          <h2>Radar vivo da rodada brasileira</h2>
-          <p>Placar, resultados e agenda viram sinais de pressão, momentum e narrativa.</p>
+          <span className={styles.kicker}>Radar vivo</span>
+          <h2>Jogos viram sinais de pressão e narrativa.</h2>
+          <p>Placar, agenda e eventos alimentam uma leitura simples de momentum, tensão e impacto emocional.</p>
         </div>
         <div className={styles.source}>
           <i />
-          <span>{data.summary.provider === "api-football" ? "API-Football live" : "Demo intelligence"}</span>
+          <span>{data.summary.provider === "api-football" ? "API-Football" : "Demo"}</span>
         </div>
       </div>
 
