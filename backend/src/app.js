@@ -7,6 +7,7 @@ import authRoutes from "./routes/auth.js";
 import predictionRoutes from "./routes/predictions.js";
 import rankingRoutes from "./routes/ranking.js";
 import userRoutes from "./routes/users.js";
+import footballRoutes from "./routes/football.js";
 import { seedIfEmpty } from "./scripts/seedIfEmpty.js";
 import { errorHandler, notFound } from "./middleware/errorHandler.js";
 
@@ -52,6 +53,7 @@ app.post("/admin/seed", async (req, res, next) => {
 });
 app.use("/auth", authRoutes);
 app.use("/api/predictions", predictionRoutes);
+app.use("/api/football", footballRoutes);
 app.use("/api/ranking", rankingRoutes);
 app.use("/api/users", userRoutes);
 

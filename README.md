@@ -68,8 +68,22 @@ Admin users can create, edit, delete, and resolve markets. Resolving a market di
 - `DELETE /api/predictions/:id`
 - `PUT /api/predictions/:id/resolve`
 - `POST /api/predictions/:id/vote`
+- `GET /api/football/intelligence`
 - `GET /api/ranking`
 - `GET /api/users/me`
+
+## Football Data
+
+FuteTrends can use API-Football for live Brazilian football data while keeping the API key on the backend.
+
+Backend environment variables:
+
+- `APIFOOTBALL_API_KEY`: API-Football key from API-SPORTS.
+- `APIFOOTBALL_BRAZIL_LEAGUE_ID`: defaults to `71` for Brasileirão Série A.
+- `APIFOOTBALL_SEASON`: defaults to the current year.
+- `APIFOOTBALL_CACHE_TTL_MS`: defaults to `60000`.
+
+If `APIFOOTBALL_API_KEY` is not configured, `/api/football/intelligence` returns demo Brazilian football intelligence data so the interface still works during development.
 
 ## Deployment
 
@@ -79,7 +93,7 @@ Create a Render Web Service from `backend`.
 
 - Build command: `npm install`
 - Start command: `npm start`
-- Environment variables: `MONGODB_URI`, `JWT_SECRET`, `JWT_EXPIRES_IN`, `CLIENT_ORIGIN`
+- Environment variables: `MONGODB_URI`, `JWT_SECRET`, `JWT_EXPIRES_IN`, `CLIENT_ORIGIN`, optional `APIFOOTBALL_API_KEY`
 
 After deployment, run the seed script once from a Render shell or locally against MongoDB Atlas.
 

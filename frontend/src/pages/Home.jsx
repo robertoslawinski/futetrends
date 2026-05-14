@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { api, errorMessage } from "../api/client.js";
+import FootballIntelligence from "../components/FootballIntelligence.jsx";
 import MarketCard from "../components/MarketCard.jsx";
 
 const clubNames = [
@@ -211,6 +212,8 @@ export default function Home() {
           <p>Votos viram leitura de consenso, tensão e surpresa potencial.</p>
         </article>
       </section>
+
+      <FootballIntelligence />
 
       <section id="live-radar" className="radarBoard">
         <div className="sectionHeader">
