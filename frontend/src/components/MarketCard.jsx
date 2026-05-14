@@ -1,61 +1,32 @@
 import { Link } from "react-router-dom";
-import { getMarketBadges } from "../utils/marketBadges.js";
-import { getMarketInsight } from "../utils/marketInsights.js";
 import styles from "./MarketCard.module.css";
 
 function shortText(text) {
   if (!text) return "";
-  return text.length > 132 ? `${text.slice(0, 132)}...` : text;
+  return text.length > 118 ? `${text.slice(0, 118)}...` : text;
+}
+
+function trendLabel(market) {
+  const yesPercent = market.voteBreakdown?.yesPercent || 0;
+  const noPercent = market.voteBreakdown?.noPercent || 0;
+  if (!market.totalVotes) return "sem consenso";
+  return yesPercent >= noPercent ? `SIM ${yesPercent}%` : `NÃO ${noPercent}%`;
 }
 
 export default function MarketCard({ market }) {
   const deadline = new Date(market.deadline).toLocaleDateString("pt-BR", { day: "2-digit", month: "short" });
-  const statusLabel = { open: "ao vivo", closed: "fechado", resolved: "resolvido" }[market.status] || market.status;
-  const badges = getMarketBadges(market);
-  const insight = getMarketInsight(market);
-  const yesPercent = market.voteBreakdown?.yesPercent || 0;
-  const noPercent = market.voteBreakdown?.noPercent || 0;
-  const narrativeScore = Math.min(99, 42 + (market.pointsValue || 0) + (market.totalVotes || 0) * 4);
-  const leader = yesPercent >= noPercent ? "SIM" : "NÃO";
+  const score = Math.min(96, 24 + (market.pointsValue || 0) / 4 + (market.totalVotes || 0) * 2);
 
   return (
     <Link to={`/markets/${market._id}`} className={styles.card}>
-      <div className={styles.topline}>
-        <span>{market.category}</span>
-        <strong className={styles[market.status]}>{statusLabel}</strong>
-      </div>
+      <span className={styles.category}>{market.category}</span>
       <h3>{market.title}</h3>
       <p>{shortText(market.description)}</p>
-
-      <div className={styles.signalStrip}>
-        <div>
-          <span>Narrative Score™</span>
-          <strong>{narrativeScore}</strong>
-        </div>
-        <div>
-          <span>Tendência</span>
-          <strong>{leader} {Math.max(yesPercent, noPercent)}%</strong>
-        </div>
-      </div>
-
-      <div className={styles.badges}>
-        {badges.slice(0, 3).map((badge) => <span key={badge}>{badge}</span>)}
-      </div>
-
-      <div className={styles.meta}>
-        <span>{market.pointsValue} pts</span>
-        <span>{market.totalVotes || 0} sinais</span>
+      <footer>
+        <span>{Math.round(score)} score</span>
+        <span>{trendLabel(market)}</span>
         <span>{deadline}</span>
-      </div>
-
-      <div className={`${styles.insight} ${styles[insight.tone]}`}>
-        <strong>{insight.label}</strong>
-        <span>{insight.detail}</span>
-      </div>
-
-      <div className={styles.bar} aria-hidden="true">
-        <span style={{ width: `${yesPercent}%` }} />
-      </div>
+      </footer>
     </Link>
   );
 }
