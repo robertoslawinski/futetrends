@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import { api, errorMessage } from "../api/client.js";
 import FootballIntelligence from "../components/FootballIntelligence.jsx";
 import MarketCard from "../components/MarketCard.jsx";
@@ -14,6 +15,21 @@ function normalize(text = "") {
 function hasTerm(market, terms) {
   const text = normalize(`${market.title} ${market.description} ${market.category}`);
   return terms.some((term) => text.includes(normalize(term)));
+}
+
+function shortText(text = "", size = 112) {
+  return text.length > size ? `${text.slice(0, size)}...` : text;
+}
+
+function humanHook(market) {
+  const text = normalize(`${market.title} ${market.description}`);
+  if (text.includes("corinthians")) return "Se tropeçar de novo, a cobrança vira crise aberta.";
+  if (text.includes("flamengo")) return "Qualquer oscilação vira manchete nacional em minutos.";
+  if (text.includes("palmeiras")) return "O time que todos perseguem também vira termômetro da rodada.";
+  if (text.includes("var") || text.includes("arbitragem")) return "Um lance polêmico pode dominar a conversa até segunda.";
+  if (text.includes("tecnico") || text.includes("pressao")) return "A próxima partida pode mudar o clima interno do clube.";
+  if (text.includes("selecao")) return "A lista pode criar novos heróis e novas cobranças.";
+  return shortText(market.description, 118);
 }
 
 function getClubSignals(markets) {
@@ -50,6 +66,42 @@ function Section({ id, eyebrow, title, description, children }) {
   );
 }
 
+function FeaturedNarrative({ market }) {
+  if (!market) return <div className="empty">Carregando principal narrativa...</div>;
+
+  return (
+    <Link to={`/markets/${market._id}`} className="featuredNarrative">
+      <span>{market.category}</span>
+      <h3>{market.title}</h3>
+      <p>{humanHook(market)}</p>
+      <footer>
+        <strong>História em formação</strong>
+        <small>Fecha {new Date(market.deadline).toLocaleDateString("pt-BR", { day: "2-digit", month: "short" })}</small>
+      </footer>
+    </Link>
+  );
+}
+
+function PressureCard({ market }) {
+  return (
+    <Link to={`/markets/${market._id}`} className="pressureCard">
+      <span>{market.category}</span>
+      <h3>{market.title}</h3>
+      <p>{humanHook(market)}</p>
+    </Link>
+  );
+}
+
+function NarrativeCard({ item }) {
+  return (
+    <article className="narrativeCard">
+      <span>{item.category}</span>
+      <strong>{item.count} histórias no radar</strong>
+      <p>{item.votes ? `${item.votes} leituras da torcida` : "A conversa está começando a ganhar corpo."}</p>
+    </article>
+  );
+}
+
 export default function Home() {
   const [markets, setMarkets] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -75,7 +127,7 @@ export default function Home() {
     return markets
       .filter((market) => hotCategories.includes(market.category) || (market.totalVotes || 0) > 0)
       .sort((a, b) => ((b.totalVotes || 0) + b.pointsValue) - ((a.totalVotes || 0) + a.pointsValue))
-      .slice(0, 3);
+      .slice(0, 4);
   }, [markets]);
 
   const pressureMarkets = useMemo(() => (
@@ -89,7 +141,7 @@ export default function Home() {
       votes: markets.filter((market) => market.category === item).reduce((sum, market) => sum + (market.totalVotes || 0), 0)
     })).sort((a, b) => (b.count + b.votes) - (a.count + a.votes));
 
-    return categoryCounts.slice(0, 3);
+    return categoryCounts.slice(0, 6);
   }, [categories, markets]);
 
   const clubSignals = useMemo(() => getClubSignals(markets), [markets]);
@@ -106,6 +158,7 @@ export default function Home() {
     ].some((value) => value?.toLowerCase().includes(term)));
   }, [markets, search]);
 
+  const featuredMarket = trendingNow[0] || markets[0];
   const hasActiveFilters = Boolean(search || status || category);
 
   function clearFilters() {
@@ -115,68 +168,53 @@ export default function Home() {
   }
 
   return (
-    <div className="page">
-      <section className="intelHero">
+    <div className="page editorialHome">
+      <section className="intelHero editorialHero">
         <div className="heroCopy">
-          <span className="livePill"><i /> Radar do futebol brasileiro</span>
-          <h1>Descubra antes quais histórias vão dominar o futebol brasileiro.</h1>
-          <p>Tendências, pressão da torcida, crises e narrativas analisadas em tempo real.</p>
+          <span className="livePill"><i /> Radar vivo do futebol brasileiro</span>
+          <h1>Veja quais histórias vão explodir no futebol antes de todo mundo.</h1>
+          <p>Pressão, crises, arbitragem, torcida e narrativas monitoradas em tempo real.</p>
           <div className="heroActions">
-            <a href="#markets" className="primaryLink">Entrar no radar</a>
-            <a href="#trending" className="secondaryLink">Ver tendências ao vivo</a>
+            <a href="#live-radar" className="primaryLink">Ver radar ao vivo</a>
+            <a href="#trending" className="secondaryLink">Explorar narrativas</a>
           </div>
         </div>
-        <aside className="heroTrendPanel" aria-label="Principais sinais agora">
-          {clubSignals.map((item, index) => (
-            <article key={item.club} className="heroTrendCard">
-              <span>{index === 0 ? "Em alta" : item.pressure ? "Pressionado" : "Crescendo"}</span>
-              <strong>{item.club}</strong>
-              <small>{item.pressure ? "pressão subindo" : "narrativa ganhando força"}</small>
-            </article>
-          ))}
+        <aside className="heroFocus" aria-label="Sinal principal">
+          <span>Agora no radar</span>
+          <strong>{clubSignals[0]?.club || "Flamengo"} em alerta</strong>
+          <p>{clubSignals[0]?.pressure ? "A pressão está subindo e pode virar pauta da rodada." : "A narrativa está ganhando força antes do próximo jogo."}</p>
         </aside>
       </section>
 
       {error && <div className="error">{error}</div>}
 
-      <FootballIntelligence />
-
-      <Section
-        id="trending"
-        eyebrow="Agora"
-        title="Tendências em destaque"
-        description="Os assuntos que começam a concentrar atenção antes da rodada reagir."
-      >
-        {loading ? <div className="notice">Carregando tendências...</div> : (
-          <div className="marketStrip">
-            {(trendingNow.length ? trendingNow : markets.slice(0, 3)).map((market) => <MarketCard key={market._id} market={market} />)}
-          </div>
-        )}
+      <Section id="trending" eyebrow="Explodindo agora" title="A história que pode dominar a rodada">
+        {loading ? <div className="notice">Carregando narrativas...</div> : <FeaturedNarrative market={featuredMarket} />}
       </Section>
 
       <Section
         eyebrow="Pressão"
         title="Clubes sob pressão"
-        description="Crises, arbitragem, técnicos e jogos que podem mudar o clima da semana."
+        description="Três situações que podem virar crise, cobrança ou manchete."
       >
-        <div className="marketStrip">
-          {(pressureMarkets.length ? pressureMarkets : trendingNow).map((market) => <MarketCard key={market._id} market={market} />)}
+        <div className="pressureGrid">
+          {(pressureMarkets.length ? pressureMarkets : trendingNow.slice(1, 4)).map((market) => <PressureCard key={market._id} market={market} />)}
         </div>
       </Section>
 
+      <FootballIntelligence />
+
       <Section
-        eyebrow="Narrativas"
-        title="Histórias quentes"
-        description="O mapa rápido das conversas que podem crescer nos próximos dias."
+        eyebrow="Semana"
+        title="Narrativas da semana"
+        description="Os temas que estão formando o clima do futebol brasileiro."
       >
         <div className="narrativeGrid">
-          {(hotNarratives.length ? hotNarratives : [{ category: "Arbitragem e VAR", count: 3, votes: 0 }, { category: "Pressão nos clubes", count: 3, votes: 0 }, { category: "Seleção Brasileira", count: 2, votes: 0 }]).map((item) => (
-            <article key={item.category} className="narrativeCard">
-              <span>{item.category}</span>
-              <strong>{item.count} sinais ativos</strong>
-              <p>{item.votes ? `${item.votes} leituras da comunidade` : "Narrativa em observação"}</p>
-            </article>
-          ))}
+          {(hotNarratives.length ? hotNarratives : [
+            { category: "Arbitragem e VAR", count: 3, votes: 0 },
+            { category: "Pressão nos clubes", count: 3, votes: 0 },
+            { category: "Seleção Brasileira", count: 2, votes: 0 }
+          ]).map((item) => <NarrativeCard key={item.category} item={item} />)}
         </div>
       </Section>
 
