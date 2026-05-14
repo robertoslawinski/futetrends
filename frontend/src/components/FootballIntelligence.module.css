@@ -134,6 +134,12 @@
   color: var(--muted);
   line-height: 1.5;
 }
+.location {
+  display: block;
+  margin-top: 8px;
+  color: #8fb5d6;
+  font-weight: 700;
+}
 .contextGrid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

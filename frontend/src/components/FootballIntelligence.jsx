@@ -13,6 +13,10 @@ function formatKickoff(date) {
   }).format(new Date(date));
 }
 
+function matchLocation(match) {
+  return match.location || [match.venue, match.venueCity].filter(Boolean).join(" · ") || "Local a definir";
+}
+
 function demoTeam(name, id) {
   return { id, name, logo: `https://media.api-sports.io/football/teams/${id}.png` };
 }
@@ -32,6 +36,7 @@ function demoMatch(id, mode, home, away, homeGoals, awayGoals, offsetDays, statu
     home: { ...home, goals: homeGoals, winner: homeGoals > awayGoals },
     away: { ...away, goals: awayGoals, winner: awayGoals > homeGoals },
     redCards,
+    location: "Local a definir",
     metrics: {
       pressureIndex: Math.min(96, 46 + scoreGap * 12 + totalGoals * 4 + (redCards.home + redCards.away) * 14),
       fanHeat: Math.min(96, 48 + totalGoals * 8),
@@ -102,6 +107,7 @@ function LiveMatchCard({ match }) {
         <TeamLine team={match.away} />
       </div>
       <p>{pressureLabel(match.metrics.pressureIndex)}. {redTotal ? "Cartão vermelho mudou o tom do jogo." : "Cada lance pesa na conversa da torcida."}</p>
+      <small className={styles.location}>{matchLocation(match)}</small>
     </article>
   );
 }
@@ -112,7 +118,7 @@ function ResultCard({ match }) {
     <article className={styles.sideCard}>
       <span>Resultado</span>
       <strong>{match.home.name} {match.home.goals} - {match.away.goals} {match.away.name}</strong>
-      <p>{winner === "Empate" ? "O empate deixa a discussão em aberto." : `${winner} ganha fôlego; o outro lado acorda pressionado.`}</p>
+      <p>{matchLocation(match)}. {winner === "Empate" ? "O empate deixa a discussão em aberto." : `${winner} ganha fôlego; o outro lado acorda pressionado.`}</p>
     </article>
   );
 }
@@ -122,7 +128,7 @@ function FixtureCard({ match }) {
     <article className={styles.sideCard}>
       <span>{formatKickoff(match.date)}</span>
       <strong>{match.home.name} x {match.away.name}</strong>
-      <p>{match.metrics.varImpact > 50 ? "Jogo com potencial de polêmica." : "Pré-jogo já começa a mover narrativas."}</p>
+      <p>{matchLocation(match)}. {match.metrics.varImpact > 50 ? "Jogo com potencial de polêmica." : "Pré-jogo já começa a mover narrativas."}</p>
     </article>
   );
 }
@@ -149,7 +155,7 @@ export default function FootballIntelligence() {
           <span>Jogos ao vivo</span>
           <h2>Jogos mudando narrativas ao vivo</h2>
         </div>
-        <p>{isDemo ? "Dados reais aguardando conexão com API-Football." : "Dados ao vivo via API-Football."}</p>
+        <p>{isDemo ? "Dados reais aguardando conexão com API-Football." : "Jogos atuais, resultados recentes e próximas partidas via API-Football."}</p>
       </div>
 
       {isDemo ? (
@@ -170,13 +176,17 @@ export default function FootballIntelligence() {
             <div>
               <h3>Resultados recentes</h3>
               <div className={styles.stack}>
-                {data.recentResults.slice(0, 2).map((match) => <ResultCard key={match.id} match={match} />)}
+                {data.recentResults.length ? data.recentResults.slice(0, 2).map((match) => <ResultCard key={match.id} match={match} />) : (
+                  <div className={styles.emptyCard}>Nenhum resultado recente encontrado para a competição configurada.</div>
+                )}
               </div>
             </div>
             <div>
               <h3>Próximos jogos</h3>
               <div className={styles.stack}>
-                {data.upcomingFixtures.slice(0, 2).map((match) => <FixtureCard key={match.id} match={match} />)}
+                {data.upcomingFixtures.length ? data.upcomingFixtures.slice(0, 2).map((match) => <FixtureCard key={match.id} match={match} />) : (
+                  <div className={styles.emptyCard}>Nenhum jogo futuro encontrado na janela atual. Assim que a tabela aparecer na API, ele entra no radar.</div>
+                )}
               </div>
             </div>
           </div>

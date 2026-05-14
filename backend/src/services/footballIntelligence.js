@@ -1,6 +1,5 @@
 const API_BASE_URL = "https://v3.football.api-sports.io";
 const BRAZIL_LEAGUE_ID = process.env.APIFOOTBALL_BRAZIL_LEAGUE_ID || "71";
-const SEASON = process.env.APIFOOTBALL_SEASON || String(new Date().getFullYear());
 const CACHE_TTL_MS = Number(process.env.APIFOOTBALL_CACHE_TTL_MS || 60_000);
 
 let cache = {
@@ -14,14 +13,37 @@ function addDays(date, days) {
   return next;
 }
 
-function seasonCandidates() {
+function isoDate(date) {
+  return date.toISOString().slice(0, 10);
+}
+
+function activeSeason() {
   const current = new Date().getFullYear();
-  return [...new Set([
-    SEASON,
-    String(current),
-    String(current - 1),
-    String(current + 1)
-  ])].filter(Boolean);
+  const configured = Number(process.env.APIFOOTBALL_SEASON);
+  return Number.isInteger(configured) && configured >= current ? String(configured) : String(current);
+}
+
+function fixtureTime(fixture) {
+  const date = fixture.fixture?.date ? new Date(fixture.fixture.date) : null;
+  return date && !Number.isNaN(date.getTime()) ? date : null;
+}
+
+function sortByKickoffAsc(a, b) {
+  return (fixtureTime(a)?.getTime() || 0) - (fixtureTime(b)?.getTime() || 0);
+}
+
+function sortByKickoffDesc(a, b) {
+  return (fixtureTime(b)?.getTime() || 0) - (fixtureTime(a)?.getTime() || 0);
+}
+
+function isBetweenFixtureDates(fixture, fromDate, toDate) {
+  const date = fixtureTime(fixture);
+  return Boolean(date && date >= fromDate && date <= toDate);
+}
+
+function isFutureFixture(fixture, today) {
+  const date = fixtureTime(fixture);
+  return Boolean(date && date >= today);
 }
 
 function clamp(value, min = 0, max = 99) {
@@ -104,6 +126,8 @@ function mapFixture(fixture, mode) {
   const homeGoals = fixture.goals?.home ?? fixture.score?.fulltime?.home ?? 0;
   const awayGoals = fixture.goals?.away ?? fixture.score?.fulltime?.away ?? 0;
   const intelligenceEvents = fixture.intelligenceEvents || extractEvents(fixture);
+  const venueName = fixture.fixture?.venue?.name;
+  const venueCity = fixture.fixture?.venue?.city;
 
   return {
     id: fixture.fixture?.id,
@@ -111,7 +135,9 @@ function mapFixture(fixture, mode) {
     competition: fixture.league?.name || "Brasileirão",
     round: fixture.league?.round,
     date: fixture.fixture?.date,
-    venue: fixture.fixture?.venue?.name,
+    venue: venueName,
+    venueCity,
+    location: [venueName, venueCity].filter(Boolean).join(" · ") || "Local a definir",
     status: {
       short: fixture.fixture?.status?.short,
       long: fixture.fixture?.status?.long,
@@ -205,24 +231,52 @@ async function enrichFixtures(fixtures) {
   });
 }
 
-async function fetchSeasonFromApiFootball(season) {
-  const [liveRaw, recentRaw, upcomingRaw] = await Promise.all([
+async function fetchFromApiFootball() {
+  const season = activeSeason();
+  const now = new Date();
+  const today = new Date(isoDate(now));
+  const recentStart = addDays(today, -21);
+  const upcomingEnd = addDays(today, 45);
+
+  const [liveRaw, recentRaw, upcomingWindowRaw] = await Promise.all([
     apiFootballFetch("/fixtures", { live: BRAZIL_LEAGUE_ID }),
     apiFootballFetch("/fixtures", {
       league: BRAZIL_LEAGUE_ID,
       season,
-      last: 8
+      from: isoDate(recentStart),
+      to: isoDate(today),
+      status: "FT-AET-PEN"
     }),
     apiFootballFetch("/fixtures", {
       league: BRAZIL_LEAGUE_ID,
       season,
-      next: 8
+      from: isoDate(today),
+      to: isoDate(upcomingEnd)
     })
   ]);
 
+  let upcomingRaw = upcomingWindowRaw
+    .filter((fixture) => isFutureFixture(fixture, now))
+    .sort(sortByKickoffAsc);
+
+  if (!upcomingRaw.length) {
+    const nextRaw = await apiFootballFetch("/fixtures", {
+      league: BRAZIL_LEAGUE_ID,
+      season,
+      next: 8
+    });
+    upcomingRaw = nextRaw
+      .filter((fixture) => isFutureFixture(fixture, now))
+      .sort(sortByKickoffAsc);
+  }
+
+  const recentWindow = recentRaw
+    .filter((fixture) => isBetweenFixtureDates(fixture, recentStart, addDays(today, 1)))
+    .sort(sortByKickoffDesc);
+
   const [live, recent] = await Promise.all([
     enrichFixtures(liveRaw.slice(0, 6)),
-    enrichFixtures(recentRaw.slice(-8).reverse())
+    enrichFixtures(recentWindow.slice(0, 8))
   ]);
 
   const liveMatches = live.map((fixture) => mapFixture(fixture, "live"));
@@ -232,30 +286,15 @@ async function fetchSeasonFromApiFootball(season) {
   return {
     summary: {
       ...summarize(liveMatches, recentResults, upcomingFixtures),
-      season
+      season,
+      dateWindow: {
+        recentFrom: isoDate(recentStart),
+        upcomingTo: isoDate(upcomingEnd)
+      }
     },
     liveMatches,
     recentResults,
     upcomingFixtures
-  };
-}
-
-async function fetchFromApiFootball() {
-  let lastPayload = null;
-
-  for (const season of seasonCandidates()) {
-    const payload = await fetchSeasonFromApiFootball(season);
-    lastPayload = payload;
-    if (payload.liveMatches.length || payload.recentResults.length || payload.upcomingFixtures.length) {
-      return payload;
-    }
-  }
-
-  return lastPayload || {
-    summary: summarize([], [], []),
-    liveMatches: [],
-    recentResults: [],
-    upcomingFixtures: []
   };
 }
 
