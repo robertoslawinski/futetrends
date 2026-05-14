@@ -14,8 +14,14 @@ function addDays(date, days) {
   return next;
 }
 
-function isoDate(date) {
-  return date.toISOString().slice(0, 10);
+function seasonCandidates() {
+  const current = new Date().getFullYear();
+  return [...new Set([
+    SEASON,
+    String(current),
+    String(current - 1),
+    String(current + 1)
+  ])].filter(Boolean);
 }
 
 function clamp(value, min = 0, max = 99) {
@@ -199,23 +205,18 @@ async function enrichFixtures(fixtures) {
   });
 }
 
-async function fetchFromApiFootball() {
-  const today = new Date();
+async function fetchSeasonFromApiFootball(season) {
   const [liveRaw, recentRaw, upcomingRaw] = await Promise.all([
     apiFootballFetch("/fixtures", { live: BRAZIL_LEAGUE_ID }),
     apiFootballFetch("/fixtures", {
       league: BRAZIL_LEAGUE_ID,
-      season: SEASON,
-      from: isoDate(addDays(today, -9)),
-      to: isoDate(today),
-      status: "FT-AET-PEN"
+      season,
+      last: 8
     }),
     apiFootballFetch("/fixtures", {
       league: BRAZIL_LEAGUE_ID,
-      season: SEASON,
-      from: isoDate(today),
-      to: isoDate(addDays(today, 14)),
-      status: "NS-TBD"
+      season,
+      next: 8
     })
   ]);
 
@@ -229,10 +230,32 @@ async function fetchFromApiFootball() {
   const upcomingFixtures = upcomingRaw.slice(0, 8).map((fixture) => mapFixture(fixture, "upcoming"));
 
   return {
-    summary: summarize(liveMatches, recentResults, upcomingFixtures),
+    summary: {
+      ...summarize(liveMatches, recentResults, upcomingFixtures),
+      season
+    },
     liveMatches,
     recentResults,
     upcomingFixtures
+  };
+}
+
+async function fetchFromApiFootball() {
+  let lastPayload = null;
+
+  for (const season of seasonCandidates()) {
+    const payload = await fetchSeasonFromApiFootball(season);
+    lastPayload = payload;
+    if (payload.liveMatches.length || payload.recentResults.length || payload.upcomingFixtures.length) {
+      return payload;
+    }
+  }
+
+  return lastPayload || {
+    summary: summarize([], [], []),
+    liveMatches: [],
+    recentResults: [],
+    upcomingFixtures: []
   };
 }
 
