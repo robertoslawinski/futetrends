@@ -12,7 +12,7 @@
   border-bottom: 1px solid var(--border);
 }
 .brand { display: inline-flex; align-items: center; color: var(--text); overflow: hidden; border-radius: 8px; }
-.brand img { display: block; width: 216px; height: 52px; object-fit: contain; object-position: left center; }
+.brand img { display: block; width: 260px; height: 66px; object-fit: contain; object-position: left center; }
 .nav { display: flex; align-items: center; gap: 16px; flex: 1; flex-wrap: wrap; }
 .nav a, .actions a, .footer a { color: var(--muted); font-weight: 750; font-size: .92rem; }
 .nav a[class*="active"], .actions a[class*="active"], .footer a:hover, .nav a:hover { color: var(--text); }
@@ -43,5 +43,5 @@
   .header { align-items: flex-start; flex-direction: column; gap: 12px; position: static; }
   .nav, .actions { width: 100%; }
   .actions { justify-content: space-between; }
-  .brand img { width: 196px; height: 48px; }
+  .brand img { width: 220px; height: 56px; }
 }
