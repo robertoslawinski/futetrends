@@ -19,6 +19,90 @@ function trendIcon(trend) {
   return "→";
 }
 
+function demoTeam(name, id) {
+  return {
+    id,
+    name,
+    logo: `https://media.api-sports.io/football/teams/${id}.png`
+  };
+}
+
+function demoMatch(id, mode, home, away, homeGoals, awayGoals, offsetDays, statusLabel = "Ao vivo") {
+  const date = new Date();
+  date.setDate(date.getDate() + offsetDays);
+  const scoreGap = Math.abs(homeGoals - awayGoals);
+  const totalGoals = homeGoals + awayGoals;
+
+  return {
+    id,
+    mode,
+    competition: "Brasileirão Série A",
+    date: date.toISOString(),
+    status: { label: statusLabel },
+    home: {
+      ...home,
+      goals: homeGoals,
+      winner: homeGoals > awayGoals,
+      trend: homeGoals >= awayGoals ? "up" : "down"
+    },
+    away: {
+      ...away,
+      goals: awayGoals,
+      winner: awayGoals > homeGoals,
+      trend: awayGoals >= homeGoals ? "up" : "down"
+    },
+    redCards: { home: 0, away: 0 },
+    metrics: {
+      pressureIndex: Math.min(96, 48 + scoreGap * 12 + totalGoals * 4),
+      fanHeat: Math.min(96, 52 + totalGoals * 8),
+      narrativeScore: Math.min(96, 50 + totalGoals * 7 + scoreGap * 6),
+      clubMomentum: Math.min(96, 48 + scoreGap * 12),
+      varImpact: Math.min(80, 28 + scoreGap * 8)
+    }
+  };
+}
+
+function clientFallback() {
+  const flamengo = demoTeam("Flamengo", 127);
+  const palmeiras = demoTeam("Palmeiras", 121);
+  const corinthians = demoTeam("Corinthians", 131);
+  const saoPaulo = demoTeam("São Paulo", 126);
+  const botafogo = demoTeam("Botafogo", 120);
+  const fluminense = demoTeam("Fluminense", 124);
+
+  const liveMatches = [
+    demoMatch(8001, "live", flamengo, palmeiras, 1, 1, 0, "68'"),
+    demoMatch(8002, "live", corinthians, saoPaulo, 0, 1, 0, "54'")
+  ];
+  const recentResults = [
+    demoMatch(8003, "result", botafogo, fluminense, 2, 0, -1, "Final"),
+    demoMatch(8004, "result", palmeiras, corinthians, 2, 1, -3, "Final")
+  ];
+  const upcomingFixtures = [
+    demoMatch(8005, "upcoming", flamengo, botafogo, 0, 0, 2, "Agendado"),
+    demoMatch(8006, "upcoming", saoPaulo, palmeiras, 0, 0, 3, "Agendado")
+  ];
+
+  return {
+    summary: {
+      provider: "demo",
+      trendingNow: "Flamengo x Palmeiras",
+      pressureRising: "Corinthians sob pressão",
+      mostDiscussed: "Clássicos e arbitragem",
+      indexes: {
+        pressureIndex: 74,
+        fanHeat: 77,
+        narrativeScore: 68,
+        clubMomentum: 62,
+        varImpact: 42
+      }
+    },
+    liveMatches,
+    recentResults,
+    upcomingFixtures
+  };
+}
+
 function Metric({ label, value, tone = "blue" }) {
   return (
     <div className={styles.metric}>
@@ -120,7 +204,11 @@ export default function FootballIntelligence() {
         setData(data);
         setError("");
       })
-      .catch((err) => setError(errorMessage(err)));
+      .catch((err) => {
+        console.warn("Using demo football intelligence fallback:", errorMessage(err));
+        setData(clientFallback());
+        setError("");
+      });
   }, []);
 
   const summaryCards = useMemo(() => {
