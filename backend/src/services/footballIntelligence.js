@@ -1,6 +1,7 @@
 const API_BASE_URL = "https://v3.football.api-sports.io";
 const DEFAULT_BRAZIL_LEAGUE_IDS = ["71", "72", "73", "11", "13"];
 const CACHE_TTL_MS = Number(process.env.APIFOOTBALL_CACHE_TTL_MS || 300_000);
+const FOOTBALL_RADAR_VERSION = "football-radar-date-fallback-2026-05-15";
 
 let cache = {
   expiresAt: 0,
@@ -214,6 +215,7 @@ function summarize(liveMatches, recentResults, upcomingFixtures) {
 
   return {
     provider: process.env.APIFOOTBALL_API_KEY ? "api-football" : "demo",
+    version: FOOTBALL_RADAR_VERSION,
     updatedAt: new Date().toISOString(),
     trendingNow: heatMatch ? `${heatMatch.home.name} x ${heatMatch.away.name}` : "Rodada brasileira",
     pressureRising: pressureMatch ? `${pressureMatch.home.name} sob pressão` : "Pressão de rodada",
@@ -342,6 +344,11 @@ async function fetchFromApiFootball() {
       dateWindow: {
         recentFrom: isoDate(recentStart),
         upcomingTo: isoDate(upcomingEnd)
+      },
+      queryMode: {
+        primary: "league-window",
+        fallback: "date-window-brazil-filter",
+        cacheTtlMs: CACHE_TTL_MS
       }
     },
     liveMatches,
