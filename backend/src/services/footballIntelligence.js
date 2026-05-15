@@ -1,6 +1,6 @@
 const API_BASE_URL = "https://v3.football.api-sports.io";
-const DEFAULT_BRAZIL_LEAGUE_IDS = ["71", "72", "73"];
-const CACHE_TTL_MS = Number(process.env.APIFOOTBALL_CACHE_TTL_MS || 60_000);
+const DEFAULT_BRAZIL_LEAGUE_IDS = ["71", "72", "73", "11", "13"];
+const CACHE_TTL_MS = Number(process.env.APIFOOTBALL_CACHE_TTL_MS || 300_000);
 
 let cache = {
   expiresAt: 0,
@@ -52,6 +52,12 @@ function isFutureFixture(fixture, today) {
   return Boolean(date && date >= today);
 }
 
+function isBrazilianFixture(fixture) {
+  const country = fixture.league?.country || "";
+  const teams = `${fixture.teams?.home?.name || ""} ${fixture.teams?.away?.name || ""}`;
+  return country.toLowerCase() === "brazil" || /flamengo|palmeiras|corinthians|santos|vasco|fluminense|botafogo|são paulo|sao paulo|grêmio|gremio|internacional|cruzeiro|atlético mineiro|atletico mineiro|bahia|fortaleza|ceará|ceara|sport recife|vitória|vitoria|bragantino|athletico|coritiba|goiás|goias/i.test(teams);
+}
+
 function dedupeFixtures(fixtures) {
   const byId = new Map();
   fixtures.forEach((fixture) => {
@@ -64,6 +70,13 @@ function dedupeFixtures(fixtures) {
 async function settledFixtures(requests) {
   const results = await Promise.allSettled(requests);
   return results.flatMap((result) => (result.status === "fulfilled" ? result.value : []));
+}
+
+async function fixturesByDates(startDate, days) {
+  const requests = Array.from({ length: days }, (_, index) => (
+    apiFootballFetch("/fixtures", { date: isoDate(addDays(startDate, index)) })
+  ));
+  return settledFixtures(requests);
 }
 
 function clamp(value, min = 0, max = 99) {
@@ -294,9 +307,23 @@ async function fetchFromApiFootball() {
       .sort(sortByKickoffAsc);
   }
 
-  const recentWindow = dedupeFixtures(recentRaw)
+  if (!upcomingRaw.length) {
+    const datedUpcomingRaw = await fixturesByDates(today, 10);
+    upcomingRaw = dedupeFixtures(datedUpcomingRaw)
+      .filter((fixture) => isFutureFixture(fixture, now) && isBrazilianFixture(fixture))
+      .sort(sortByKickoffAsc);
+  }
+
+  let recentWindow = dedupeFixtures(recentRaw)
     .filter((fixture) => isBetweenFixtureDates(fixture, recentStart, addDays(today, 1)))
     .sort(sortByKickoffDesc);
+
+  if (!recentWindow.length) {
+    const datedRecentRaw = await fixturesByDates(addDays(today, -5), 6);
+    recentWindow = dedupeFixtures(datedRecentRaw)
+      .filter((fixture) => isBetweenFixtureDates(fixture, addDays(today, -5), addDays(today, 1)) && isBrazilianFixture(fixture))
+      .sort(sortByKickoffDesc);
+  }
 
   const [live, recent] = await Promise.all([
     enrichFixtures(liveRaw.slice(0, 6)),
