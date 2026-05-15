@@ -10,7 +10,7 @@ function trendLabel(market) {
   const yesPercent = market.voteBreakdown?.yesPercent || 0;
   const noPercent = market.voteBreakdown?.noPercent || 0;
   if (!market.totalVotes) return "sem consenso";
-  return yesPercent >= noPercent ? `torcida puxa SIM` : `torcida puxa NÃO`;
+  return yesPercent >= noPercent ? "torcida puxa SIM" : "torcida puxa NÃO";
 }
 
 export default function MarketCard({ market }) {

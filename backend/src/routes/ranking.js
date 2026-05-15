@@ -5,7 +5,7 @@ const router = express.Router();
 
 router.get("/", async (_req, res, next) => {
   try {
-    const users = await User.find({}).sort({ points: -1, correctPredictions: -1, totalPredictions: 1 }).limit(100);
+    const users = await User.find({ role: "user" }).sort({ points: -1, correctPredictions: -1, totalPredictions: 1 }).limit(100);
     res.json({
       ranking: users.map((user, index) => ({
         rank: index + 1,

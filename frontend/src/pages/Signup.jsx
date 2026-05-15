@@ -20,5 +20,5 @@ export default function Signup() {
     }
   }
 
-  return <AuthForm signup title="Criar conta" form={form} setForm={setForm} submit={submit} error={error} button="Entrar no FuteTrends" footer={<Link to="/login">Já tenho conta</Link>} />;
+  return <AuthForm signup title="Criar conta" form={form} setForm={setForm} submit={submit} error={error} button="Criar conta" footer={<Link to="/login">Já tenho conta</Link>} />;
 }

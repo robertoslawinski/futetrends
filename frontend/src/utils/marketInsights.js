@@ -2,7 +2,7 @@ export function getMarketInsight(market) {
   const yes = market.voteBreakdown?.yesPercent || 0;
   const no = market.voteBreakdown?.noPercent || 0;
   const total = market.totalVotes || 0;
-  const leadingOption = yes >= no ? "SIM" : "NAO";
+  const leadingOption = yes >= no ? "SIM" : "NÃO";
   const leadingPercent = Math.max(yes, no);
   const gap = Math.abs(yes - no);
 
@@ -19,7 +19,7 @@ export function getMarketInsight(market) {
   if (gap <= 12) {
     return {
       label: "Mercado dividido",
-      detail: "A torcida esta rachada. Bom mercado para testar leitura propria.",
+      detail: "A torcida está rachada. Bom mercado para testar leitura própria.",
       leadingOption,
       leadingPercent,
       tone: "split"
@@ -29,7 +29,7 @@ export function getMarketInsight(market) {
   if (leadingPercent >= 70) {
     return {
       label: "Consenso forte",
-      detail: `${leadingPercent}% da comunidade esta em ${leadingOption}.`,
+      detail: `${leadingPercent}% da comunidade está em ${leadingOption}.`,
       leadingOption,
       leadingPercent,
       tone: "strong"
@@ -37,7 +37,7 @@ export function getMarketInsight(market) {
   }
 
   return {
-    label: "Tendencia da torcida",
+    label: "Tendência da torcida",
     detail: `${leadingPercent}% da comunidade pende para ${leadingOption}.`,
     leadingOption,
     leadingPercent,
@@ -47,9 +47,9 @@ export function getMarketInsight(market) {
 
 export function getDataValueCopy(market) {
   const category = market.category?.toLowerCase() || "";
-  if (category.includes("arbitragem")) return "Mede quanto o VAR virou personagem da rodada antes da analise oficial.";
-  if (category.includes("selec")) return "Mostra quais nomes mobilizam confianca, duvida e pressao publica antes da lista.";
-  if (category.includes("press")) return "Transforma sensacao de crise em sinal mensuravel por clube e rodada.";
-  if (category.includes("tabela")) return "Revela onde a torcida enxerga tropeco, arrancada ou virada de narrativa.";
-  return "Converte leitura de torcida em dado comparavel antes do fato acontecer.";
+  if (category.includes("arbitragem")) return "Mede quanto o VAR virou personagem da rodada antes da análise oficial.";
+  if (category.includes("selec")) return "Mostra quais nomes mobilizam confiança, dúvida e pressão pública antes da lista.";
+  if (category.includes("press")) return "Transforma sensação de crise em sinal mensurável por clube e rodada.";
+  if (category.includes("tabela")) return "Revela onde a torcida enxerga tropeço, arrancada ou virada de narrativa.";
+  return "Converte leitura de torcida em dado comparável antes do fato acontecer.";
 }

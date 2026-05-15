@@ -72,16 +72,23 @@ export default function MarketDetails() {
         <aside>
           <div className="voteBox">
             <h2>Seu palpite</h2>
-            <div className="split">
-              <button disabled={submitting || market.userVote || market.status !== "open"} onClick={() => vote("yes")}>Sim</button>
-              <button disabled={submitting || market.userVote || market.status !== "open"} onClick={() => vote("no")}>Não</button>
-            </div>
+            {!user ? (
+              <div className="authPrompt">
+                <p>Entre para registrar seu palpite e competir no ranking.</p>
+                <Link to="/login" className="primaryLink">Entrar para palpitar</Link>
+              </div>
+            ) : (
+              <div className="split">
+                <button disabled={submitting || market.userVote || market.status !== "open"} onClick={() => vote("yes")}>Sim</button>
+                <button disabled={submitting || market.userVote || market.status !== "open"} onClick={() => vote("no")}>Não</button>
+              </div>
+            )}
             {market.userVote && <div className="success">Você marcou {market.userVote === "yes" ? "SIM" : "NÃO"}.</div>}
             {message && <div className="success">{message}</div>}
             {error && <div className="error">{error}</div>}
             <div className="meter"><span style={{ width: `${market.voteBreakdown.yesPercent}%` }} /></div>
             <div className="percentRow"><span>Sim {market.voteBreakdown.yesPercent}%</span><span>Não {market.voteBreakdown.noPercent}%</span></div>
-            <p className="muted">{market.totalVotes} palpites no total</p>
+            <p className="muted">{market.totalVotes} {market.totalVotes === 1 ? "palpite" : "palpites"} no total</p>
             <div className="dataSignal">
               <span>{insight.label}</span>
               <strong>{insight.leadingPercent ? `${insight.leadingPercent}% em ${insight.leadingOption}` : "Aguardando leitura"}</strong>

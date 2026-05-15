@@ -1,6 +1,6 @@
 # FuteTrends
 
-FuteTrends is a full-stack MVP for a free points-based prediction game around Brazilian football signals.
+FuteTrends is a full-stack MVP for a free points-based prediction game and football narrative radar around Brazilian football signals.
 
 It is not a betting product: there are no odds, deposits, withdrawals, stakes, payouts, or real-money wagering.
 
@@ -74,16 +74,18 @@ Admin users can create, edit, delete, and resolve markets. Resolving a market di
 
 ## Football Data
 
-FuteTrends can use API-Football for live Brazilian football data while keeping the API key on the backend.
+FuteTrends uses API-Football for Brazilian football data while keeping the API key on the backend.
 
 Backend environment variables:
 
 - `APIFOOTBALL_API_KEY`: API-Football key from API-SPORTS.
-- `APIFOOTBALL_BRAZIL_LEAGUE_ID`: defaults to `71` for Brasileirão Série A.
+- `APIFOOTBALL_BRAZIL_LEAGUE_IDS`: optional comma-separated list. The app accepts only the supported target competitions: `71` Brasileirão Série A, `73` Copa do Brasil, and `13` Libertadores.
 - `APIFOOTBALL_SEASON`: defaults to the current year.
-- `APIFOOTBALL_CACHE_TTL_MS`: defaults to `60000`.
+- `APIFOOTBALL_CACHE_TTL_MS`: defaults to `300000` (5 minutes).
 
-If `APIFOOTBALL_API_KEY` is not configured, `/api/football/intelligence` returns demo Brazilian football intelligence data so the interface still works during development.
+The football radar prioritizes Flamengo, Vasco, Fluminense, Botafogo, Corinthians, Palmeiras, São Paulo, and Santos when choosing the most relevant Brazilian fixtures.
+
+If `APIFOOTBALL_API_KEY` is not configured, `/api/football/intelligence` returns a safe development fallback. Simulated matches are hidden from the public homepage so users do not confuse examples with real fixtures.
 
 ## Deployment
 
@@ -93,7 +95,7 @@ Create a Render Web Service from `backend`.
 
 - Build command: `npm install`
 - Start command: `npm start`
-- Environment variables: `MONGODB_URI`, `JWT_SECRET`, `JWT_EXPIRES_IN`, `CLIENT_ORIGIN`, optional `APIFOOTBALL_API_KEY`
+- Environment variables: `MONGODB_URI`, `JWT_SECRET`, `JWT_EXPIRES_IN`, `CLIENT_ORIGIN`, optional `APIFOOTBALL_API_KEY`, optional `APIFOOTBALL_CACHE_TTL_MS`
 
 After deployment, run the seed script once from a Render shell or locally against MongoDB Atlas.
 

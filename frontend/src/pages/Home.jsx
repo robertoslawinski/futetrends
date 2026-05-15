@@ -96,7 +96,7 @@ function NarrativeCard({ item }) {
   return (
     <article className="narrativeCard">
       <span>{item.category}</span>
-      <strong>{item.count} histórias no radar</strong>
+      <strong>{item.count} {item.count === 1 ? "história" : "histórias"} no radar</strong>
       <p>{item.votes ? `${item.votes} leituras da torcida` : "A conversa está começando a ganhar corpo."}</p>
     </article>
   );

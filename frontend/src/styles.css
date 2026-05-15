@@ -442,6 +442,16 @@ button:disabled { opacity: .55; cursor: not-allowed; }
 .facts dd { margin: 6px 0 0; color: var(--soft); }
 .split { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .split button { min-height: 54px; font-size: 1.1rem; }
+.authPrompt {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid rgba(59, 130, 246, .24);
+  background: rgba(59, 130, 246, .08);
+  border-radius: 8px;
+}
+.authPrompt p { margin: 0; color: var(--soft); line-height: 1.45; }
+.authPrompt .primaryLink { text-align: center; }
 .meter { height: 10px; background: rgba(255,255,255,.08); border-radius: 999px; overflow: hidden; margin-top: 18px; }
 .meter span { display: block; height: 100%; background: linear-gradient(90deg, var(--blue), var(--orange)); }
 .percentRow, .titleRow { display: flex; justify-content: space-between; gap: 12px; align-items: center; }

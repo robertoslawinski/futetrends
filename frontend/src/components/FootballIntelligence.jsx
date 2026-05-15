@@ -83,6 +83,33 @@ function pressureLabel(value) {
   return "Em observação";
 }
 
+function pressureTeam(match) {
+  if (match.home.winner === false) return match.home.name;
+  if (match.away.winner === false) return match.away.name;
+  return match.metrics.pressureIndex >= 70 ? match.home.name : null;
+}
+
+function narrativeForMatch(match) {
+  const redTotal = (match.redCards?.home || 0) + (match.redCards?.away || 0);
+  const target = pressureTeam(match);
+
+  if (match.mode === "live") {
+    if (redTotal) return "Cartão vermelho mudou o tom do jogo e aumentou a tensão da torcida.";
+    if (match.metrics.pressureIndex >= 70) return "Cada lance pesa: a pressão já está virando assunto da rodada.";
+    return "Jogo em aberto, com clima suficiente para mudar a conversa em tempo real.";
+  }
+
+  if (match.mode === "result") {
+    if (target) return `${target} sai pressionado; o resultado já muda a leitura da semana.`;
+    if (match.home.winner || match.away.winner) return "Vitória que dá fôlego e mexe no humor da torcida.";
+    return "Empate que deixa a discussão aberta e mantém a pressão viva.";
+  }
+
+  if (match.metrics.varImpact > 50) return "Partida com potencial de arbitragem virar personagem.";
+  if (match.metrics.fanHeat > 60) return "Pré-jogo quente: a torcida já está criando narrativa.";
+  return "Jogo em foco para medir pressão, momento e reação da torcida.";
+}
+
 function TeamLine({ team }) {
   return (
     <div className={styles.teamLine}>
@@ -93,8 +120,6 @@ function TeamLine({ team }) {
 }
 
 function LiveMatchCard({ match }) {
-  const redTotal = (match.redCards?.home || 0) + (match.redCards?.away || 0);
-
   return (
     <article className={styles.liveCard}>
       <div className={styles.cardTop}>
@@ -106,7 +131,7 @@ function LiveMatchCard({ match }) {
         <strong>{match.home.goals} - {match.away.goals}</strong>
         <TeamLine team={match.away} />
       </div>
-      <p>{pressureLabel(match.metrics.pressureIndex)}. {redTotal ? "Cartão vermelho mudou o tom do jogo." : "Cada lance pesa na conversa da torcida."}</p>
+      <p>{pressureLabel(match.metrics.pressureIndex)}. {narrativeForMatch(match)}</p>
       <small className={styles.location}>{matchLocation(match)}</small>
     </article>
   );
@@ -118,7 +143,7 @@ function ResultCard({ match }) {
     <article className={styles.sideCard}>
       <span>Resultado</span>
       <strong>{match.home.name} {match.home.goals} - {match.away.goals} {match.away.name}</strong>
-      <p>{matchLocation(match)}. {winner === "Empate" ? "O empate deixa a discussão em aberto." : `${winner} ganha fôlego; o outro lado acorda pressionado.`}</p>
+      <p>{matchLocation(match)}. {winner === "Empate" ? "O empate deixa a discussão em aberto." : narrativeForMatch(match)}</p>
     </article>
   );
 }
@@ -128,7 +153,7 @@ function FixtureCard({ match }) {
     <article className={styles.sideCard}>
       <span>{formatKickoff(match.date)}</span>
       <strong>{match.home.name} x {match.away.name}</strong>
-      <p>{matchLocation(match)}. {match.metrics.varImpact > 50 ? "Jogo com potencial de polêmica." : "Pré-jogo já começa a mover narrativas."}</p>
+      <p>{matchLocation(match)}. {narrativeForMatch(match)}</p>
     </article>
   );
 }
@@ -145,17 +170,17 @@ export default function FootballIntelligence() {
       });
   }, []);
 
-  if (!data) return <section className={styles.shell}><div className="notice">Carregando jogos da rodada...</div></section>;
+  if (!data) return <section className={styles.shell}><div className="notice">Carregando radar de jogos...</div></section>;
   const isDemo = data.summary.provider !== "api-football";
 
   return (
-    <section id="live-radar" className={styles.shell} aria-label="Jogos mudando narrativas ao vivo">
+    <section id="live-radar" className={styles.shell} aria-label="Radar de jogos em foco">
       <div className={styles.heading}>
         <div>
-          <span>Jogos ao vivo</span>
-          <h2>Jogos mudando narrativas ao vivo</h2>
+          <span>Radar de jogos</span>
+          <h2>Partidas que mexem com narrativas</h2>
         </div>
-        <p>{isDemo ? "Dados reais aguardando conexão com API-Football." : "Jogos atuais, resultados recentes e próximas partidas via API-Football."}</p>
+        <p>{isDemo ? "Dados reais aguardando conexão com API-Football." : "Brasileirão, Copa do Brasil e Libertadores com leitura de pressão, momento e torcida."}</p>
       </div>
 
       {isDemo ? (
@@ -168,7 +193,7 @@ export default function FootballIntelligence() {
         <>
           <div className={styles.liveGrid}>
             {data.liveMatches.length ? data.liveMatches.slice(0, 2).map((match) => <LiveMatchCard key={match.id} match={match} />) : (
-              <div className={styles.emptyCard}>Nenhum jogo ao vivo agora. Quando a bola rolar, o radar mostra o que está mudando.</div>
+              <div className={styles.emptyCard}>Nenhum jogo ao vivo agora. Abaixo ficam resultados recentes e próximos jogos com potencial de mexer nas narrativas.</div>
             )}
           </div>
 
@@ -182,7 +207,7 @@ export default function FootballIntelligence() {
               </div>
             </div>
             <div>
-              <h3>Próximos jogos</h3>
+              <h3>Próximos jogos em foco</h3>
               <div className={styles.stack}>
                 {data.upcomingFixtures.length ? data.upcomingFixtures.slice(0, 2).map((match) => <FixtureCard key={match.id} match={match} />) : (
                   <div className={styles.emptyCard}>Nenhum jogo futuro encontrado nas competições brasileiras conectadas. Assim que a API liberar a tabela, ele entra no radar.</div>
