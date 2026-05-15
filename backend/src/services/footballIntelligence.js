@@ -1,5 +1,8 @@
 const API_BASE_URL = "https://v3.football.api-sports.io";
 const DEFAULT_BRAZIL_LEAGUE_IDS = ["71", "72", "73", "11", "13"];
+const DOMESTIC_BRAZIL_LEAGUE_IDS = ["71", "72", "73"];
+const INTERNATIONAL_LEAGUE_IDS = ["11", "13"];
+const FINISHED_STATUS = new Set(["FT", "AET", "PEN"]);
 const CACHE_TTL_MS = Number(process.env.APIFOOTBALL_CACHE_TTL_MS || 300_000);
 const FOOTBALL_RADAR_VERSION = "football-radar-date-fallback-2026-05-15";
 
@@ -57,6 +60,53 @@ function isBrazilianFixture(fixture) {
   const country = fixture.league?.country || "";
   const teams = `${fixture.teams?.home?.name || ""} ${fixture.teams?.away?.name || ""}`;
   return country.toLowerCase() === "brazil" || /flamengo|palmeiras|corinthians|santos|vasco|fluminense|botafogo|são paulo|sao paulo|grêmio|gremio|internacional|cruzeiro|atlético mineiro|atletico mineiro|bahia|fortaleza|ceará|ceara|sport recife|vitória|vitoria|bragantino|athletico|coritiba|goiás|goias/i.test(teams);
+}
+
+function isFinishedFixture(fixture) {
+  return FINISHED_STATUS.has(fixture.fixture?.status?.short);
+}
+
+function normalizeText(value) {
+  return String(value || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+}
+
+function hasBrazilianMajorClub(fixture) {
+  const teams = normalizeText(`${fixture.teams?.home?.name || ""} ${fixture.teams?.away?.name || ""}`);
+  return [
+    "flamengo",
+    "palmeiras",
+    "corinthians",
+    "santos",
+    "vasco",
+    "fluminense",
+    "botafogo",
+    "sao paulo",
+    "gremio",
+    "internacional",
+    "cruzeiro",
+    "atletico mineiro",
+    "bahia",
+    "fortaleza",
+    "ceara",
+    "sport recife",
+    "vitoria",
+    "bragantino",
+    "athletico",
+    "coritiba",
+    "goias"
+  ].some((club) => teams.includes(club));
+}
+
+function isRelevantBrazilianFixture(fixture, leagueIds = DEFAULT_BRAZIL_LEAGUE_IDS) {
+  const leagueId = String(fixture.league?.id || "");
+  const country = normalizeText(fixture.league?.country);
+  if (DOMESTIC_BRAZIL_LEAGUE_IDS.includes(leagueId)) return true;
+  if (leagueIds.includes(leagueId) && country === "brazil") return true;
+  if (INTERNATIONAL_LEAGUE_IDS.includes(leagueId)) return hasBrazilianMajorClub(fixture);
+  return false;
 }
 
 function dedupeFixtures(fixtures) {
@@ -292,10 +342,10 @@ async function fetchFromApiFootball() {
   ]);
 
   const liveRaw = liveRawAll
-    .filter((fixture) => leagueIds.includes(String(fixture.league?.id)));
+    .filter((fixture) => isRelevantBrazilianFixture(fixture, leagueIds));
 
   let upcomingRaw = dedupeFixtures(upcomingWindowRaw)
-    .filter((fixture) => isFutureFixture(fixture, now))
+    .filter((fixture) => isFutureFixture(fixture, now) && isRelevantBrazilianFixture(fixture, leagueIds))
     .sort(sortByKickoffAsc);
 
   if (!upcomingRaw.length) {
@@ -305,25 +355,25 @@ async function fetchFromApiFootball() {
       next: 8
     })));
     upcomingRaw = dedupeFixtures(nextRaw)
-      .filter((fixture) => isFutureFixture(fixture, now))
+      .filter((fixture) => isFutureFixture(fixture, now) && isRelevantBrazilianFixture(fixture, leagueIds))
       .sort(sortByKickoffAsc);
   }
 
   if (!upcomingRaw.length) {
     const datedUpcomingRaw = await fixturesByDates(today, 10);
     upcomingRaw = dedupeFixtures(datedUpcomingRaw)
-      .filter((fixture) => isFutureFixture(fixture, now) && isBrazilianFixture(fixture))
+      .filter((fixture) => isFutureFixture(fixture, now) && isRelevantBrazilianFixture(fixture, leagueIds))
       .sort(sortByKickoffAsc);
   }
 
   let recentWindow = dedupeFixtures(recentRaw)
-    .filter((fixture) => isBetweenFixtureDates(fixture, recentStart, addDays(today, 1)))
+    .filter((fixture) => isFinishedFixture(fixture) && isBetweenFixtureDates(fixture, recentStart, addDays(today, 1)) && isRelevantBrazilianFixture(fixture, leagueIds))
     .sort(sortByKickoffDesc);
 
   if (!recentWindow.length) {
     const datedRecentRaw = await fixturesByDates(addDays(today, -5), 6);
     recentWindow = dedupeFixtures(datedRecentRaw)
-      .filter((fixture) => isBetweenFixtureDates(fixture, addDays(today, -5), addDays(today, 1)) && isBrazilianFixture(fixture))
+      .filter((fixture) => isFinishedFixture(fixture) && isBetweenFixtureDates(fixture, addDays(today, -5), addDays(today, 1)) && isRelevantBrazilianFixture(fixture, leagueIds))
       .sort(sortByKickoffDesc);
   }
 
