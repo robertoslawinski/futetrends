@@ -113,16 +113,21 @@ Create a Netlify site from `frontend`.
 
 - Build command: `npm run build`
 - Publish directory: `dist`
-- Environment variables: `VITE_API_URL`, optional `VITE_GA_MEASUREMENT_ID`
+- Environment variables: `VITE_API_URL`, optional `VITE_GA_MEASUREMENT_ID`, optional `VITE_META_PIXEL_ID`
 
 Point `futetrends.com` to Netlify and configure the canonical production URL.
 
 ## Analytics
 
-Set `VITE_GA_MEASUREMENT_ID` to enable Google Analytics events:
+Set `VITE_GA_MEASUREMENT_ID` to enable Google Analytics events. Set `VITE_META_PIXEL_ID` to enable Meta Pixel events.
 
 - `page_view`
 - `market_opened`
 - `vote_submitted`
 - `login_completed`
 - `sign_up_completed`
+
+Production Netlify variables:
+
+- `VITE_GA_MEASUREMENT_ID`: Google Analytics measurement ID, for example `G-XXXXXXXXXX`.
+- `VITE_META_PIXEL_ID`: Meta Pixel ID from Meta Events Manager.
