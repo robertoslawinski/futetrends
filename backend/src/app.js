@@ -9,6 +9,7 @@ import rankingRoutes from "./routes/ranking.js";
 import userRoutes from "./routes/users.js";
 import footballRoutes from "./routes/football.js";
 import { seedIfEmpty } from "./scripts/seedIfEmpty.js";
+import { upsertSeedMarkets } from "./scripts/upsertSeedMarkets.js";
 import { errorHandler, notFound } from "./middleware/errorHandler.js";
 
 const app = express();
@@ -47,6 +48,17 @@ app.post("/admin/seed", async (req, res, next) => {
     }
     const result = await seedIfEmpty();
     res.json({ message: "Seed checked", result });
+  } catch (err) {
+    next(err);
+  }
+});
+app.post("/admin/upsert-markets", async (req, res, next) => {
+  try {
+    if (!process.env.SEED_TOKEN || req.headers["x-seed-token"] !== process.env.SEED_TOKEN) {
+      return res.status(403).json({ message: "Forbidden" });
+    }
+    const result = await upsertSeedMarkets();
+    res.json({ message: "Markets upsert checked", result });
   } catch (err) {
     next(err);
   }
