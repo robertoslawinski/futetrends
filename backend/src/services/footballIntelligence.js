@@ -3,8 +3,18 @@ const TARGET_LEAGUE_IDS = ["71", "73", "13"];
 const DOMESTIC_BRAZIL_LEAGUE_IDS = ["71", "73"];
 const INTERNATIONAL_LEAGUE_IDS = ["13"];
 const FINISHED_STATUS = new Set(["FT", "AET", "PEN"]);
+const PRIORITY_CLUBS = [
+  "flamengo",
+  "vasco",
+  "fluminense",
+  "botafogo",
+  "corinthians",
+  "palmeiras",
+  "sao paulo",
+  "santos"
+];
 const CACHE_TTL_MS = Number(process.env.APIFOOTBALL_CACHE_TTL_MS || 300_000);
-const FOOTBALL_RADAR_VERSION = "football-radar-target-leagues-2026-05-15";
+const FOOTBALL_RADAR_VERSION = "football-radar-priority-clubs-2026-05-15";
 
 let cache = {
   expiresAt: 0,
@@ -76,7 +86,7 @@ function normalizeText(value) {
 
 function hasBrazilianMajorClub(fixture) {
   const teams = normalizeText(`${fixture.teams?.home?.name || ""} ${fixture.teams?.away?.name || ""}`);
-  return [
+  return [...PRIORITY_CLUBS,
     "flamengo",
     "palmeiras",
     "corinthians",
@@ -99,6 +109,29 @@ function hasBrazilianMajorClub(fixture) {
     "coritiba",
     "goias"
   ].some((club) => teams.includes(club));
+}
+
+function priorityClubCount(fixture) {
+  const teams = normalizeText(`${fixture.teams?.home?.name || ""} ${fixture.teams?.away?.name || ""}`);
+  return PRIORITY_CLUBS.reduce((total, club) => total + (teams.includes(club) ? 1 : 0), 0);
+}
+
+function fixtureImpactScore(fixture) {
+  const homeGoals = fixture.goals?.home ?? fixture.score?.fulltime?.home ?? 0;
+  const awayGoals = fixture.goals?.away ?? fixture.score?.fulltime?.away ?? 0;
+  const scoreGap = Math.abs(homeGoals - awayGoals);
+  const priorityBoost = priorityClubCount(fixture) * 100;
+  const derbyBoost = priorityClubCount(fixture) > 1 ? 45 : 0;
+  const knockoutBoost = /copa|libertadores/i.test(fixture.league?.name || "") ? 18 : 0;
+  return priorityBoost + derbyBoost + knockoutBoost + scoreGap * 9;
+}
+
+function sortByPriorityThenRecent(a, b) {
+  return fixtureImpactScore(b) - fixtureImpactScore(a) || sortByKickoffDesc(a, b);
+}
+
+function sortByPriorityThenUpcoming(a, b) {
+  return fixtureImpactScore(b) - fixtureImpactScore(a) || sortByKickoffAsc(a, b);
 }
 
 function isRelevantBrazilianFixture(fixture, leagueIds = TARGET_LEAGUE_IDS) {
@@ -347,7 +380,7 @@ async function fetchFromApiFootball() {
 
   let upcomingRaw = dedupeFixtures(upcomingWindowRaw)
     .filter((fixture) => isFutureFixture(fixture, now) && isRelevantBrazilianFixture(fixture, leagueIds))
-    .sort(sortByKickoffAsc);
+    .sort(sortByPriorityThenUpcoming);
 
   if (!upcomingRaw.length) {
     const nextRaw = await settledFixtures(leagueIds.map((league) => apiFootballFetch("/fixtures", {
@@ -357,25 +390,25 @@ async function fetchFromApiFootball() {
     })));
     upcomingRaw = dedupeFixtures(nextRaw)
       .filter((fixture) => isFutureFixture(fixture, now) && isRelevantBrazilianFixture(fixture, leagueIds))
-      .sort(sortByKickoffAsc);
+      .sort(sortByPriorityThenUpcoming);
   }
 
   if (!upcomingRaw.length) {
     const datedUpcomingRaw = await fixturesByDates(today, 10);
     upcomingRaw = dedupeFixtures(datedUpcomingRaw)
       .filter((fixture) => isFutureFixture(fixture, now) && isRelevantBrazilianFixture(fixture, leagueIds))
-      .sort(sortByKickoffAsc);
+      .sort(sortByPriorityThenUpcoming);
   }
 
   let recentWindow = dedupeFixtures(recentRaw)
     .filter((fixture) => isFinishedFixture(fixture) && isBetweenFixtureDates(fixture, recentStart, addDays(today, 1)) && isRelevantBrazilianFixture(fixture, leagueIds))
-    .sort(sortByKickoffDesc);
+    .sort(sortByPriorityThenRecent);
 
   if (!recentWindow.length) {
     const datedRecentRaw = await fixturesByDates(addDays(today, -5), 6);
     recentWindow = dedupeFixtures(datedRecentRaw)
       .filter((fixture) => isFinishedFixture(fixture) && isBetweenFixtureDates(fixture, addDays(today, -5), addDays(today, 1)) && isRelevantBrazilianFixture(fixture, leagueIds))
-      .sort(sortByKickoffDesc);
+      .sort(sortByPriorityThenRecent);
   }
 
   const [live, recent] = await Promise.all([
@@ -399,6 +432,7 @@ async function fetchFromApiFootball() {
       queryMode: {
         primary: "league-window",
         fallback: "date-window-brazil-filter",
+        priorityClubs: PRIORITY_CLUBS,
         cacheTtlMs: CACHE_TTL_MS
       }
     },
