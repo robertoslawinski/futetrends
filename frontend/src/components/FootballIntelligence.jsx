@@ -177,7 +177,7 @@ export default function FootballIntelligence() {
               <h3>Resultados recentes</h3>
               <div className={styles.stack}>
                 {data.recentResults.length ? data.recentResults.slice(0, 2).map((match) => <ResultCard key={match.id} match={match} />) : (
-                  <div className={styles.emptyCard}>Nenhum resultado recente encontrado para a competição configurada.</div>
+                  <div className={styles.emptyCard}>Nenhum resultado recente encontrado nas competições brasileiras conectadas.</div>
                 )}
               </div>
             </div>
@@ -185,7 +185,7 @@ export default function FootballIntelligence() {
               <h3>Próximos jogos</h3>
               <div className={styles.stack}>
                 {data.upcomingFixtures.length ? data.upcomingFixtures.slice(0, 2).map((match) => <FixtureCard key={match.id} match={match} />) : (
-                  <div className={styles.emptyCard}>Nenhum jogo futuro encontrado na janela atual. Assim que a tabela aparecer na API, ele entra no radar.</div>
+                  <div className={styles.emptyCard}>Nenhum jogo futuro encontrado nas competições brasileiras conectadas. Assim que a API liberar a tabela, ele entra no radar.</div>
                 )}
               </div>
             </div>
