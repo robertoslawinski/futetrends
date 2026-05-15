@@ -1,10 +1,10 @@
 const API_BASE_URL = "https://v3.football.api-sports.io";
-const DEFAULT_BRAZIL_LEAGUE_IDS = ["71", "72", "73", "11", "13"];
-const DOMESTIC_BRAZIL_LEAGUE_IDS = ["71", "72", "73"];
-const INTERNATIONAL_LEAGUE_IDS = ["11", "13"];
+const TARGET_LEAGUE_IDS = ["71", "73", "13"];
+const DOMESTIC_BRAZIL_LEAGUE_IDS = ["71", "73"];
+const INTERNATIONAL_LEAGUE_IDS = ["13"];
 const FINISHED_STATUS = new Set(["FT", "AET", "PEN"]);
 const CACHE_TTL_MS = Number(process.env.APIFOOTBALL_CACHE_TTL_MS || 300_000);
-const FOOTBALL_RADAR_VERSION = "football-radar-date-fallback-2026-05-15";
+const FOOTBALL_RADAR_VERSION = "football-radar-target-leagues-2026-05-15";
 
 let cache = {
   expiresAt: 0,
@@ -19,8 +19,9 @@ function addDays(date, days) {
 
 function brazilLeagueIds() {
   const raw = process.env.APIFOOTBALL_BRAZIL_LEAGUE_IDS;
-  if (!raw) return DEFAULT_BRAZIL_LEAGUE_IDS;
-  return raw.split(",").map((item) => item.trim()).filter(Boolean);
+  if (!raw) return TARGET_LEAGUE_IDS;
+  const requestedIds = raw.split(",").map((item) => item.trim()).filter(Boolean);
+  return requestedIds.filter((id) => TARGET_LEAGUE_IDS.includes(id));
 }
 
 function isoDate(date) {
@@ -100,7 +101,7 @@ function hasBrazilianMajorClub(fixture) {
   ].some((club) => teams.includes(club));
 }
 
-function isRelevantBrazilianFixture(fixture, leagueIds = DEFAULT_BRAZIL_LEAGUE_IDS) {
+function isRelevantBrazilianFixture(fixture, leagueIds = TARGET_LEAGUE_IDS) {
   const leagueId = String(fixture.league?.id || "");
   const country = normalizeText(fixture.league?.country);
   if (DOMESTIC_BRAZIL_LEAGUE_IDS.includes(leagueId)) return true;
