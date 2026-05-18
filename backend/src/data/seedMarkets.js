@@ -124,5 +124,32 @@ export const seedMarkets = [
     resolutionSource: "Lista oficial da CBF divulgada em 18 de maio de 2026",
     resolutionCriteria: "Resolver SIM se pelo menos três jogadores convocados estiverem registrados em clubes brasileiros na data da convocação. Com dois ou menos, resolver NÃO.",
     pointsValue: 150
+  },
+  {
+    title: "Vasco terá reação pública após goleada para o Internacional?",
+    description: "Depois do 4 x 1 em Porto Alegre, a pergunta é se o clube vai transformar a pressão em fala pública, cobrança ou gesto institucional.",
+    category: "Pressão nos clubes",
+    deadline: "2026-05-24T23:59:00.000Z",
+    resolutionSource: "Site oficial do Vasco, entrevistas coletivas, ge, Globo Esporte, ESPN ou UOL Esporte com fala identificada",
+    resolutionCriteria: "Resolver SIM se técnico, dirigente ou jogador do Vasco reconhecer publicamente pressão, crise, cobrança, protesto ou necessidade de resposta até 24/05/2026. Se não houver fala pública ou registro de protesto por fonte nacional até o prazo, resolver NÃO.",
+    pointsValue: 155
+  },
+  {
+    title: "Fluminense sustentará o embalo depois da vitória sobre o São Paulo?",
+    description: "Vitória em jogo grande muda humor, mas o radar mede se o fôlego vira sequência ou só alívio momentâneo.",
+    category: "Momento do clube",
+    deadline: "2026-05-24T23:59:00.000Z",
+    resolutionSource: "Súmula oficial da CBF ou CONMEBOL do próximo jogo oficial do Fluminense",
+    resolutionCriteria: "Resolver SIM se o Fluminense vencer ou empatar seu próximo jogo oficial após o 2 x 1 sobre o São Paulo. Derrota resolve NÃO.",
+    pointsValue: 125
+  },
+  {
+    title: "Flamengo ou Botafogo terão crise pública após tropeços na Copa do Brasil?",
+    description: "Duas derrotas fortes no mata-mata aumentam o barulho: o mercado mede se a cobrança vira crise explícita.",
+    category: "Bastidores",
+    deadline: "2026-05-25T23:59:00.000Z",
+    resolutionSource: "Sites oficiais dos clubes, entrevistas coletivas, ge, Globo Esporte, ESPN, UOL Esporte ou nota de organizada confirmada por veículo nacional",
+    resolutionCriteria: "Resolver SIM se Flamengo ou Botafogo tiverem nota oficial, entrevista de dirigente/técnico/jogador ou protesto de torcida reconhecendo crise, cobrança ou pressão ligada aos tropeços da Copa do Brasil até 25/05/2026. Se nenhum dos dois tiver esse registro, resolver NÃO.",
+    pointsValue: 165
   }
 ];

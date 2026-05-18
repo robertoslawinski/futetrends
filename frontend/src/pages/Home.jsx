@@ -12,6 +12,33 @@ function normalize(text = "") {
   return text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
 }
 
+const weekendPulse = [
+  {
+    label: "Brasileirão",
+    title: "Inter 4 x 1 Vasco",
+    text: "Goleada em Porto Alegre coloca o Vasco no centro da pressão da semana.",
+    tone: "danger"
+  },
+  {
+    label: "Brasileirão",
+    title: "Fluminense 2 x 1 São Paulo",
+    text: "O Flu ganha fôlego; o São Paulo volta para casa com cobrança por resposta.",
+    tone: "up"
+  },
+  {
+    label: "Copa do Brasil",
+    title: "Vitória 2 x 0 Flamengo",
+    text: "Eliminação rubro-negra abre espaço para crise, cobrança e bastidor quente.",
+    tone: "danger"
+  },
+  {
+    label: "Copa do Brasil",
+    title: "Chapecoense 2 x 0 Botafogo",
+    text: "Queda em mata-mata aumenta o ruído e mexe com o humor alvinegro.",
+    tone: "warning"
+  }
+];
+
 function hasTerm(market, terms) {
   const text = normalize(`${market.title} ${market.description} ${market.category}`);
   return terms.some((term) => text.includes(normalize(term)));
@@ -98,6 +125,16 @@ function NarrativeCard({ item }) {
       <span>{item.category}</span>
       <strong>{item.count} {item.count === 1 ? "história" : "histórias"} no radar</strong>
       <p>{item.votes ? `${item.votes} leituras da torcida` : "A conversa está começando a ganhar corpo."}</p>
+    </article>
+  );
+}
+
+function WeekendPulseCard({ item }) {
+  return (
+    <article className={`weekendPulseCard ${item.tone}`}>
+      <span>{item.label}</span>
+      <strong>{item.title}</strong>
+      <p>{item.text}</p>
     </article>
   );
 }
@@ -190,6 +227,16 @@ export default function Home() {
 
       <Section id="trending" eyebrow="Explodindo agora" title="A história que pode dominar a rodada">
         {loading ? <div className="notice">Carregando narrativas...</div> : <FeaturedNarrative market={featuredMarket} />}
+      </Section>
+
+      <Section
+        eyebrow="Fim de semana"
+        title="O que mudou no radar"
+        description="Resultados recentes que já viraram pressão, fôlego ou assunto de torcida."
+      >
+        <div className="weekendPulseGrid">
+          {weekendPulse.map((item) => <WeekendPulseCard key={item.title} item={item} />)}
+        </div>
       </Section>
 
       <Section
