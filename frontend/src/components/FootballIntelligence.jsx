@@ -172,6 +172,9 @@ export default function FootballIntelligence() {
 
   if (!data) return <section className={styles.shell}><div className="notice">Carregando radar de jogos...</div></section>;
   const isDemo = data.summary.provider !== "api-football";
+  const hasMatches = data.liveMatches.length || data.recentResults.length || data.upcomingFixtures.length;
+
+  if (!isDemo && !hasMatches) return null;
 
   return (
     <section id="live-radar" className={styles.shell} aria-label="Radar de jogos em foco">
