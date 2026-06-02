@@ -4,80 +4,6 @@ import { api, errorMessage } from "../api/client.js";
 import FootballIntelligence from "../components/FootballIntelligence.jsx";
 import MarketCard from "../components/MarketCard.jsx";
 
-const pressureTerms = ["pressão", "tecnico", "técnico", "demitido", "crise", "arbitragem", "var"];
-const hotCategories = ["Próxima rodada", "Pressão nos clubes", "Arbitragem e VAR", "Seleção Brasileira", "Bastidores"];
-const clubNames = ["Flamengo", "Palmeiras", "Corinthians", "Santos", "Botafogo", "Fluminense", "Vasco", "São Paulo", "Bahia", "Cruzeiro", "Grêmio", "Internacional", "Atlético-MG"];
-
-function normalize(text = "") {
-  return text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
-}
-
-const weekendPulse = [
-  {
-    label: "Brasileirão",
-    title: "Inter 4 x 1 Vasco",
-    text: "Goleada em Porto Alegre coloca o Vasco no centro da pressão da semana.",
-    tone: "danger"
-  },
-  {
-    label: "Brasileirão",
-    title: "Fluminense 2 x 1 São Paulo",
-    text: "O Flu ganha fôlego; o São Paulo volta para casa com cobrança por resposta.",
-    tone: "up"
-  },
-  {
-    label: "Copa do Brasil",
-    title: "Vitória 2 x 0 Flamengo",
-    text: "Eliminação rubro-negra abre espaço para crise, cobrança e bastidor quente.",
-    tone: "danger"
-  },
-  {
-    label: "Copa do Brasil",
-    title: "Chapecoense 2 x 0 Botafogo",
-    text: "Queda em mata-mata aumenta o ruído e mexe com o humor alvinegro.",
-    tone: "warning"
-  }
-];
-
-function hasTerm(market, terms) {
-  const text = normalize(`${market.title} ${market.description} ${market.category}`);
-  return terms.some((term) => text.includes(normalize(term)));
-}
-
-function shortText(text = "", size = 112) {
-  return text.length > size ? `${text.slice(0, size)}...` : text;
-}
-
-function humanHook(market) {
-  const text = normalize(`${market.title} ${market.description}`);
-  if (text.includes("corinthians")) return "Se tropeçar de novo, a cobrança vira crise aberta.";
-  if (text.includes("flamengo")) return "Qualquer oscilação vira manchete nacional em minutos.";
-  if (text.includes("palmeiras")) return "O time que todos perseguem também vira termômetro da rodada.";
-  if (text.includes("var") || text.includes("arbitragem")) return "Um lance polêmico pode dominar a conversa até segunda.";
-  if (text.includes("tecnico") || text.includes("pressao")) return "A próxima partida pode mudar o clima interno do clube.";
-  if (text.includes("selecao")) return "A lista pode criar novos heróis e novas cobranças.";
-  return shortText(market.description, 118);
-}
-
-function getClubSignals(markets) {
-  const signals = clubNames.map((club) => {
-    const related = markets.filter((market) => normalize(`${market.title} ${market.description}`).includes(normalize(club)));
-    return {
-      club,
-      count: related.length,
-      pressure: related.filter((market) => hasTerm(market, pressureTerms)).length,
-      score: related.length * 12 + related.reduce((sum, market) => sum + (market.totalVotes || 0), 0)
-    };
-  }).filter((item) => item.count > 0).sort((a, b) => b.score - a.score);
-
-  if (signals.length >= 3) return signals.slice(0, 3);
-  return [
-    { club: "Flamengo", count: 2, pressure: 0, score: 74 },
-    { club: "Corinthians", count: 2, pressure: 2, score: 68 },
-    { club: "Palmeiras", count: 2, pressure: 0, score: 66 }
-  ];
-}
-
 function Section({ id, eyebrow, title, description, children }) {
   return (
     <section id={id} className="homeSection">
@@ -93,51 +19,39 @@ function Section({ id, eyebrow, title, description, children }) {
   );
 }
 
-function FeaturedNarrative({ market }) {
-  if (!market) return <div className="empty">Carregando principal narrativa...</div>;
+function FeaturedMarket({ market }) {
+  if (!market) return <div className="empty">Nenhum palpite em destaque agora.</div>;
 
   return (
     <Link to={`/markets/${market._id}`} className="featuredNarrative">
       <span>{market.category}</span>
       <h3>{market.title}</h3>
-      <p>{humanHook(market)}</p>
+      <p>{market.description}</p>
       <footer>
-        <strong>História em formação</strong>
-        <small>Fecha {new Date(market.deadline).toLocaleDateString("pt-BR", { day: "2-digit", month: "short" })}</small>
+        <strong>Dar meu palpite</strong>
+        <small>Vale {market.pointsValue} pontos</small>
       </footer>
     </Link>
   );
 }
 
-function PressureCard({ market }) {
-  return (
-    <Link to={`/markets/${market._id}`} className="pressureCard">
-      <span>{market.category}</span>
-      <h3>{market.title}</h3>
-      <p>{humanHook(market)}</p>
-    </Link>
-  );
-}
-
-function NarrativeCard({ item }) {
-  return (
-    <article className="narrativeCard">
-      <span>{item.category}</span>
-      <strong>{item.count} {item.count === 1 ? "história" : "histórias"} no radar</strong>
-      <p>{item.votes ? `${item.votes} leituras da torcida` : "A conversa está começando a ganhar corpo."}</p>
-    </article>
-  );
-}
-
-function WeekendPulseCard({ item }) {
-  return (
-    <article className={`weekendPulseCard ${item.tone}`}>
-      <span>{item.label}</span>
-      <strong>{item.title}</strong>
-      <p>{item.text}</p>
-    </article>
-  );
-}
+const steps = [
+  {
+    number: "01",
+    title: "Escolha uma pergunta",
+    text: "Veja os sinais abertos sobre jogos, clubes, arbitragem e Seleção."
+  },
+  {
+    number: "02",
+    title: "Vote SIM ou NÃO",
+    text: "Registre sua leitura antes do prazo. Não existe dinheiro envolvido."
+  },
+  {
+    number: "03",
+    title: "Acerte e ganhe pontos",
+    text: "Quando o fato acontece, os melhores leitores sobem no ranking."
+  }
+];
 
 export default function Home() {
   const [markets, setMarkets] = useState([]);
@@ -145,6 +59,7 @@ export default function Home() {
   const [status, setStatus] = useState("");
   const [category, setCategory] = useState("");
   const [search, setSearch] = useState("");
+  const [showAll, setShowAll] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -160,28 +75,12 @@ export default function Home() {
       .finally(() => setLoading(false));
   }, [status, category]);
 
-  const trendingNow = useMemo(() => {
-    return markets
-      .filter((market) => hotCategories.includes(market.category) || (market.totalVotes || 0) > 0)
-      .sort((a, b) => ((b.totalVotes || 0) + b.pointsValue) - ((a.totalVotes || 0) + a.pointsValue))
-      .slice(0, 4);
-  }, [markets]);
+  const openMarkets = useMemo(() => markets.filter((market) => market.status === "open"), [markets]);
 
-  const pressureMarkets = useMemo(() => (
-    markets.filter((market) => hasTerm(market, pressureTerms)).slice(0, 3)
-  ), [markets]);
-
-  const hotNarratives = useMemo(() => {
-    const categoryCounts = categories.map((item) => ({
-      category: item,
-      count: markets.filter((market) => market.category === item).length,
-      votes: markets.filter((market) => market.category === item).reduce((sum, market) => sum + (market.totalVotes || 0), 0)
-    })).sort((a, b) => (b.count + b.votes) - (a.count + a.votes));
-
-    return categoryCounts.slice(0, 6);
-  }, [categories, markets]);
-
-  const clubSignals = useMemo(() => getClubSignals(markets), [markets]);
+  const featuredMarket = useMemo(() => (
+    [...openMarkets].sort((a, b) => ((b.totalVotes || 0) + b.pointsValue) - ((a.totalVotes || 0) + a.pointsValue))[0]
+      || markets[0]
+  ), [markets, openMarkets]);
 
   const visibleMarkets = useMemo(() => {
     const term = search.trim().toLowerCase();
@@ -189,89 +88,66 @@ export default function Home() {
     return markets.filter((market) => [
       market.title,
       market.description,
-      market.category,
-      market.resolutionSource,
-      market.resolutionCriteria
+      market.category
     ].some((value) => value?.toLowerCase().includes(term)));
   }, [markets, search]);
 
-  const featuredMarket = trendingNow[0] || markets[0];
   const hasActiveFilters = Boolean(search || status || category);
+  const displayedMarkets = showAll || hasActiveFilters ? visibleMarkets : visibleMarkets.slice(0, 6);
 
   function clearFilters() {
     setSearch("");
     setStatus("");
     setCategory("");
+    setShowAll(false);
   }
 
   return (
     <div className="page editorialHome">
-      <section className="intelHero editorialHero">
+      <section className="intelHero editorialHero simplifiedHero">
         <div className="heroCopy">
-          <span className="livePill"><i /> Radar vivo do futebol brasileiro</span>
-          <h1>Veja quais histórias vão explodir no futebol antes de todo mundo.</h1>
-          <p>Pressão, crises, arbitragem, torcida e narrativas monitoradas em tempo real.</p>
+          <span className="livePill"><i /> Palpites com pontos. Sem apostas.</span>
+          <h1>Preveja o que vai marcar o futebol brasileiro.</h1>
+          <p>Responda SIM ou NÃO antes do fato acontecer. Acerte previsões sobre clubes, jogos e bastidores para subir no ranking.</p>
           <div className="heroActions">
-            <a href="#live-radar" className="primaryLink">Ver radar ao vivo</a>
-            <a href="#trending" className="secondaryLink">Explorar narrativas</a>
+            <a href="#markets" className="primaryLink">Começar a palpitar</a>
+            <a href="#how-it-works" className="secondaryLink">Como funciona</a>
           </div>
         </div>
-        <aside className="heroFocus" aria-label="Sinal principal">
-          <span>Agora no radar</span>
-          <strong>{clubSignals[0]?.club || "Flamengo"} em alerta</strong>
-          <p>{clubSignals[0]?.pressure ? "A pressão está subindo e pode virar pauta da rodada." : "A narrativa está ganhando força antes do próximo jogo."}</p>
+        <aside className="conceptCard" aria-label="Resumo do jogo">
+          <span>FuteTrends em uma frase</span>
+          <strong>Quem lê melhor o futebol soma mais pontos.</strong>
+          <p>Você não aposta dinheiro. Você testa sua leitura contra fatos reais e compara seu desempenho com outros torcedores.</p>
         </aside>
       </section>
 
       {error && <div className="error">{error}</div>}
 
-      <Section id="trending" eyebrow="Explodindo agora" title="A história que pode dominar a rodada">
-        {loading ? <div className="notice">Carregando narrativas...</div> : <FeaturedNarrative market={featuredMarket} />}
-      </Section>
+      <section id="how-it-works" className="howGrid" aria-label="Como funciona">
+        {steps.map((step) => (
+          <article className="howCard" key={step.number}>
+            <span>{step.number}</span>
+            <strong>{step.title}</strong>
+            <p>{step.text}</p>
+          </article>
+        ))}
+      </section>
 
       <Section
-        eyebrow="Fim de semana"
-        title="O que mudou no radar"
-        description="Resultados recentes que já viraram pressão, fôlego ou assunto de torcida."
+        eyebrow="Destaque"
+        title="Um palpite para começar"
+        description="Escolha um lado antes do prazo e acompanhe a leitura da torcida."
       >
-        <div className="weekendPulseGrid">
-          {weekendPulse.map((item) => <WeekendPulseCard key={item.title} item={item} />)}
-        </div>
-      </Section>
-
-      <Section
-        eyebrow="Pressão"
-        title="Clubes sob pressão"
-        description="Três situações que podem virar crise, cobrança ou manchete."
-      >
-        <div className="pressureGrid">
-          {(pressureMarkets.length ? pressureMarkets : trendingNow.slice(1, 4)).map((market) => <PressureCard key={market._id} market={market} />)}
-        </div>
-      </Section>
-
-      <FootballIntelligence />
-
-      <Section
-        eyebrow="Semana"
-        title="Narrativas da semana"
-        description="Os temas que estão formando o clima do futebol brasileiro."
-      >
-        <div className="narrativeGrid">
-          {(hotNarratives.length ? hotNarratives : [
-            { category: "Arbitragem e VAR", count: 3, votes: 0 },
-            { category: "Pressão nos clubes", count: 3, votes: 0 },
-            { category: "Seleção Brasileira", count: 2, votes: 0 }
-          ]).map((item) => <NarrativeCard key={item.category} item={item} />)}
-        </div>
+        {loading ? <div className="notice">Carregando palpite...</div> : <FeaturedMarket market={featuredMarket} />}
       </Section>
 
       <section id="markets" className="homeSection">
         <div className="sectionIntro">
           <div>
             <span className="sectionKicker">Mercados</span>
-            <h2>Todos os sinais</h2>
+            <h2>Faça sua previsão</h2>
           </div>
-          {!loading && <p>{visibleMarkets.length} mercados encontrados</p>}
+          {!loading && <p>{openMarkets.length} perguntas abertas para testar sua leitura.</p>}
         </div>
 
         <section className="toolbar intelligenceToolbar">
@@ -295,10 +171,19 @@ export default function Home() {
           {hasActiveFilters && <button onClick={clearFilters}>Limpar</button>}
         </section>
 
-        {loading ? <div className="notice">Carregando mercados...</div> : visibleMarkets.length ? (
-          <section className="gridCards">{visibleMarkets.map((market) => <MarketCard key={market._id} market={market} />)}</section>
+        {loading ? <div className="notice">Carregando mercados...</div> : displayedMarkets.length ? (
+          <>
+            <section className="gridCards">{displayedMarkets.map((market) => <MarketCard key={market._id} market={market} />)}</section>
+            {!showAll && !hasActiveFilters && visibleMarkets.length > 6 && (
+              <div className="marketsActions">
+                <button className="showMoreButton" onClick={() => setShowAll(true)}>Ver todos os mercados</button>
+              </div>
+            )}
+          </>
         ) : <div className="empty">Nenhum mercado combina com essa busca.</div>}
       </section>
+
+      <FootballIntelligence />
     </div>
   );
 }
