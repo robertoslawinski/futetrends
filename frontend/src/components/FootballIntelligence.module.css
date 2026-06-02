@@ -31,9 +31,9 @@
 }
 .liveCard, .sideCard, .emptyCard, .setupCard {
   border: 1px solid var(--border);
-  background: rgba(17, 24, 39, .76);
+  background: rgba(255, 255, 255, .92);
   border-radius: 18px;
-  box-shadow: 0 18px 54px rgba(0, 0, 0, .18);
+  box-shadow: 0 18px 44px rgba(15, 58, 117, .09);
 }
 .setupCard {
   display: grid;
@@ -42,7 +42,7 @@
   border-color: rgba(59, 130, 246, .22);
   background:
     radial-gradient(circle at 88% 20%, rgba(59, 130, 246, .14), transparent 34%),
-    rgba(17, 24, 39, .76);
+    rgba(255, 255, 255, .94);
 }
 .setupCard span {
   color: var(--blue);
@@ -65,8 +65,8 @@
 }
 .liveCard:hover, .sideCard:hover {
   transform: translateY(-2px);
-  border-color: rgba(59, 130, 246, .32);
-  background: rgba(17, 24, 39, .9);
+  border-color: rgba(7, 91, 181, .28);
+  background: #ffffff;
 }
 .cardTop {
   display: flex;
@@ -82,7 +82,7 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  color: #bfdbfe;
+  color: #075bb5;
   font-weight: 800;
 }
 .livePill i {
@@ -137,7 +137,7 @@
 .location {
   display: block;
   margin-top: 8px;
-  color: #8fb5d6;
+  color: #405a78;
   font-weight: 700;
 }
 .contextGrid {

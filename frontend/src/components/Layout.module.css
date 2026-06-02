@@ -7,20 +7,20 @@
   align-items: center;
   gap: 24px;
   padding: 14px clamp(16px, 4vw, 48px);
-  background: rgba(5, 11, 18, 0.9);
+  background: rgba(4, 48, 105, .96);
   backdrop-filter: blur(16px);
   border-bottom: 1px solid var(--border);
 }
 .brand { display: inline-flex; align-items: center; color: var(--text); overflow: hidden; border-radius: 8px; }
 .brand img { display: block; width: 292px; height: 74px; object-fit: contain; object-position: left center; }
 .nav { display: flex; align-items: center; gap: 16px; flex: 1; flex-wrap: wrap; }
-.nav a, .actions a, .footer a { color: var(--muted); font-weight: 750; font-size: .92rem; }
-.nav a[class*="active"], .actions a[class*="active"], .footer a:hover, .nav a:hover { color: var(--text); }
+.nav a, .actions a, .footer a { color: rgba(255, 255, 255, .72); font-weight: 750; font-size: .92rem; }
+.nav a[class*="active"], .actions a[class*="active"], .footer a:hover, .nav a:hover { color: #ffffff; }
 .actions { display: flex; align-items: center; gap: 10px; }
 .actions button, .cta {
-  border: 1px solid rgba(56, 189, 248, .42);
-  background: rgba(56, 189, 248, .08);
-  color: var(--text);
+  border: 1px solid rgba(245, 183, 0, .72);
+  background: #f5b700;
+  color: #102542;
   padding: 9px 12px;
   border-radius: 8px;
   font-weight: 800;
@@ -33,9 +33,9 @@
   gap: 18px;
   align-items: center;
   padding: 28px clamp(16px, 4vw, 48px);
-  background: rgba(5, 11, 18, .92);
+  background: #043069;
   border-top: 1px solid var(--border);
-  color: var(--muted);
+  color: rgba(255, 255, 255, .72);
   flex-wrap: wrap;
 }
 .footer img { display: block; width: 220px; height: 54px; object-fit: contain; object-position: left center; margin-right: auto; border-radius: 8px; }
