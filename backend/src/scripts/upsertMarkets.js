@@ -7,7 +7,7 @@ dotenv.config();
 
 try {
   await connectDB();
-  const result = await upsertSeedMarkets();
+  const result = await upsertSeedMarkets({ replace: process.env.REPLACE_SEED_MARKETS === "true" });
   console.log("Market upsert complete:", result);
 } catch (err) {
   console.error("Market upsert failed", err);

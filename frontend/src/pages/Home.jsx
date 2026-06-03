@@ -196,9 +196,9 @@ export default function Home() {
     <div className="page saasHome">
       <section className="saasHero">
         <div className="heroCopy">
-          <span className="heroEyebrow">Previsões coletivas sobre futebol brasileiro</span>
-          <h1>Quem entende mais de futebol brasileiro?</h1>
-          <p>Responda SIM ou NÃO, ganhe pontos pelos acertos e prove sua leitura no ranking.</p>
+          <span className="heroEyebrow">Modo Copa do Mundo 2026</span>
+          <h1>Quem entende melhor a Copa antes da bola rolar?</h1>
+          <p>Responda SIM ou NÃO sobre Brasil, Grupo C e mata-mata. Acerte previsões e prove sua leitura no ranking.</p>
           <div className="heroActions">
             <a href="#markets" className="primaryLink">Começar a prever</a>
             <a href="#how-it-works" className="secondaryLink">Como funciona</a>
@@ -231,6 +231,21 @@ export default function Home() {
         </aside>
       </section>
 
+      <section className="worldCupBrief" aria-label="Contexto da Copa do Mundo 2026">
+        <div>
+          <span>Grupo C</span>
+          <strong>Brasil, Marrocos, Haiti e Escócia</strong>
+        </div>
+        <div>
+          <span>Primeiro foco</span>
+          <strong>Brasil x Marrocos</strong>
+        </div>
+        <div>
+          <span>Mercados novos</span>
+          <strong>{numberLabel(openMarkets.length)} previsões abertas</strong>
+        </div>
+      </section>
+
       {error && <div className="error">{error}</div>}
 
       <section className="proofStrip" aria-label="Números da comunidade">
@@ -255,8 +270,8 @@ export default function Home() {
       <Section
         id="how-it-works"
         eyebrow="Como funciona"
-        title="Sua leitura vale pontos."
-        description="Um jogo simples de previsão para descobrir quem enxerga o futebol antes dos outros."
+        title="Sua leitura da Copa vale pontos."
+        description="Um jogo simples de previsão para descobrir quem enxerga a Seleção e os rivais antes dos outros."
       >
         <div className="stepsGrid">
           {steps.map((step) => (
@@ -283,9 +298,9 @@ export default function Home() {
         <div className="sectionIntro">
           <div>
             <span className="sectionKicker">Mercados abertos</span>
-            <h2>Faça sua próxima previsão.</h2>
+            <h2>Faça sua próxima previsão da Copa.</h2>
           </div>
-          <p>Perguntas objetivas sobre partidas, clubes, técnicos e bastidores do futebol brasileiro.</p>
+          <p>Perguntas objetivas sobre Brasil, Grupo C, jogadores, arbitragem e caminho até o título.</p>
         </div>
 
         <div className="toolbar">

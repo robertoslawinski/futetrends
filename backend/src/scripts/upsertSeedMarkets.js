@@ -22,13 +22,14 @@ async function getAdminUser() {
   });
 }
 
-export async function upsertSeedMarkets() {
+export async function upsertSeedMarkets({ replace = false } = {}) {
   const admin = await getAdminUser();
   if (!admin) {
     return { upserted: false, reason: "missing_admin_user_or_admin_password" };
   }
 
-  const result = { created: 0, updated: 0, skipped: 0 };
+  const result = { created: 0, updated: 0, skipped: 0, staleDeleted: 0, staleKept: 0 };
+  const seedTitles = new Set(seedMarkets.map((market) => market.title));
 
   for (const market of seedMarkets) {
     const existing = await Prediction.findOne({ title: market.title });
@@ -58,5 +59,23 @@ export async function upsertSeedMarkets() {
     result.updated += 1;
   }
 
-  return { upserted: true, ...result };
+  if (replace) {
+    const staleMarkets = await Prediction.find({
+      title: { $nin: [...seedTitles] },
+      status: { $ne: "resolved" }
+    });
+
+    for (const staleMarket of staleMarkets) {
+      const voteCount = await Vote.countDocuments({ predictionId: staleMarket._id });
+      if (voteCount > 0) {
+        result.staleKept += 1;
+        continue;
+      }
+
+      await staleMarket.deleteOne();
+      result.staleDeleted += 1;
+    }
+  }
+
+  return { upserted: true, replaced: replace, ...result };
 }

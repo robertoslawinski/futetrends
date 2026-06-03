@@ -57,7 +57,8 @@ app.post("/admin/upsert-markets", async (req, res, next) => {
     if (!process.env.SEED_TOKEN || req.headers["x-seed-token"] !== process.env.SEED_TOKEN) {
       return res.status(403).json({ message: "Forbidden" });
     }
-    const result = await upsertSeedMarkets();
+    const replace = req.query.replace === "true" || req.body?.replace === true;
+    const result = await upsertSeedMarkets({ replace });
     res.json({ message: "Markets upsert checked", result });
   } catch (err) {
     next(err);
