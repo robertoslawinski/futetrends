@@ -1,11 +1,13 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { errorMessage } from "../api/client.js";
 import { useAuth } from "../context/AuthContext.jsx";
 
 export default function Login() {
   const { login } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const returnTo = location.state?.returnTo?.startsWith("/markets/") ? location.state.returnTo : "/dashboard";
   const [form, setForm] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
 
@@ -13,13 +15,13 @@ export default function Login() {
     event.preventDefault();
     try {
       await login(form);
-      navigate("/dashboard");
+      navigate(returnTo, { replace: true, state: { choice: location.state?.choice } });
     } catch (err) {
       setError(errorMessage(err));
     }
   }
 
-  return <AuthForm title="Entrar" form={form} setForm={setForm} submit={submit} error={error} button="Entrar no painel" footer={<Link to="/signup">Criar uma conta</Link>} />;
+  return <AuthForm title="Entrar" form={form} setForm={setForm} submit={submit} error={error} button="Entrar" footer={<Link to="/signup" state={location.state}>Criar uma conta</Link>} />;
 }
 
 function AuthForm({ title, form, setForm, submit, error, button, footer, signup }) {

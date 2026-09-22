@@ -18,8 +18,8 @@ export function getMarketInsight(market) {
 
   if (gap <= 12) {
     return {
-      label: "Mercado dividido",
-      detail: "A torcida está rachada. Bom mercado para testar leitura própria.",
+      label: "Palpites divididos",
+      detail: "A torcida está dividida. Hora de mostrar sua opinião.",
       leadingOption,
       leadingPercent,
       tone: "split"

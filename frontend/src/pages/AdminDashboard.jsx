@@ -14,23 +14,23 @@ export default function AdminDashboard() {
   useEffect(load, []);
 
   async function remove(id) {
-    if (!window.confirm("Excluir este mercado e seus votos?")) return;
+    if (!window.confirm("Excluir este palpite e todas as respostas?")) return;
     await api.delete(`/api/predictions/${id}`);
-    setSuccess("Mercado excluído.");
+    setSuccess("Palpite excluído.");
     load();
   }
 
   async function resolve(id, result) {
     const label = result === "yes" ? "SIM" : "NÃO";
-    if (!window.confirm(`Resolver este mercado como ${label} e distribuir pontos?`)) return;
+    if (!window.confirm(`Confirmar este resultado como ${label} e distribuir pontos?`)) return;
     await api.put(`/api/predictions/${id}/resolve`, { result });
-    setSuccess("Mercado resolvido e pontos distribuídos.");
+    setSuccess("Resultado confirmado e pontos distribuídos.");
     load();
   }
 
   return (
     <div className="page">
-      <div className="titleRow"><h1>Painel Admin</h1><Link className="primaryLink" to="/admin/markets/new">Criar mercado</Link></div>
+      <div className="titleRow"><h1>Painel Admin</h1><Link className="primaryLink" to="/admin/markets/new">Criar palpite</Link></div>
       {error && <div className="error">{error}</div>}
       {success && <div className="success">{success}</div>}
       <div className="table">

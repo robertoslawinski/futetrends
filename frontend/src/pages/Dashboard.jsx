@@ -40,11 +40,11 @@ export default function Dashboard() {
           <h1>{intelligence.tone}</h1>
           <p>{data.user.name} · {data.user.email}</p>
         </div>
-        <Link to="/" className="primaryLink">Abrir mercados</Link>
+        <Link to="/palpites" className="primaryLink">Ver palpites</Link>
       </section>
 
       <section className="statGrid intelligenceStats">
-        <strong>{data.user.points}<span>pontos de leitura</span></strong>
+        <strong>{data.user.points}<span>pontos</span></strong>
         <strong>{data.user.accuracy}%<span>aproveitamento</span></strong>
         <strong>{data.user.totalPredictions}<span>palpites resolvidos</span></strong>
         <strong>{data.user.correctPredictions}<span>acertos confirmados</span></strong>
@@ -80,13 +80,13 @@ export default function Dashboard() {
       <section className="dashboardSplit">
         <article className="panel">
           <div className="panelTitle">
-            <span>Missões de leitura</span>
+            <span>Desafios</span>
             <strong>Próximos passos</strong>
           </div>
           <div className="missionList">
-            <Link to="/">Prever um mercado de VAR ou arbitragem</Link>
-            <Link to="/">Encontrar um mercado dividido entre SIM e NÃO</Link>
-            <Link to="/ranking">Comparar sua leitura com o ranking</Link>
+            <Link to="/palpites">Dar um palpite sobre o futebol brasileiro</Link>
+            <Link to="/palpites">Encontrar uma pergunta dividida entre SIM e NÃO</Link>
+            <Link to="/ranking">Comparar seus pontos no ranking</Link>
           </div>
         </article>
 

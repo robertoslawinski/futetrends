@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { api, errorMessage } from "../api/client.js";
 import { useAuth } from "../context/AuthContext.jsx";
 import { trackEvent } from "../api/analytics.js";
@@ -9,7 +9,9 @@ import { getDataValueCopy, getMarketInsight } from "../utils/marketInsights.js";
 export default function MarketDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useAuth();
+  const choice = ["yes", "no"].includes(location.state?.choice) ? location.state.choice : null;
   const [market, setMarket] = useState(null);
   const [allMarkets, setAllMarkets] = useState([]);
   const [message, setMessage] = useState("");
@@ -27,13 +29,13 @@ export default function MarketDetails() {
   }, [id]);
 
   async function vote(selectedOption) {
-    if (!user) return navigate("/login");
+    if (!user) return navigate("/login", { state: { returnTo: location.pathname, choice: selectedOption } });
     setSubmitting(true);
     setError("");
     try {
       const { data } = await api.post(`/api/predictions/${id}/vote`, { selectedOption });
       setMarket(data.prediction);
-      setMessage("Palpite registrado. Seus pontos serão calculados quando o mercado for resolvido.");
+      setMessage("Palpite registrado. Seus pontos serão calculados quando o resultado for confirmado.");
       trackEvent("vote_submitted", { market_id: id, selected_option: selectedOption });
     } catch (err) {
       setError(errorMessage(err));
@@ -43,7 +45,7 @@ export default function MarketDetails() {
   }
 
   if (error && !market) return <div className="page"><div className="error">{error}</div></div>;
-  if (!market) return <div className="page"><div className="notice">Carregando mercado...</div></div>;
+  if (!market) return <div className="page"><div className="notice">Carregando palpite...</div></div>;
 
   const index = allMarkets.findIndex((item) => item._id === market._id);
   const next = index >= 0 ? allMarkets[(index + 1) % allMarkets.length] : null;
@@ -53,7 +55,7 @@ export default function MarketDetails() {
 
   return (
     <div className="page detail">
-      <Link to="/" className="textLink">Voltar aos mercados</Link>
+      <Link to="/palpites" className="textLink">Voltar aos palpites</Link>
       <section className="detailGrid">
         <article className="panel">
           <span className="eyebrow">{market.category} · {statusLabel}</span>
@@ -75,12 +77,12 @@ export default function MarketDetails() {
             {!user ? (
               <div className="authPrompt">
                 <p>Entre para registrar seu palpite e competir no ranking.</p>
-                <Link to="/login" className="primaryLink">Entrar para palpitar</Link>
+                <Link to="/login" state={{ returnTo: location.pathname, choice }} className="primaryLink">Entrar para palpitar</Link>
               </div>
             ) : (
               <div className="split">
-                <button disabled={submitting || market.userVote || market.status !== "open"} onClick={() => vote("yes")}>Sim</button>
-                <button disabled={submitting || market.userVote || market.status !== "open"} onClick={() => vote("no")}>Não</button>
+                <button className={choice === "yes" ? "preferredChoice" : ""} disabled={submitting || market.userVote || market.status !== "open"} onClick={() => vote("yes")}>{choice === "yes" ? "Confirmar SIM" : "Sim"}</button>
+                <button className={choice === "no" ? "preferredChoice" : ""} disabled={submitting || market.userVote || market.status !== "open"} onClick={() => vote("no")}>{choice === "no" ? "Confirmar NÃO" : "Não"}</button>
               </div>
             )}
             {market.userVote && <div className="success">Você marcou {market.userVote === "yes" ? "SIM" : "NÃO"}.</div>}

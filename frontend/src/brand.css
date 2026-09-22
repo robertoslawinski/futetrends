@@ -65,18 +65,22 @@ button:hover,
 }
 
 .saasHome {
+  width: 100%;
+}
+
+.homeContent {
   width: min(1240px, calc(100% - 36px));
-  padding-top: 0;
+  margin: 0 auto;
 }
 
 .saasHero {
   position: relative;
   display: flex;
-  width: 100vw;
-  min-height: 560px;
+  width: 100%;
+  min-height: 500px;
   align-items: center;
-  margin-left: calc(50% - 50vw);
-  padding: 58px max(24px, calc((100vw - 1240px) / 2));
+  margin-left: 0;
+  padding: 58px max(24px, calc((100% - 1240px) / 2));
   overflow: hidden;
   color: #fff;
   background-color: #080f0b;
@@ -133,7 +137,8 @@ button:hover,
   max-width: 590px;
   margin: 20px 0 0;
   color: #d5ded6;
-  font-size: 1.06rem;
+  font-size: 1.18rem;
+  font-weight: 600;
   line-height: 1.6;
 }
 
@@ -217,7 +222,12 @@ button:hover,
 }
 
 .saasHome .homeSection {
-  margin-top: 58px;
+  margin-top: 54px;
+  scroll-margin-top: 96px;
+}
+
+.saasHome .sectionIntro {
+  margin-bottom: 19px;
 }
 
 .sectionKicker,
@@ -255,12 +265,29 @@ button:hover,
   color: var(--text);
 }
 
+.gamePromise {
+  margin: 18px 0 0;
+  color: #126640;
+  font-size: .88rem;
+  font-weight: 800;
+}
+
 .featuredMarket {
   gap: 28px;
   border-color: var(--border);
   border-left: 5px solid var(--orange);
   border-radius: 6px;
   box-shadow: var(--shadow);
+}
+
+.featuredMain {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.featuredMeta {
+  color: var(--muted);
 }
 
 .featuredTopline span,
@@ -317,8 +344,137 @@ button:hover,
 }
 
 .showMore {
+  width: fit-content;
+  padding: 12px 18px;
+  border: 1px solid #147c4a;
+  border-radius: 6px;
   background: #fff;
   color: #126640;
+  font-size: .83rem;
+  font-weight: 850;
+  text-decoration: none;
+}
+
+.homeRanking {
+  max-width: 690px;
+  border-top: 1px solid var(--border);
+}
+
+.homeRanking .rankingRow {
+  grid-template-columns: 28px 36px minmax(0, 1fr) auto;
+  padding: 12px 4px;
+  border-color: var(--border);
+}
+
+.homeRanking .rankingRow strong {
+  min-width: 0;
+}
+
+.rankingInvite {
+  max-width: 530px;
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.rankingLink {
+  display: inline-block;
+  margin-top: 16px;
+  font-weight: 800;
+}
+
+.communityHighlights {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.communityHighlights a {
+  display: grid;
+  gap: 9px;
+  padding: 18px 20px;
+  border-top: 3px solid #2bbf65;
+  background: #fff;
+  color: var(--text);
+  text-decoration: none;
+}
+
+.communityHighlights a:hover {
+  background: #eef7ef;
+}
+
+.communityHighlights span {
+  color: #147c4a;
+  font-size: .7rem;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.communityHighlights strong {
+  font-size: .98rem;
+  line-height: 1.35;
+}
+
+.communityHighlights small {
+  color: var(--muted);
+}
+
+.homeFinalCta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 30px;
+  width: 100%;
+  margin: 60px 0 0;
+  padding: 44px max(24px, calc((100% - 1240px) / 2));
+  background: #0e2117;
+  color: #fff;
+}
+
+.homeFinalCta span {
+  color: #f0d21b;
+  font-size: .72rem;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.homeFinalCta h2 {
+  max-width: 620px;
+  margin: 8px 0;
+  font-size: 2rem;
+  line-height: 1.15;
+}
+
+.homeFinalCta p {
+  margin: 0;
+  color: #d0ded2;
+}
+
+.finalCtaActions {
+  display: grid;
+  gap: 10px;
+  justify-items: center;
+  flex: 0 0 auto;
+}
+
+.finalCtaActions .primaryLink {
+  padding: 14px 22px;
+  border-radius: 6px;
+}
+
+.finalCtaActions small {
+  color: #d0ded2;
+}
+
+.palpitesPage .toolbar {
+  display: grid;
+  grid-template-columns: minmax(240px, 1fr) 180px 220px;
+}
+
+.palpitesPage .marketGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
 }
 
 .communityPanel {
@@ -386,6 +542,12 @@ button:hover,
   background: #147c4a;
 }
 
+.split button.preferredChoice {
+  border-color: #147c4a;
+  background: #147c4a;
+  color: #fff;
+}
+
 .notice,
 .empty {
   background: #eef5ec;
@@ -404,17 +566,22 @@ button:hover,
 
 @media (max-width: 1000px) {
   .saasHero {
-    min-height: 520px;
+    min-height: 480px;
+  }
+
+  .communityHighlights,
+  .palpitesPage .marketGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
 @media (max-width: 760px) {
-  .saasHome {
+  .homeContent {
     width: min(100% - 24px, 1240px);
   }
 
   .saasHero {
-    min-height: 500px;
+    min-height: 460px;
     padding: 48px 24px;
     background-image: linear-gradient(90deg, rgba(4, 11, 8, .96) 0%, rgba(4, 11, 8, .84) 65%, rgba(4, 11, 8, .55) 100%), url("./assets/stadium-hero.png");
     background-position: 62% center;
@@ -458,11 +625,27 @@ button:hover,
   .saasHome .toolbar {
     grid-template-columns: 1fr;
   }
+
+  .communityHighlights,
+  .palpitesPage .marketGrid,
+  .palpitesPage .toolbar {
+    grid-template-columns: 1fr;
+  }
+
+  .homeFinalCta {
+    display: grid;
+    padding: 32px 24px;
+  }
+
+  .finalCtaActions {
+    justify-items: stretch;
+    text-align: center;
+  }
 }
 
 @media (max-width: 440px) {
   .saasHero {
-    min-height: 475px;
+    min-height: 450px;
     padding: 40px 20px;
   }
 
@@ -484,5 +667,13 @@ button:hover,
 
   .competitionBrief div {
     padding: 15px 18px;
+  }
+
+  .saasHero .heroCopy .heroDescription {
+    font-size: 1.02rem;
+  }
+
+  .homeFinalCta h2 {
+    font-size: 1.65rem;
   }
 }

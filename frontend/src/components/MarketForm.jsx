@@ -48,7 +48,7 @@ export default function MarketForm({ initial, onSubmit, saving }) {
       </div>
       <label>Fonte de resolução<input name="resolutionSource" value={form.resolutionSource} onChange={update} required /></label>
       <label>Critério de resolução<textarea name="resolutionCriteria" value={form.resolutionCriteria} onChange={update} required minLength="20" rows="4" /></label>
-      <button className="primary" disabled={saving}>{saving ? "Salvando..." : "Salvar mercado"}</button>
+      <button className="primary" disabled={saving}>{saving ? "Salvando..." : "Salvar palpite"}</button>
     </form>
   );
 }

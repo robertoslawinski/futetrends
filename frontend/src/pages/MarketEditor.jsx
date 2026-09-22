@@ -28,6 +28,6 @@ export default function MarketEditor() {
     }
   }
 
-  if (id && !market && !error) return <div className="page"><div className="notice">Carregando mercado...</div></div>;
-  return <div className="page"><h1>{id ? "Editar mercado" : "Criar mercado"}</h1>{error && <div className="error">{error}</div>}<MarketForm initial={market} onSubmit={save} saving={saving} /></div>;
+  if (id && !market && !error) return <div className="page"><div className="notice">Carregando palpite...</div></div>;
+  return <div className="page"><h1>{id ? "Editar palpite" : "Criar palpite"}</h1>{error && <div className="error">{error}</div>}<MarketForm initial={market} onSubmit={save} saving={saving} /></div>;
 }

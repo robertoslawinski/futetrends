@@ -1,42 +1,19 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import { MessageCircle, Trophy, TrendingUp } from "lucide-react";
 import { api, errorMessage } from "../api/client.js";
-import FootballIntelligence from "../components/FootballIntelligence.jsx";
 import MarketCard from "../components/MarketCard.jsx";
 
 const currentCategories = new Set(["Brasileirão 2026", "Libertadores 2026"]);
 
 const steps = [
-  {
-    number: "01",
-    title: "Escolha uma previsão",
-    text: "Encontre perguntas objetivas sobre jogos, clubes, técnicos e bastidores."
-  },
-  {
-    number: "02",
-    title: "Responda SIM ou NÃO",
-    text: "Registre sua leitura antes do prazo. É gratuito e não envolve apostas."
-  },
-  {
-    number: "03",
-    title: "Acerte e suba no ranking",
-    text: "Quando o fato acontece, quem previu melhor ganha pontos e reputação."
-  }
+  { icon: MessageCircle, title: "Dê seu palpite", text: "Responda às perguntas antes do prazo." },
+  { icon: Trophy, title: "Acerte e ganhe pontos", text: "Quando o resultado for confirmado, você pontua." },
+  { icon: TrendingUp, title: "Suba no ranking", text: "Compare seu desempenho com outros torcedores." }
 ];
 
-function numberLabel(value) {
-  return new Intl.NumberFormat("pt-BR").format(value || 0);
-}
-
-function accuracyLabel(value) {
-  return `${Math.round(value || 0)}%`;
-}
-
 function deadlineLabel(deadline) {
-  return new Date(deadline).toLocaleDateString("pt-BR", {
-    day: "2-digit",
-    month: "short"
-  });
+  return new Date(deadline).toLocaleDateString("pt-BR", { day: "2-digit", month: "short" });
 }
 
 function Section({ id, eyebrow, title, description, children }) {
@@ -54,37 +31,8 @@ function Section({ id, eyebrow, title, description, children }) {
   );
 }
 
-function RankingRows({ ranking, limit = 3 }) {
-  const rows = ranking.slice(0, limit);
-
-  if (!rows.length) {
-    return (
-      <div className="rankingEmpty">
-        <strong>O topo está aberto.</strong>
-        <span>Seja um dos primeiros a pontuar.</span>
-      </div>
-    );
-  }
-
-  return (
-    <div className="rankingRows">
-      {rows.map((entry) => (
-        <div className="rankingRow" key={entry.id}>
-          <span className="rankPosition">{entry.rank}</span>
-          <span className="rankAvatar">{entry.name.slice(0, 1).toUpperCase()}</span>
-          <div>
-            <strong>{entry.name}</strong>
-            <small>{accuracyLabel(entry.accuracy)} de precisão</small>
-          </div>
-          <b>{numberLabel(entry.points)} pts</b>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function FeaturedMarket({ market }) {
-  if (!market) return <div className="empty">Nenhum mercado em destaque agora.</div>;
+function FeaturedPalpite({ market }) {
+  if (!market) return <div className="empty">O próximo palpite em destaque aparece em breve.</div>;
 
   const yesPercent = market.voteBreakdown?.yesPercent || 0;
   const noPercent = market.voteBreakdown?.noPercent || 0;
@@ -94,31 +42,28 @@ function FeaturedMarket({ market }) {
       <div className="featuredMain">
         <div className="featuredTopline">
           <span>{market.category}</span>
-          <em>Mercado em destaque</em>
+          <em>Aberto</em>
         </div>
-        <Link to={`/markets/${market._id}`} className="featuredTitle">
-          <h3>{market.title}</h3>
-        </Link>
-        <p>{market.description}</p>
+        <Link to={`/markets/${market._id}`} className="featuredTitle"><h3>{market.title}</h3></Link>
         <div className="featuredMeta">
-          <span>Fecha {deadlineLabel(market.deadline)}</span>
-          <span>{market.totalVotes || 0} participantes</span>
-          <span>Vale {market.pointsValue} pontos</span>
+          <span>Encerra {deadlineLabel(market.deadline)}</span>
+          <span>{market.totalVotes || 0} {market.totalVotes === 1 ? "palpite" : "palpites"}</span>
+          <span>{market.pointsValue} pontos por acerto</span>
         </div>
       </div>
       <div className="featuredForecast">
-        <span>Leitura da comunidade</span>
+        <span>O que a torcida acha</span>
         <div className="featuredPercents">
           <strong>SIM <b>{yesPercent}%</b></strong>
           <strong>NÃO <b>{noPercent}%</b></strong>
         </div>
-        <div className="featuredBar">
+        <div className="featuredBar" aria-hidden="true">
           <i style={{ width: `${yesPercent}%` }} />
           <b style={{ width: `${noPercent}%` }} />
         </div>
         <div className="featuredActions">
-          <Link to={`/markets/${market._id}`} className="featuredYes">Votar SIM</Link>
-          <Link to={`/markets/${market._id}`} className="featuredNo">Votar NÃO</Link>
+          <Link to={`/markets/${market._id}`} state={{ choice: "yes" }} className="featuredYes">Meu palpite: SIM</Link>
+          <Link to={`/markets/${market._id}`} state={{ choice: "no" }} className="featuredNo">Meu palpite: NÃO</Link>
         </div>
       </div>
     </article>
@@ -127,248 +72,127 @@ function FeaturedMarket({ market }) {
 
 export default function Home() {
   const [markets, setMarkets] = useState([]);
-  const [categories, setCategories] = useState([]);
   const [ranking, setRanking] = useState([]);
-  const [status, setStatus] = useState("");
-  const [category, setCategory] = useState("");
-  const [search, setSearch] = useState("");
-  const [showAll, setShowAll] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    setLoading(true);
-    api.get("/api/predictions", {
-      params: {
-        status: status || undefined,
-        category: category || undefined
-      }
-    })
-      .then(({ data }) => {
-        setMarkets(data.predictions.filter((market) => currentCategories.has(market.category)));
-        setCategories(data.categories.filter((item) => currentCategories.has(item)));
-        setError("");
-      })
+    api.get("/api/predictions")
+      .then(({ data }) => setMarkets(data.predictions.filter((market) => currentCategories.has(market.category))))
       .catch((err) => setError(errorMessage(err)))
       .finally(() => setLoading(false));
-  }, [status, category]);
-
-  useEffect(() => {
     api.get("/api/ranking")
       .then(({ data }) => setRanking(data.ranking || []))
       .catch(() => setRanking([]));
   }, []);
 
   const openMarkets = useMemo(() => markets.filter((market) => market.status === "open"), [markets]);
-  const totalVotes = useMemo(
-    () => markets.reduce((sum, market) => sum + (market.totalVotes || 0), 0),
-    [markets]
-  );
-  const averageAccuracy = useMemo(() => {
-    if (!ranking.length) return 0;
-    return ranking.reduce((sum, entry) => sum + (entry.accuracy || 0), 0) / ranking.length;
-  }, [ranking]);
   const featuredMarket = useMemo(
-    () => [...openMarkets].sort((a, b) => ((b.totalVotes || 0) + b.pointsValue) - ((a.totalVotes || 0) + a.pointsValue))[0] || markets[0],
-    [markets, openMarkets]
-  );
-  const trendingMarkets = useMemo(
-    () => [...openMarkets].sort((a, b) => (b.totalVotes || 0) - (a.totalVotes || 0)).slice(0, 4),
+    () => [...openMarkets].sort((a, b) => ((b.totalVotes || 0) + b.pointsValue) - ((a.totalVotes || 0) + a.pointsValue))[0],
     [openMarkets]
   );
   const visibleMarkets = useMemo(() => {
-    const needle = search.trim().toLocaleLowerCase("pt-BR");
-    if (!needle) return markets;
-    return markets.filter((market) =>
-      [market.title, market.description, market.category].some((value) =>
-        value?.toLocaleLowerCase("pt-BR").includes(needle)
-      )
-    );
-  }, [markets, search]);
-  const hasActiveFilters = Boolean(search || status || category);
-  const displayedMarkets = showAll || hasActiveFilters ? visibleMarkets : visibleMarkets.slice(0, 6);
-
-  function clearFilters() {
-    setStatus("");
-    setCategory("");
-    setSearch("");
-  }
+    const candidates = openMarkets.filter((market) => market._id !== featuredMarket?._id);
+    const firstBrasileirao = candidates.find((market) => market.category === "Brasileirão 2026");
+    const firstLibertadores = candidates.find((market) => market.category === "Libertadores 2026");
+    return [firstBrasileirao, firstLibertadores, ...candidates]
+      .filter((market, index, list) => market && list.findIndex((item) => item?._id === market._id) === index)
+      .slice(0, 3);
+  }, [openMarkets, featuredMarket]);
 
   return (
-    <div className="page saasHome">
+    <div className="saasHome">
       <section className="saasHero">
         <div className="heroCopy">
-          <span className="heroEyebrow">Brasileirão 2026 / Libertadores 2026</span>
+          <span className="heroEyebrow">Brasileirão 2026 · Libertadores 2026</span>
           <h1>Fute<strong>Trends</strong></h1>
-          <p className="heroChallenge">Você entende de <strong>futebol?</strong></p>
-          <p className="heroDescription">Teste sua leitura da disputa pelo título, da briga contra o rebaixamento e da final continental. Acerte previsões e suba no ranking.</p>
+          <p className="heroChallenge">Você entende de futebol? <strong>Prove.</strong></p>
+          <p className="heroDescription">Dê seus palpites, ganhe pontos e suba no ranking.</p>
           <div className="heroActions">
-            <a href="#markets" className="primaryLink">Começar a prever</a>
-            <a href="#how-it-works" className="secondaryLink">Como funciona</a>
+            <a href="#palpites" className="primaryLink">Começar a palpitar</a>
+            <a href="#how-it-works" className="secondaryLink">Veja como funciona</a>
           </div>
           <div className="heroTrust">
-            <span><i /> Gratuito para jogar</span>
-            <span>Sem apostas e sem dinheiro envolvido</span>
+            <span><i /> Grátis para jogar</span>
+            <span>Sem apostas. Sem dinheiro.</span>
           </div>
         </div>
-
       </section>
 
-      <section className="competitionBrief" aria-label="Competições em destaque">
-        <div>
-          <span>Brasileirão 2026</span>
-          <strong>Título, G-3 e rebaixamento</strong>
-        </div>
-        <div>
-          <span>Libertadores 2026</span>
-          <strong>Finalistas, campeão e artilharia</strong>
-        </div>
-        <div>
-          <span>Mercados novos</span>
-          <strong>{numberLabel(openMarkets.length)} previsões abertas</strong>
-        </div>
-      </section>
-
+      <div className="homeContent">
       {error && <div className="error">{error}</div>}
 
-      <section className="proofStrip" aria-label="Números da comunidade">
-        <div>
-          <strong>{numberLabel(totalVotes)}</strong>
-          <span>palpites registrados</span>
-        </div>
-        <div>
-          <strong>{numberLabel(openMarkets.length)}</strong>
-          <span>mercados abertos</span>
-        </div>
-        <div>
-          <strong>{numberLabel(ranking.length)}</strong>
-          <span>leitores no ranking</span>
-        </div>
-        <div>
-          <strong>{accuracyLabel(averageAccuracy)}</strong>
-          <span>precisão média</span>
-        </div>
-      </section>
-
-      <Section
-        id="how-it-works"
-        eyebrow="Como funciona"
-        title="Sua leitura do futebol vale pontos."
-        description="Faça previsões sobre o Brasileirão e a Libertadores antes dos resultados oficiais."
-      >
+      <Section id="how-it-works" eyebrow="Como funciona" title="Palpite. Pontue. Suba no ranking.">
         <div className="stepsGrid">
-          {steps.map((step) => (
-            <article className="stepCard" key={step.number}>
-              <span>{step.number}</span>
-              <div>
-                <h3>{step.title}</h3>
-                <p>{step.text}</p>
-              </div>
+          {steps.map(({ icon: Icon, title, text }) => (
+            <article className="stepCard" key={title}>
+              <span><Icon size={21} strokeWidth={2.2} aria-hidden="true" /></span>
+              <div><h3>{title}</h3><p>{text}</p></div>
             </article>
+          ))}
+        </div>
+        <p className="gamePromise">Sem apostas. Sem dinheiro. Só futebol.</p>
+      </Section>
+
+      <Section eyebrow="Palpite em destaque" title="Uma pergunta. Duas escolhas." description="Escolha SIM ou NÃO e veja o que outros torcedores estão pensando.">
+        {loading ? <div className="empty">Carregando palpite...</div> : <FeaturedPalpite market={featuredMarket} />}
+      </Section>
+
+      <Section id="palpites" eyebrow="Palpites abertos" title="Mostre o que você sabe sobre futebol brasileiro.">
+        {loading ? (
+          <div className="empty">Carregando palpites...</div>
+        ) : visibleMarkets.length ? (
+          <div className="marketGrid">
+            {visibleMarkets.map((market) => <MarketCard market={market} key={market._id} />)}
+          </div>
+        ) : (
+          <div className="empty">Novos palpites do Brasileirão e da Libertadores chegam em breve.</div>
+        )}
+        <Link to="/palpites" className="showMore">Ver todos os palpites</Link>
+      </Section>
+
+      <Section id="ranking" eyebrow="Ranking FuteTrends" title="Quem entende mais de futebol?">
+        {ranking.length ? (
+          <div className="rankingRows homeRanking">
+            {ranking.slice(0, 3).map((entry) => (
+              <div className="rankingRow" key={entry.id}>
+                <span className="rankPosition">{entry.rank}º</span>
+                <span className="rankAvatar">{entry.name.slice(0, 1).toUpperCase()}</span>
+                <strong>{entry.name}</strong>
+                <b>{entry.points} pts</b>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="rankingInvite">O ranking está começando. Faça seus palpites e seja um dos primeiros a chegar ao topo.</p>
+        )}
+        <Link to="/ranking" className="textLink rankingLink">Ver ranking completo</Link>
+      </Section>
+
+      <Section id="community" eyebrow="Comunidade" title="Acerte mais. Suba no ranking." description="Compare seus palpites com a torcida e acompanhe as perguntas da rodada.">
+        <div className="communityHighlights">
+          {openMarkets.slice(0, 3).map((market) => (
+            <Link to={`/markets/${market._id}`} key={market._id}>
+              <span>{market.category}</span>
+              <strong>{market.title}</strong>
+              <small>{market.totalVotes || 0} {market.totalVotes === 1 ? "palpite" : "palpites"}</small>
+            </Link>
           ))}
         </div>
       </Section>
 
-      <Section
-        eyebrow="Em destaque"
-        title="Uma pergunta. Duas escolhas."
-        description="Vote antes do prazo e compare sua leitura com a comunidade."
-      >
-        <FeaturedMarket market={featuredMarket} />
-      </Section>
-
-      <section id="markets" className="homeSection marketsSection">
-        <div className="sectionIntro">
-          <div>
-            <span className="sectionKicker">Mercados abertos</span>
-            <h2>Faça sua próxima previsão de 2026.</h2>
-          </div>
-          <p>Perguntas objetivas sobre classificação, clubes brasileiros e a decisão continental.</p>
+      </div>
+      <section className="homeFinalCta">
+        <div>
+          <span>FuteTrends</span>
+          <h2>Pronto para provar que entende de futebol?</h2>
+          <p>Comece grátis. Leva menos de 1 minuto.</p>
         </div>
-
-        <div className="toolbar">
-          <input
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
-            placeholder="Buscar time, jogador ou categoria"
-            aria-label="Buscar mercados"
-          />
-          <select value={status} onChange={(event) => setStatus(event.target.value)} aria-label="Filtrar por status">
-            <option value="">Todos os status</option>
-            <option value="open">Abertos</option>
-            <option value="closed">Encerrados</option>
-            <option value="resolved">Resolvidos</option>
-          </select>
-          <select value={category} onChange={(event) => setCategory(event.target.value)} aria-label="Filtrar por categoria">
-            <option value="">Todas as categorias</option>
-            {categories.map((item) => <option value={item} key={item}>{item}</option>)}
-          </select>
-          {hasActiveFilters && <button type="button" onClick={clearFilters}>Limpar</button>}
+        <div className="finalCtaActions">
+          <Link to="/signup" className="primaryLink">Criar conta grátis</Link>
+          <small>Sem apostas. Sem dinheiro. Só diversão.</small>
         </div>
-
-        {loading ? (
-          <div className="empty">Carregando mercados...</div>
-        ) : displayedMarkets.length ? (
-          <>
-            <div className="marketGrid">
-              {displayedMarkets.map((market) => <MarketCard market={market} key={market._id} />)}
-            </div>
-            {!showAll && !hasActiveFilters && visibleMarkets.length > 6 && (
-              <button type="button" className="showMore" onClick={() => setShowAll(true)}>Ver todos os mercados</button>
-            )}
-          </>
-        ) : (
-          <div className="empty">{hasActiveFilters ? "Nenhum mercado combina com essa busca." : "Os mercados do Brasileirão 2026 e da Libertadores 2026 estarão disponíveis assim que a atualização da API terminar."}</div>
-        )}
       </section>
-
-      <Section
-        id="community"
-        eyebrow="Comunidade"
-        title="Quem lê melhor, sobe mais rápido."
-        description="Acompanhe os líderes e as perguntas que estão mobilizando a torcida."
-      >
-        <div className="communityGrid">
-          <article className="communityPanel leaderboardPanel">
-            <header>
-              <div>
-                <span>Ranking de precisão</span>
-                <h3>Melhores leitores</h3>
-              </div>
-              <Link to="/ranking">Ranking completo</Link>
-            </header>
-            <RankingRows ranking={ranking} limit={5} />
-          </article>
-
-          <article className="communityPanel trendingPanel">
-            <header>
-              <div>
-                <span>Em alta agora</span>
-                <h3>Mais discutidos</h3>
-              </div>
-              <a href="#markets">Ver mercados</a>
-            </header>
-            {trendingMarkets.length ? (
-              <div className="trendingList">
-                {trendingMarkets.map((market, index) => (
-                  <Link to={`/markets/${market._id}`} key={market._id}>
-                    <b>{String(index + 1).padStart(2, "0")}</b>
-                    <span>{market.title}</span>
-                    <small>{market.totalVotes || 0} palpites</small>
-                  </Link>
-                ))}
-              </div>
-            ) : (
-              <div className="rankingEmpty">
-                <strong>As primeiras leituras começam aqui.</strong>
-                <span>Vote em um mercado para movimentar a comunidade.</span>
-              </div>
-            )}
-          </article>
-        </div>
-      </Section>
-
-      <FootballIntelligence />
     </div>
   );
 }

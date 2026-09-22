@@ -6,7 +6,7 @@ export default function NotFound() {
       <div className="panel">
         <h1>404</h1>
         <p>Esse sinal saiu do radar.</p>
-        <Link className="primaryLink" to="/">Voltar aos mercados</Link>
+        <Link className="primaryLink" to="/palpites">Ver palpites</Link>
       </div>
     </div>
   );

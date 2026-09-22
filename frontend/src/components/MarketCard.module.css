@@ -1,6 +1,6 @@
 .card {
   display: flex;
-  min-height: 332px;
+  min-height: 245px;
   flex-direction: column;
   padding: 20px;
   border: 1px solid rgba(22, 49, 34, 0.13);
@@ -54,21 +54,15 @@
 }
 
 .title h3 {
-  margin: 16px 0 8px;
+  margin: 15px 0 0;
   color: #15231a;
   font-size: 1.08rem;
   line-height: 1.35;
 }
 
-.card p {
-  margin: 0 0 auto;
-  color: #617067;
-  font-size: 0.89rem;
-  line-height: 1.58;
-}
-
 .meta {
-  margin-top: 18px;
+  margin-top: auto;
+  padding-top: 18px;
   color: #7b8ba3;
   font-size: 0.76rem;
 }

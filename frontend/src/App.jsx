@@ -4,6 +4,7 @@ import Layout from "./components/Layout.jsx";
 import { ProtectedRoute } from "./components/ProtectedRoute.jsx";
 import { installAnalytics, trackEvent } from "./api/analytics.js";
 import Home from "./pages/Home.jsx";
+import Palpites from "./pages/Palpites.jsx";
 import MarketDetails from "./pages/MarketDetails.jsx";
 import Login from "./pages/Login.jsx";
 import Signup from "./pages/Signup.jsx";
@@ -27,6 +28,7 @@ export default function App() {
     <Routes>
       <Route element={<Layout />}>
         <Route index element={<Home />} />
+        <Route path="palpites" element={<Palpites />} />
         <Route path="markets/:id" element={<MarketDetails />} />
         <Route path="login" element={<Login />} />
         <Route path="signup" element={<Signup />} />

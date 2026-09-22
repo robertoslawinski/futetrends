@@ -1,11 +1,6 @@
 import { Link } from "react-router-dom";
 import styles from "./MarketCard.module.css";
 
-function shortText(text) {
-  if (!text) return "";
-  return text.length > 104 ? `${text.slice(0, 104)}...` : text;
-}
-
 function deadlineLabel(deadline) {
   return new Date(deadline).toLocaleDateString("pt-BR", {
     day: "2-digit",
@@ -30,11 +25,9 @@ export default function MarketCard({ market }) {
       <Link to={`/markets/${market._id}`} className={styles.title}>
         <h3>{market.title}</h3>
       </Link>
-      <p>{shortText(market.description)}</p>
-
       <div className={styles.meta}>
-        <span>Fecha {deadlineLabel(market.deadline)}</span>
-        <span>{market.totalVotes || 0} palpites</span>
+        <span>Encerra {deadlineLabel(market.deadline)}</span>
+        <span>{market.totalVotes || 0} {market.totalVotes === 1 ? "palpite" : "palpites"}</span>
       </div>
 
       <div className={styles.splitBar} aria-label={`SIM ${yesPercent}%, NÃO ${noPercent}%`}>
@@ -50,8 +43,8 @@ export default function MarketCard({ market }) {
       <div className={styles.actions}>
         {isOpen ? (
           <>
-            <Link to={`/markets/${market._id}`} className={styles.yes}>Votar SIM</Link>
-            <Link to={`/markets/${market._id}`} className={styles.no}>Votar NÃO</Link>
+            <Link to={`/markets/${market._id}`} state={{ choice: "yes" }} className={styles.yes}>SIM</Link>
+            <Link to={`/markets/${market._id}`} state={{ choice: "no" }} className={styles.no}>NÃO</Link>
           </>
         ) : (
           <Link to={`/markets/${market._id}`} className={styles.result}>Ver resultado</Link>

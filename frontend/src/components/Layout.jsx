@@ -1,4 +1,6 @@
-import { NavLink, Outlet, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Menu, X } from "lucide-react";
+import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
 import logo from "../assets/futetrends-brand.png";
 import styles from "./Layout.module.css";
@@ -6,10 +8,15 @@ import styles from "./Layout.module.css";
 export default function Layout() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const [menuOpen, setMenuOpen] = useState(false);
   const isAdmin = user?.role === "admin";
+
+  useEffect(() => setMenuOpen(false), [location]);
 
   function handleLogout() {
     logout();
+    setMenuOpen(false);
     navigate("/");
   }
 
@@ -20,14 +27,25 @@ export default function Layout() {
           <img src={logo} alt="FuteTrends" />
         </NavLink>
 
-        <nav className={styles.nav} aria-label="Navegação principal">
-          <a href="/#markets">Mercados</a>
+        <button type="button" className={styles.menuToggle} aria-label={menuOpen ? "Fechar menu" : "Abrir menu"} aria-controls="primary-navigation" aria-expanded={menuOpen} onClick={() => setMenuOpen((open) => !open)}>
+          {menuOpen ? <X size={24} aria-hidden="true" /> : <Menu size={24} aria-hidden="true" />}
+        </button>
+
+        <nav id="primary-navigation" className={`${styles.nav} ${menuOpen ? styles.navOpen : ""}`} aria-label="Navegação principal">
+          <NavLink to="/palpites" onClick={() => setMenuOpen(false)}>Palpites</NavLink>
           <NavLink to="/ranking">Ranking</NavLink>
-          <a href="/#how-it-works">Como funciona</a>
+          <a href="/#how-it-works" onClick={() => setMenuOpen(false)}>Como funciona</a>
           <a href="/#community">Comunidade</a>
           <NavLink to="/about">Sobre</NavLink>
           {user && <NavLink to="/dashboard">Painel</NavLink>}
           {isAdmin && <NavLink to="/admin">Admin</NavLink>}
+          <div className={styles.mobileActions}>
+            {user ? (
+              <><NavLink to="/profile">Meu perfil</NavLink><button type="button" onClick={handleLogout}>Sair</button></>
+            ) : (
+              <><NavLink to="/login">Entrar</NavLink><NavLink to="/signup" className={styles.cta}>Criar conta grátis</NavLink></>
+            )}
+          </div>
         </nav>
 
         <div className={styles.actions}>
@@ -39,7 +57,7 @@ export default function Layout() {
           ) : (
             <>
               <NavLink to="/login">Entrar</NavLink>
-              <NavLink to="/signup" className={styles.cta}>Criar conta</NavLink>
+              <NavLink to="/signup" className={styles.cta}>Criar conta grátis</NavLink>
             </>
           )}
         </div>
@@ -53,11 +71,11 @@ export default function Layout() {
         <div className={styles.footerGrid}>
           <div className={styles.footerBrand}>
             <img src={logo} alt="FuteTrends" />
-            <p>Previsões coletivas para descobrir quem realmente entende o futebol brasileiro.</p>
+            <p>Dê seus palpites, ganhe pontos e prove que entende de futebol brasileiro.</p>
           </div>
           <div>
             <strong>Produto</strong>
-            <a href="/#markets">Mercados</a>
+            <NavLink to="/palpites">Palpites</NavLink>
             <NavLink to="/ranking">Ranking</NavLink>
             <a href="/#how-it-works">Como funciona</a>
           </div>

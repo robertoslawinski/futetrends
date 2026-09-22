@@ -11,7 +11,7 @@ export default function Ranking() {
   return (
     <div className="page">
       <h1>Ranking</h1>
-      <p className="muted">A tabela mostra apenas participantes. Admins ficam fora para manter a disputa limpa.</p>
+      <p className="muted">Acerte palpites, ganhe pontos e suba na classificação.</p>
       {error && <div className="error">{error}</div>}
       <div className="table">
         {ranking.length ? ranking.map((user) => (
@@ -20,7 +20,7 @@ export default function Ranking() {
             <span>{user.points} pts</span>
             <span>{user.accuracy}% aproveitamento</span>
           </div>
-        )) : <div className="notice">O ranking começa quando os primeiros palpites forem resolvidos. Volte depois da rodada para ver quem leu melhor o clima do futebol.</div>}
+        )) : <div className="notice">O ranking está começando. Faça seus palpites e seja um dos primeiros a chegar ao topo.</div>}
       </div>
     </div>
   );
