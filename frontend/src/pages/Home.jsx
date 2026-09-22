@@ -198,9 +198,10 @@ export default function Home() {
     <div className="page saasHome">
       <section className="saasHero">
         <div className="heroCopy">
-          <span className="heroEyebrow">Brasileirão 2026 + Libertadores</span>
-          <h1>Preveja o futebol brasileiro antes da tabela reagir.</h1>
-          <p>Leia a disputa pelo título, a briga contra o rebaixamento e o caminho até a final continental. Acerte previsões e suba no ranking.</p>
+          <span className="heroEyebrow">Brasileirão 2026 / Libertadores 2026</span>
+          <h1>Fute<strong>Trends</strong></h1>
+          <p className="heroChallenge">Você entende de <strong>futebol?</strong></p>
+          <p className="heroDescription">Teste sua leitura da disputa pelo título, da briga contra o rebaixamento e da final continental. Acerte previsões e suba no ranking.</p>
           <div className="heroActions">
             <a href="#markets" className="primaryLink">Começar a prever</a>
             <a href="#how-it-works" className="secondaryLink">Como funciona</a>
@@ -211,29 +212,9 @@ export default function Home() {
           </div>
         </div>
 
-        <aside className="heroDashboard">
-          <header>
-            <div>
-              <span>Ranking ao vivo</span>
-              <strong>Melhores leitores</strong>
-            </div>
-            <Link to="/ranking">Ver ranking</Link>
-          </header>
-          <RankingRows ranking={ranking} />
-          <div className="heroStats">
-            <div>
-              <strong>{numberLabel(openMarkets.length)}</strong>
-              <span>mercados abertos</span>
-            </div>
-            <div>
-              <strong>{numberLabel(totalVotes)}</strong>
-              <span>palpites registrados</span>
-            </div>
-          </div>
-        </aside>
       </section>
 
-      <section className="worldCupBrief" aria-label="Competições em destaque">
+      <section className="competitionBrief" aria-label="Competições em destaque">
         <div>
           <span>Brasileirão 2026</span>
           <strong>Título, G-3 e rebaixamento</strong>

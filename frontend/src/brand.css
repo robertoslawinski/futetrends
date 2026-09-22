@@ -1,0 +1,488 @@
+:root {
+  --bg: #f3f6f0;
+  --bg-deep: #e8efe5;
+  --card: #ffffff;
+  --card-2: #f2f6ef;
+  --border: rgba(22, 49, 34, .13);
+  --border-strong: rgba(22, 49, 34, .24);
+  --text: #15231a;
+  --paper: #15231a;
+  --muted: #617067;
+  --soft: #46584c;
+  --blue: #147c4a;
+  --blue-soft: rgba(20, 124, 74, .08);
+  --orange: #f0d21b;
+  --green: #27c968;
+  --danger: #b73c32;
+  --warning: #9c7300;
+  --success: #147c4a;
+  --shadow: 0 12px 32px rgba(8, 30, 16, .07);
+  background: var(--bg);
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  overflow-x: clip;
+}
+
+input,
+textarea,
+select {
+  background: #fff;
+  border-color: var(--border);
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: #147c4a;
+  box-shadow: 0 0 0 3px rgba(20, 124, 74, .12);
+}
+
+button:hover,
+.primaryLink:hover,
+.secondaryLink:hover {
+  border-color: #147c4a;
+}
+
+.primary,
+.primaryLink {
+  background: var(--orange);
+  border-color: #d2b716;
+  color: #101a10;
+  box-shadow: none;
+}
+
+.primary:hover,
+.primaryLink:hover {
+  background: #ffe43c;
+  border-color: #ffe43c;
+}
+
+.page {
+  width: min(1240px, calc(100% - 36px));
+}
+
+.saasHome {
+  width: min(1240px, calc(100% - 36px));
+  padding-top: 0;
+}
+
+.saasHero {
+  position: relative;
+  display: flex;
+  width: 100vw;
+  min-height: 560px;
+  align-items: center;
+  margin-left: calc(50% - 50vw);
+  padding: 58px max(24px, calc((100vw - 1240px) / 2));
+  overflow: hidden;
+  color: #fff;
+  background-color: #080f0b;
+  background-image: linear-gradient(90deg, rgba(4, 11, 8, .98) 0%, rgba(4, 11, 8, .87) 35%, rgba(4, 11, 8, .35) 75%, rgba(4, 11, 8, .16) 100%), url("./assets/stadium-hero.png");
+  background-position: center;
+  background-size: cover;
+}
+
+.saasHero .heroCopy {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 760px);
+}
+
+.heroEyebrow {
+  display: inline-flex;
+  padding: 7px 0;
+  border-bottom: 3px solid var(--orange);
+  color: #d7f1df;
+  font-size: .8rem;
+  font-weight: 850;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.saasHero .heroCopy h1 {
+  margin: 22px 0 0;
+  color: #fff;
+  font-size: 5.5rem;
+  font-style: italic;
+  font-weight: 900;
+  letter-spacing: 0;
+  line-height: 1;
+}
+
+.saasHero .heroCopy h1 strong {
+  color: #45db71;
+}
+
+.saasHero .heroCopy .heroChallenge {
+  max-width: 720px;
+  margin: 12px 0 0;
+  color: #fff;
+  font-size: 2.35rem;
+  font-weight: 850;
+  line-height: 1.12;
+}
+
+.heroChallenge strong {
+  color: var(--orange);
+}
+
+.saasHero .heroCopy .heroDescription {
+  max-width: 590px;
+  margin: 20px 0 0;
+  color: #d5ded6;
+  font-size: 1.06rem;
+  line-height: 1.6;
+}
+
+.saasHero .heroActions {
+  margin-top: 28px;
+}
+
+.saasHero .heroActions a {
+  min-height: 48px;
+  border-radius: 6px;
+  font-size: .87rem;
+  font-weight: 850;
+}
+
+.saasHero .heroActions .secondaryLink {
+  border-color: rgba(255, 255, 255, .5);
+  background: rgba(8, 18, 12, .55);
+  color: #fff;
+}
+
+.saasHero .heroTrust {
+  color: #d3e0d3;
+}
+
+.saasHero .heroTrust i {
+  background: #42d674;
+  box-shadow: 0 0 0 4px rgba(66, 214, 116, .16);
+}
+
+.competitionBrief {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  background: #0e2117;
+  color: #fff;
+}
+
+.competitionBrief div {
+  display: grid;
+  gap: 6px;
+  padding: 19px 24px;
+}
+
+.competitionBrief div + div {
+  border-left: 1px solid rgba(255, 255, 255, .15);
+}
+
+.competitionBrief span {
+  color: var(--orange);
+  font-size: .7rem;
+  font-weight: 850;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+}
+
+.competitionBrief strong {
+  font-size: .96rem;
+}
+
+.proofStrip {
+  margin-top: 0;
+  border: 0;
+  border-bottom: 1px solid var(--border);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.proofStrip div {
+  padding: 22px 24px;
+}
+
+.proofStrip strong {
+  color: #126640;
+  font-size: 1.45rem;
+}
+
+.proofStrip span {
+  color: var(--muted);
+}
+
+.saasHome .homeSection {
+  margin-top: 58px;
+}
+
+.sectionKicker,
+.eyebrow {
+  color: #147c4a;
+}
+
+.saasHome .sectionIntro h2 {
+  max-width: 760px;
+  color: var(--text);
+  font-size: 2.5rem;
+  letter-spacing: 0;
+  line-height: 1.12;
+}
+
+.saasHome .sectionIntro p,
+.stepCard p,
+.featuredMain p {
+  color: var(--muted);
+}
+
+.stepCard {
+  border-color: var(--border);
+  border-radius: 6px;
+  background: #fff;
+}
+
+.stepCard > span {
+  border-radius: 4px;
+  background: #e2f3e6;
+  color: #147c4a;
+}
+
+.stepCard h3 {
+  color: var(--text);
+}
+
+.featuredMarket {
+  gap: 28px;
+  border-color: var(--border);
+  border-left: 5px solid var(--orange);
+  border-radius: 6px;
+  box-shadow: var(--shadow);
+}
+
+.featuredTopline span,
+.featuredTitle h3 {
+  color: #126640;
+}
+
+.featuredTopline em {
+  color: #876900;
+}
+
+.featuredTitle h3 {
+  font-size: 2rem;
+  letter-spacing: 0;
+}
+
+.featuredForecast {
+  padding: 8px 0 8px 24px;
+  border-left: 1px solid var(--border);
+  border-radius: 0;
+  background: transparent;
+}
+
+.featuredPercents b {
+  color: var(--text);
+}
+
+.featuredBar i,
+.meter span {
+  background: #1a9d5b;
+}
+
+.featuredBar b {
+  background: #e8cd29;
+}
+
+.featuredYes {
+  background: #147c4a;
+}
+
+.featuredNo {
+  border-color: var(--border);
+  background: #f2f6ef;
+  color: var(--text);
+}
+
+.saasHome .toolbar {
+  grid-template-columns: minmax(240px, 1fr) 170px 200px auto;
+}
+
+.saasHome .toolbar input,
+.saasHome .toolbar select {
+  background: #fff;
+}
+
+.showMore {
+  background: #fff;
+  color: #126640;
+}
+
+.communityPanel {
+  border-color: var(--border);
+  border-radius: 6px;
+  box-shadow: none;
+}
+
+.communityPanel h3,
+.rankingRow strong,
+.rankingRow b,
+.rankingEmpty strong,
+.trendingList span {
+  color: var(--text);
+}
+
+.communityPanel header span,
+.communityPanel header a,
+.trendingList b {
+  color: #147c4a;
+}
+
+.rankAvatar {
+  background: #e1f4e8;
+  color: #147c4a;
+}
+
+.trendingList a:hover {
+  background: #f1f8f2;
+}
+
+.panel,
+.authPanel,
+.voteBox,
+.row {
+  border-color: var(--border);
+  border-radius: 6px;
+  background: #fff;
+  box-shadow: none;
+}
+
+.panel h1,
+.panel h2,
+.voteBox h2,
+.dashboardHero h1 {
+  color: var(--text);
+  letter-spacing: 0;
+}
+
+.badgeRow span,
+.dataSignal,
+.authPrompt {
+  border-color: rgba(20, 124, 74, .2);
+  background: #ecf7ed;
+  color: #147c4a;
+}
+
+.dataSignal span,
+.textLink {
+  color: #147c4a;
+}
+
+.navButtons a,
+.navButtons button {
+  background: #147c4a;
+}
+
+.notice,
+.empty {
+  background: #eef5ec;
+  color: var(--soft);
+}
+
+.success {
+  background: #e6f5e9;
+  color: #126640;
+}
+
+.error {
+  background: #fff2ef;
+  color: #9e352a;
+}
+
+@media (max-width: 1000px) {
+  .saasHero {
+    min-height: 520px;
+  }
+}
+
+@media (max-width: 760px) {
+  .saasHome {
+    width: min(100% - 24px, 1240px);
+  }
+
+  .saasHero {
+    min-height: 500px;
+    padding: 48px 24px;
+    background-image: linear-gradient(90deg, rgba(4, 11, 8, .96) 0%, rgba(4, 11, 8, .84) 65%, rgba(4, 11, 8, .55) 100%), url("./assets/stadium-hero.png");
+    background-position: 62% center;
+  }
+
+  .saasHero .heroCopy h1 {
+    font-size: 3.5rem;
+  }
+
+  .saasHero .heroCopy .heroChallenge {
+    font-size: 1.8rem;
+  }
+
+  .saasHero .heroCopy .heroDescription {
+    font-size: 1rem;
+  }
+
+  .competitionBrief {
+    grid-template-columns: 1fr;
+  }
+
+  .competitionBrief div + div {
+    border-top: 1px solid rgba(255, 255, 255, .15);
+    border-left: 0;
+  }
+
+  .saasHome .sectionIntro h2 {
+    font-size: 1.95rem;
+  }
+
+  .featuredTitle h3 {
+    font-size: 1.55rem;
+  }
+
+  .featuredForecast {
+    padding: 18px 0 0;
+    border-top: 1px solid var(--border);
+    border-left: 0;
+  }
+
+  .saasHome .toolbar {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 440px) {
+  .saasHero {
+    min-height: 475px;
+    padding: 40px 20px;
+  }
+
+  .saasHero .heroCopy h1 {
+    font-size: 2.8rem;
+  }
+
+  .heroEyebrow {
+    font-size: .67rem;
+  }
+
+  .saasHero .heroCopy .heroChallenge {
+    font-size: 1.55rem;
+  }
+
+  .saasHero .heroCopy .heroDescription {
+    font-size: .94rem;
+  }
+
+  .competitionBrief div {
+    padding: 15px 18px;
+  }
+}

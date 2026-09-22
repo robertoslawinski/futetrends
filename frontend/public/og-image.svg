@@ -1,8 +1,15 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
-  <rect width="1200" height="630" fill="#061c19"/>
-  <path d="M0 438c190-88 387-119 591-91 200 28 401 12 609-48v331H0Z" fill="#0c3b2e"/>
-  <circle cx="965" cy="130" r="78" fill="#f0c84b"/>
-  <text x="92" y="235" fill="#f8f4e8" font-family="Arial, sans-serif" font-size="96" font-weight="800">FuteTrends</text>
-  <text x="98" y="318" fill="#d9dfd2" font-family="Arial, sans-serif" font-size="42">Preveja o futebol brasileiro antes da tabela reagir.</text>
-  <text x="98" y="430" fill="#f0c84b" font-family="Arial, sans-serif" font-size="30" font-weight="700">Jogo gratuito de inteligência por pontos</text>
+  <rect width="1200" height="630" fill="#080e0a"/>
+  <path d="M0 470c288-80 518-35 735-85 182-42 321-35 465-11v256H0Z" fill="#113421"/>
+  <g transform="translate(80 178)">
+    <rect x="0" y="95" width="28" height="75" fill="#f0d21b"/>
+    <rect x="38" y="68" width="28" height="102" fill="#a7ee30"/>
+    <rect x="76" y="36" width="28" height="134" fill="#44da6c"/>
+    <rect x="114" y="0" width="28" height="170" fill="#00c97b"/>
+  </g>
+  <text x="250" y="330" fill="#ffffff" font-family="Arial, sans-serif" font-size="118" font-style="italic" font-weight="900">Fute</text>
+  <text x="500" y="330" fill="#44da6c" font-family="Arial, sans-serif" font-size="118" font-style="italic" font-weight="900">Trends</text>
+  <path d="M250 365H960" stroke="#f0d21b" stroke-width="8"/>
+  <text x="82" y="505" fill="#ffffff" font-family="Arial, sans-serif" font-size="42" font-weight="700">VOCÊ ENTENDE DE FUTEBOL?</text>
+  <text x="82" y="560" fill="#cfddce" font-family="Arial, sans-serif" font-size="27">Brasileirão 2026 · Libertadores 2026 · Previsões por pontos</text>
 </svg>
