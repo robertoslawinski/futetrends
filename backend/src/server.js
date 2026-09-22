@@ -2,6 +2,7 @@ import dotenv from "dotenv";
 import app from "./app.js";
 import { connectDB } from "./config/db.js";
 import { seedIfEmpty } from "./scripts/seedIfEmpty.js";
+import { upsertSeedMarkets } from "./scripts/upsertSeedMarkets.js";
 
 dotenv.config();
 
@@ -16,6 +17,7 @@ connectDB()
     if (process.env.SEED_ON_START === "true") {
       await seedIfEmpty();
     }
+    await upsertSeedMarkets();
     app.listen(port, () => console.log(`FuteTrends API listening on ${port}`));
   })
   .catch((err) => {

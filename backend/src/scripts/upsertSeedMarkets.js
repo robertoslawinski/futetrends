@@ -2,7 +2,7 @@ import bcrypt from "bcryptjs";
 import Prediction from "../models/Prediction.js";
 import User from "../models/User.js";
 import Vote from "../models/Vote.js";
-import { seedMarkets } from "../data/seedMarkets.js";
+import { seasonMarkets as seedMarkets } from "../data/seasonMarkets.js";
 
 async function getAdminUser() {
   const adminEmail = process.env.ADMIN_EMAIL || "admin@futetrends.com";

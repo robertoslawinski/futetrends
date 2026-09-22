@@ -30,7 +30,7 @@ cp frontend/.env.example frontend/.env
 
 3. Update `backend/.env` with `MONGODB_URI`, `JWT_SECRET`, and admin credentials.
 
-4. Seed launch markets and admin:
+4. For a new database only, seed the admin and 2026 markets:
 
 ```bash
 npm run seed --prefix backend
@@ -56,13 +56,15 @@ npm run create-admin --prefix backend
 
 Admin users can create, edit, delete, and resolve markets. Resolving a market distributes points to correct predictions and updates user accuracy stats.
 
-To add the current seed market set without deleting users or votes:
+To add the Brasileirão 2026 and Libertadores markets without deleting users or votes:
 
 ```bash
 npm run upsert-markets --prefix backend
 ```
 
 In production, the protected endpoint `POST /admin/upsert-markets` does the same check when called with the `x-seed-token` header. It skips resolved markets and markets that already have votes.
+
+The API also upserts this season's markets on startup when an admin exists. Existing votes and resolved markets are preserved. The homepage highlights only the Brasileirão 2026 and Libertadores 2026 categories; older markets remain available in user history and admin views.
 
 ## API Routes
 

@@ -4,6 +4,8 @@ import { api, errorMessage } from "../api/client.js";
 import FootballIntelligence from "../components/FootballIntelligence.jsx";
 import MarketCard from "../components/MarketCard.jsx";
 
+const currentCategories = new Set(["Brasileirão 2026", "Libertadores 2026"]);
+
 const steps = [
   {
     number: "01",
@@ -143,8 +145,8 @@ export default function Home() {
       }
     })
       .then(({ data }) => {
-        setMarkets(data.predictions);
-        setCategories(data.categories);
+        setMarkets(data.predictions.filter((market) => currentCategories.has(market.category)));
+        setCategories(data.categories.filter((item) => currentCategories.has(item)));
         setError("");
       })
       .catch((err) => setError(errorMessage(err)))
@@ -196,9 +198,9 @@ export default function Home() {
     <div className="page saasHome">
       <section className="saasHero">
         <div className="heroCopy">
-          <span className="heroEyebrow">Modo Copa do Mundo 2026</span>
-          <h1>Quem entende melhor a Copa antes da bola rolar?</h1>
-          <p>Responda SIM ou NÃO sobre Brasil, Grupo C e mata-mata. Acerte previsões e prove sua leitura no ranking.</p>
+          <span className="heroEyebrow">Brasileirão 2026 + Libertadores</span>
+          <h1>Preveja o futebol brasileiro antes da tabela reagir.</h1>
+          <p>Leia a disputa pelo título, a briga contra o rebaixamento e o caminho até a final continental. Acerte previsões e suba no ranking.</p>
           <div className="heroActions">
             <a href="#markets" className="primaryLink">Começar a prever</a>
             <a href="#how-it-works" className="secondaryLink">Como funciona</a>
@@ -231,14 +233,14 @@ export default function Home() {
         </aside>
       </section>
 
-      <section className="worldCupBrief" aria-label="Contexto da Copa do Mundo 2026">
+      <section className="worldCupBrief" aria-label="Competições em destaque">
         <div>
-          <span>Grupo C</span>
-          <strong>Brasil, Marrocos, Haiti e Escócia</strong>
+          <span>Brasileirão 2026</span>
+          <strong>Título, G-3 e rebaixamento</strong>
         </div>
         <div>
-          <span>Primeiro foco</span>
-          <strong>Brasil x Marrocos</strong>
+          <span>Libertadores 2026</span>
+          <strong>Finalistas, campeão e artilharia</strong>
         </div>
         <div>
           <span>Mercados novos</span>
@@ -270,8 +272,8 @@ export default function Home() {
       <Section
         id="how-it-works"
         eyebrow="Como funciona"
-        title="Sua leitura da Copa vale pontos."
-        description="Um jogo simples de previsão para descobrir quem enxerga a Seleção e os rivais antes dos outros."
+        title="Sua leitura do futebol vale pontos."
+        description="Faça previsões sobre o Brasileirão e a Libertadores antes dos resultados oficiais."
       >
         <div className="stepsGrid">
           {steps.map((step) => (
@@ -298,9 +300,9 @@ export default function Home() {
         <div className="sectionIntro">
           <div>
             <span className="sectionKicker">Mercados abertos</span>
-            <h2>Faça sua próxima previsão da Copa.</h2>
+            <h2>Faça sua próxima previsão de 2026.</h2>
           </div>
-          <p>Perguntas objetivas sobre Brasil, Grupo C, jogadores, arbitragem e caminho até o título.</p>
+          <p>Perguntas objetivas sobre classificação, clubes brasileiros e a decisão continental.</p>
         </div>
 
         <div className="toolbar">

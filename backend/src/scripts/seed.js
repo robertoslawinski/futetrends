@@ -4,7 +4,7 @@ import { connectDB } from "../config/db.js";
 import Prediction from "../models/Prediction.js";
 import User from "../models/User.js";
 import Vote from "../models/Vote.js";
-import { seedMarkets } from "../data/seedMarkets.js";
+import { seasonMarkets as seedMarkets } from "../data/seasonMarkets.js";
 
 dotenv.config();
 

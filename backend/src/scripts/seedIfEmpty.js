@@ -1,7 +1,7 @@
 import bcrypt from "bcryptjs";
 import Prediction from "../models/Prediction.js";
 import User from "../models/User.js";
-import { seedMarkets } from "../data/seedMarkets.js";
+import { seasonMarkets as seedMarkets } from "../data/seasonMarkets.js";
 
 export async function seedIfEmpty() {
   const count = await Prediction.countDocuments();
