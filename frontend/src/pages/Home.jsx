@@ -337,7 +337,7 @@ export default function Home() {
             )}
           </>
         ) : (
-          <div className="empty">Nenhum mercado combina com essa busca.</div>
+          <div className="empty">{hasActiveFilters ? "Nenhum mercado combina com essa busca." : "Os mercados do Brasileirão 2026 e da Libertadores 2026 estarão disponíveis assim que a atualização da API terminar."}</div>
         )}
       </section>
 
