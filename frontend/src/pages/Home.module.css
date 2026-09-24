@@ -43,6 +43,11 @@
   line-height: .95;
 }
 
+.hero h1 strong {
+  display: block;
+  color: var(--home-yellow);
+}
+
 .hero p {
   max-width: 560px;
   margin: 0;
@@ -208,13 +213,19 @@
 .voteBar b { background: var(--home-yellow); }
 
 .voteActions a {
+  display: inline-flex;
   flex: 1;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
   padding: 12px 8px;
   border-radius: 7px;
   font-size: .8rem;
   font-weight: 900;
   text-align: center;
 }
+
+.voteActions svg { width: 16px; height: 16px; }
 
 .yesVote { background: var(--home-green); color: #fff; }
 .noVote { border: 1px solid rgba(16, 37, 25, .14); background: #fff; color: var(--home-ink); }
@@ -232,6 +243,23 @@
 
 .rankingPanelPublic { grid-template-columns: 1fr; }
 
+.rankingSection {
+  margin-top: 76px;
+  padding: clamp(28px, 4vw, 46px);
+  border-radius: 15px;
+  background: #0b2818;
+}
+
+.rankingSection .sectionHeading h2 { color: #fff; }
+.rankingSection .sectionHeading span { color: var(--home-green-bright); }
+.rankingSection .textLink { color: var(--home-yellow); }
+
+.rankingSection .rankingPanel {
+  border-color: rgba(255, 255, 255, .1);
+  background: rgba(255, 255, 255, .035);
+  box-shadow: none;
+}
+
 .rankingList { display: grid; }
 
 .rankingEntry {
@@ -247,8 +275,17 @@
 .rankingEntry:last-child { border-bottom: 0; }
 .rankingEntry[data-leader="true"] { background: rgba(240, 210, 27, .08); }
 
-.rankNumber { color: rgba(255, 255, 255, .52); font-size: .8rem; font-weight: 900; }
-.rankingEntry[data-leader="true"] .rankNumber { color: var(--home-yellow); }
+.rankMedal {
+  display: grid;
+  width: 28px;
+  height: 28px;
+  place-items: center;
+}
+
+.rankMedal svg { width: 23px; height: 23px; }
+.rankMedal[data-rank="1"] { color: #f0d21b; }
+.rankMedal[data-rank="2"] { color: #cbd5e1; }
+.rankMedal[data-rank="3"] { color: #d89254; }
 
 .rankAvatar {
   display: grid;
@@ -290,12 +327,24 @@
   color: var(--home-green);
 }
 
-.rankingEmpty div,
+.rankingEmpty div {
+  display: grid;
+  gap: 5px;
+}
+
 .emptyState { flex-direction: column; align-items: flex-start; }
 .rankingEmpty strong,
 .emptyState strong { color: var(--home-ink); }
 .rankingEmpty span,
 .emptyState span { color: #698074; font-size: .9rem; }
+
+.rankingSection .rankingEmpty {
+  border-color: rgba(255, 255, 255, .1);
+  background: rgba(255, 255, 255, .05);
+}
+
+.rankingSection .rankingEmpty strong { color: #fff; }
+.rankingSection .rankingEmpty span { color: rgba(255, 255, 255, .62); }
 
 .marketGrid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 15px; }
 
@@ -323,6 +372,7 @@
 .steps div { display: flex; align-items: center; gap: 9px; color: var(--home-ink); }
 .steps svg { width: 21px; color: var(--home-green); }
 .steps i { width: 28px; height: 1px; background: rgba(16, 37, 25, .2); }
+.steps .pointsStep strong { color: #8b6a00; font-size: 1.05rem; text-transform: uppercase; }
 .howItWorks p { margin: 15px 0 0; color: #698074; font-size: .86rem; }
 
 .finalCta {
@@ -358,6 +408,7 @@
   .hero h1 { font-size: clamp(2.9rem, 13vw, 4.2rem); }
   .primaryAction { width: 100%; }
   .section { padding-top: 58px; }
+  .rankingSection { margin-top: 58px; padding: 26px 20px; }
   .sectionHeading { display: grid; gap: 13px; }
   .sectionHeading h2 { font-size: clamp(2rem, 10vw, 2.8rem); }
   .featuredCard { gap: 25px; padding: 22px; }

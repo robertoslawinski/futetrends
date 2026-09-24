@@ -69,7 +69,7 @@ export default function Layout() {
         <div className={styles.footerGrid}>
           <div className={styles.footerBrand}>
             <img src={logo} alt="FuteTrends" />
-            <p>Dê seus palpites, ganhe pontos e prove que entende de futebol brasileiro.</p>
+            <p>Dê seus palpites, ganhe pontos e prove que entende de futebol.</p>
           </div>
           <div>
             <strong>Produto</strong>

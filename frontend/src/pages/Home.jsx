@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { Check, Crosshair, Trophy, TrendingUp } from "lucide-react";
+import { CheckCircle2, Crosshair, Medal, Target, Trophy } from "lucide-react";
 import { api, errorMessage } from "../api/client.js";
 import stadiumHero from "../assets/stadium-hero.png";
 import MarketCard from "../components/MarketCard.jsx";
@@ -52,10 +52,10 @@ function FeaturedPalpite({ market }) {
         </div>
         <div className={styles.voteActions}>
           <Link to={`/markets/${market._id}`} state={{ choice: "yes" }} className={market.userVote === "yes" ? styles.selectedVote : styles.yesVote}>
-            {market.userVote === "yes" ? "Meu palpite: SIM" : "SIM"}
+            {market.userVote === "yes" ? <><CheckCircle2 aria-hidden="true" /> Seu palpite: SIM</> : "SIM"}
           </Link>
           <Link to={`/markets/${market._id}`} state={{ choice: "no" }} className={market.userVote === "no" ? styles.selectedVote : styles.noVote}>
-            {market.userVote === "no" ? "Meu palpite: NÃO" : "NÃO"}
+            {market.userVote === "no" ? <><CheckCircle2 aria-hidden="true" /> Seu palpite: NÃO</> : "NÃO"}
           </Link>
         </div>
       </div>
@@ -68,7 +68,7 @@ function RankingSection({ ranking, user }) {
   const currentUser = userId ? ranking.find((entry) => entry.id === userId) : null;
 
   return (
-    <section id="ranking" className={styles.section}>
+    <section id="ranking" className={`${styles.section} ${styles.rankingSection}`}>
       <div className={styles.sectionHeading}>
         <div>
           <span>Ranking FuteTrends</span>
@@ -82,7 +82,7 @@ function RankingSection({ ranking, user }) {
           <div className={styles.rankingList}>
             {ranking.slice(0, 3).map((entry, index) => (
               <div className={styles.rankingEntry} data-leader={index === 0 || undefined} key={entry.id}>
-                <span className={styles.rankNumber}>{entry.rank}</span>
+                <span className={styles.rankMedal} data-rank={index + 1} aria-label={`${entry.rank}º lugar`}><Medal aria-hidden="true" /></span>
                 <span className={styles.rankAvatar}>{entry.name.slice(0, 1).toUpperCase()}</span>
                 <div>
                   <strong>{entry.name}</strong>
@@ -154,9 +154,9 @@ export default function Home() {
       <section className={styles.hero} style={{ "--hero-image": `url(${stadiumHero})` }}>
         <div className={styles.heroInner}>
           <span className={styles.heroEyebrow}>Palpites de futebol valendo pontos</span>
-          <h1>Você entende de futebol? Prove.</h1>
-          <p>Dê seus palpites, marque pontos e suba no ranking.</p>
-          <a href="#palpite-da-rodada" className={styles.primaryAction}>Começar a palpitar</a>
+          <h1>Você entende de futebol? <strong>Prove.</strong></h1>
+          <p>Dê seus palpites, ganhe pontos e suba no ranking.</p>
+          <a href="#palpite-da-rodada" className={styles.primaryAction}>COMEÇAR A PALPITAR</a>
           <small>Grátis <i /> Sem apostas em dinheiro</small>
         </div>
       </section>
@@ -196,17 +196,17 @@ export default function Home() {
           <span>Como funciona</span>
           <div className={styles.steps}>
             <div><Crosshair aria-hidden="true" /><strong>Palpite</strong></div><i aria-hidden="true" />
-            <div><Check aria-hidden="true" /><strong>Acerte</strong></div><i aria-hidden="true" />
-            <div><Trophy aria-hidden="true" /><strong>Ganhe pontos</strong></div><i aria-hidden="true" />
-            <div><TrendingUp aria-hidden="true" /><strong>Suba no ranking</strong></div>
+            <div><Target aria-hidden="true" /><strong>Acerte</strong></div><i aria-hidden="true" />
+            <div className={styles.pointsStep}><strong>+100 pts</strong></div><i aria-hidden="true" />
+            <div><Trophy aria-hidden="true" /><strong>Suba no ranking</strong></div>
           </div>
-          <p>Sem apostas em dinheiro. Só futebol e competição.</p>
+          <p>Quanto mais você acerta, mais sobe no ranking.</p>
         </section>
       </div>
 
       <section className={styles.finalCta}>
-        <div><h2>Mostre que você entende de futebol.</h2><p>Comece grátis.</p></div>
-        <Link to="/signup" className={styles.primaryAction}>Criar conta grátis</Link>
+        <div><h2>Pronto para provar que entende de futebol?</h2><p>Comece grátis.</p></div>
+        <Link to="/signup" className={styles.primaryAction}>CRIAR CONTA GRÁTIS</Link>
       </section>
     </div>
   );
