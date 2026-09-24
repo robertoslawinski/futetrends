@@ -35,8 +35,6 @@ export default function Layout() {
           <NavLink to="/palpites" onClick={() => setMenuOpen(false)}>Palpites</NavLink>
           <NavLink to="/ranking">Ranking</NavLink>
           <a href="/#how-it-works" onClick={() => setMenuOpen(false)}>Como funciona</a>
-          <a href="/#community">Comunidade</a>
-          <NavLink to="/about">Sobre</NavLink>
           {user && <NavLink to="/dashboard">Painel</NavLink>}
           {isAdmin && <NavLink to="/admin">Admin</NavLink>}
           <div className={styles.mobileActions}>
@@ -81,7 +79,7 @@ export default function Layout() {
           </div>
           <div>
             <strong>FuteTrends</strong>
-            <a href="/#community">Comunidade</a>
+            <NavLink to="/ranking">Comunidade</NavLink>
             <NavLink to="/rules">Regras</NavLink>
             <NavLink to="/about">Sobre</NavLink>
           </div>
@@ -93,7 +91,7 @@ export default function Layout() {
         </div>
         <div className={styles.footerBottom}>
           <span>© 2026 FuteTrends</span>
-          <span>Gratuito. Sem apostas. Sem dinheiro envolvido.</span>
+          <span>Palpites, pontos e ranking.</span>
         </div>
       </footer>
     </div>

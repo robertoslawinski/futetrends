@@ -1,76 +1,125 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { MessageCircle, Trophy, TrendingUp } from "lucide-react";
+import { Check, Crosshair, Trophy, TrendingUp } from "lucide-react";
 import { api, errorMessage } from "../api/client.js";
+import stadiumHero from "../assets/stadium-hero.png";
 import MarketCard from "../components/MarketCard.jsx";
-
-const currentCategories = new Set(["Brasileirão 2026", "Libertadores 2026"]);
-
-const steps = [
-  { icon: MessageCircle, title: "Dê seu palpite", text: "Responda às perguntas antes do prazo." },
-  { icon: Trophy, title: "Acerte e ganhe pontos", text: "Quando o resultado for confirmado, você pontua." },
-  { icon: TrendingUp, title: "Suba no ranking", text: "Compare seu desempenho com outros torcedores." }
-];
+import { useAuth } from "../context/AuthContext.jsx";
+import styles from "./Home.module.css";
 
 function deadlineLabel(deadline) {
   return new Date(deadline).toLocaleDateString("pt-BR", { day: "2-digit", month: "short" });
 }
 
-function Section({ id, eyebrow, title, description, children }) {
-  return (
-    <section id={id} className="homeSection">
-      <div className="sectionIntro">
-        <div>
-          <span className="sectionKicker">{eyebrow}</span>
-          <h2>{title}</h2>
-        </div>
-        {description && <p>{description}</p>}
-      </div>
-      {children}
-    </section>
-  );
-}
-
 function FeaturedPalpite({ market }) {
-  if (!market) return <div className="empty">O próximo palpite em destaque aparece em breve.</div>;
+  if (!market) {
+    return (
+      <div className={styles.emptyState}>
+        <strong>O próximo palpite está sendo preparado.</strong>
+        <span>Volte em breve para ser um dos primeiros a responder.</span>
+      </div>
+    );
+  }
 
   const yesPercent = market.voteBreakdown?.yesPercent || 0;
   const noPercent = market.voteBreakdown?.noPercent || 0;
 
   return (
-    <article className="featuredMarket">
-      <div className="featuredMain">
-        <div className="featuredTopline">
+    <article className={styles.featuredCard}>
+      <div className={styles.featuredQuestion}>
+        <div className={styles.cardTopline}>
           <span>{market.category}</span>
           <em>Aberto</em>
         </div>
-        <Link to={`/markets/${market._id}`} className="featuredTitle"><h3>{market.title}</h3></Link>
-        <div className="featuredMeta">
+        <Link to={`/markets/${market._id}`}>
+          <h3>{market.title}</h3>
+        </Link>
+        <div className={styles.featuredMeta}>
           <span>Encerra {deadlineLabel(market.deadline)}</span>
           <span>{market.totalVotes || 0} {market.totalVotes === 1 ? "palpite" : "palpites"}</span>
-          <span>{market.pointsValue} pontos por acerto</span>
+          <span>{market.pointsValue} pontos</span>
         </div>
       </div>
-      <div className="featuredForecast">
-        <span>O que a torcida acha</span>
-        <div className="featuredPercents">
+
+      <div className={styles.featuredVote}>
+        <div className={styles.votePercentages}>
           <strong>SIM <b>{yesPercent}%</b></strong>
           <strong>NÃO <b>{noPercent}%</b></strong>
         </div>
-        <div className="featuredBar" aria-hidden="true">
+        <div className={styles.voteBar} aria-label={`SIM ${yesPercent}%, NÃO ${noPercent}%`}>
           <i style={{ width: `${yesPercent}%` }} />
           <b style={{ width: `${noPercent}%` }} />
         </div>
-        <div className="featuredActions">
-          <Link to={`/markets/${market._id}`} state={{ choice: "yes" }} className="featuredYes">Meu palpite: SIM</Link>
-          <Link to={`/markets/${market._id}`} state={{ choice: "no" }} className="featuredNo">Meu palpite: NÃO</Link>
+        <div className={styles.voteActions}>
+          <Link to={`/markets/${market._id}`} state={{ choice: "yes" }} className={market.userVote === "yes" ? styles.selectedVote : styles.yesVote}>
+            {market.userVote === "yes" ? "Meu palpite: SIM" : "SIM"}
+          </Link>
+          <Link to={`/markets/${market._id}`} state={{ choice: "no" }} className={market.userVote === "no" ? styles.selectedVote : styles.noVote}>
+            {market.userVote === "no" ? "Meu palpite: NÃO" : "NÃO"}
+          </Link>
         </div>
       </div>
     </article>
   );
 }
 
+function RankingSection({ ranking, user }) {
+  const userId = user?._id || user?.id;
+  const currentUser = userId ? ranking.find((entry) => entry.id === userId) : null;
+
+  return (
+    <section id="ranking" className={styles.section}>
+      <div className={styles.sectionHeading}>
+        <div>
+          <span>Ranking FuteTrends</span>
+          <h2>Quem entende mais de futebol?</h2>
+        </div>
+        <Link to="/ranking" className={styles.textLink}>Ver ranking completo</Link>
+      </div>
+
+      {ranking.length ? (
+        <div className={`${styles.rankingPanel} ${!user ? styles.rankingPanelPublic : ""}`}>
+          <div className={styles.rankingList}>
+            {ranking.slice(0, 3).map((entry, index) => (
+              <div className={styles.rankingEntry} data-leader={index === 0 || undefined} key={entry.id}>
+                <span className={styles.rankNumber}>{entry.rank}</span>
+                <span className={styles.rankAvatar}>{entry.name.slice(0, 1).toUpperCase()}</span>
+                <div>
+                  <strong>{entry.name}</strong>
+                  <small>{entry.accuracy}% de acerto</small>
+                </div>
+                <b>{entry.points} pts</b>
+              </div>
+            ))}
+          </div>
+          {user && (
+            <div className={styles.userRank}>
+              <span>Sua posição</span>
+              {currentUser ? (
+                <strong>#{currentUser.rank} · {currentUser.points} pts</strong>
+              ) : user.points ? (
+                <strong>{user.points} pts · veja sua posição completa</strong>
+              ) : (
+                <strong>Faça seu primeiro palpite para entrar.</strong>
+              )}
+            </div>
+          )}
+        </div>
+      ) : (
+        <div className={styles.rankingEmpty}>
+          <Trophy size={28} aria-hidden="true" />
+          <div>
+            <strong>O ranking está começando.</strong>
+            <span>Faça seus palpites e seja um dos primeiros a chegar ao topo.</span>
+          </div>
+        </div>
+      )}
+    </section>
+  );
+}
+
 export default function Home() {
+  const { user } = useAuth();
   const [markets, setMarkets] = useState([]);
   const [ranking, setRanking] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -78,120 +127,86 @@ export default function Home() {
 
   useEffect(() => {
     api.get("/api/predictions")
-      .then(({ data }) => setMarkets(data.predictions.filter((market) => currentCategories.has(market.category))))
+      .then(({ data }) => setMarkets(data.predictions || []))
       .catch((err) => setError(errorMessage(err)))
       .finally(() => setLoading(false));
+
     api.get("/api/ranking")
       .then(({ data }) => setRanking(data.ranking || []))
       .catch(() => setRanking([]));
   }, []);
 
-  const openMarkets = useMemo(() => markets.filter((market) => market.status === "open"), [markets]);
+  const openMarkets = useMemo(
+    () => markets.filter((market) => market.status === "open" && new Date(market.deadline) > new Date()),
+    [markets]
+  );
   const featuredMarket = useMemo(
     () => [...openMarkets].sort((a, b) => ((b.totalVotes || 0) + b.pointsValue) - ((a.totalVotes || 0) + a.pointsValue))[0],
     [openMarkets]
   );
-  const visibleMarkets = useMemo(() => {
-    const candidates = openMarkets.filter((market) => market._id !== featuredMarket?._id);
-    const firstBrasileirao = candidates.find((market) => market.category === "Brasileirão 2026");
-    const firstLibertadores = candidates.find((market) => market.category === "Libertadores 2026");
-    return [firstBrasileirao, firstLibertadores, ...candidates]
-      .filter((market, index, list) => market && list.findIndex((item) => item?._id === market._id) === index)
-      .slice(0, 3);
-  }, [openMarkets, featuredMarket]);
+  const visibleMarkets = useMemo(
+    () => openMarkets.filter((market) => market._id !== featuredMarket?._id).slice(0, 3),
+    [openMarkets, featuredMarket]
+  );
 
   return (
-    <div className="saasHome">
-      <section className="saasHero">
-        <div className="heroCopy">
-          <span className="heroEyebrow">Brasileirão 2026 · Libertadores 2026</span>
-          <h1>Fute<strong>Trends</strong></h1>
-          <p className="heroChallenge">Você entende de futebol? <strong>Prove.</strong></p>
-          <p className="heroDescription">Dê seus palpites, ganhe pontos e suba no ranking.</p>
-          <div className="heroActions">
-            <a href="#palpites" className="primaryLink">Começar a palpitar</a>
-            <a href="#how-it-works" className="secondaryLink">Veja como funciona</a>
-          </div>
-          <div className="heroTrust">
-            <span><i /> Grátis para jogar</span>
-            <span>Sem apostas. Sem dinheiro.</span>
-          </div>
+    <div className={styles.home}>
+      <section className={styles.hero} style={{ "--hero-image": `url(${stadiumHero})` }}>
+        <div className={styles.heroInner}>
+          <span className={styles.heroEyebrow}>Palpites de futebol valendo pontos</span>
+          <h1>Você entende de futebol? Prove.</h1>
+          <p>Dê seus palpites, marque pontos e suba no ranking.</p>
+          <a href="#palpite-da-rodada" className={styles.primaryAction}>Começar a palpitar</a>
+          <small>Grátis <i /> Sem apostas em dinheiro</small>
         </div>
       </section>
 
-      <div className="homeContent">
-      {error && <div className="error">{error}</div>}
+      <div className={styles.content}>
+        {error && <div className="error">{error}</div>}
 
-      <Section id="how-it-works" eyebrow="Como funciona" title="Palpite. Pontue. Suba no ranking.">
-        <div className="stepsGrid">
-          {steps.map(({ icon: Icon, title, text }) => (
-            <article className="stepCard" key={title}>
-              <span><Icon size={21} strokeWidth={2.2} aria-hidden="true" /></span>
-              <div><h3>{title}</h3><p>{text}</p></div>
-            </article>
-          ))}
-        </div>
-        <p className="gamePromise">Sem apostas. Sem dinheiro. Só futebol.</p>
-      </Section>
-
-      <Section eyebrow="Palpite em destaque" title="Uma pergunta. Duas escolhas." description="Escolha SIM ou NÃO e veja o que outros torcedores estão pensando.">
-        {loading ? <div className="empty">Carregando palpite...</div> : <FeaturedPalpite market={featuredMarket} />}
-      </Section>
-
-      <Section id="palpites" eyebrow="Palpites abertos" title="Mostre o que você sabe sobre futebol brasileiro.">
-        {loading ? (
-          <div className="empty">Carregando palpites...</div>
-        ) : visibleMarkets.length ? (
-          <div className="marketGrid">
-            {visibleMarkets.map((market) => <MarketCard market={market} key={market._id} />)}
+        <section id="palpite-da-rodada" className={styles.section}>
+          <div className={styles.sectionHeading}>
+            <div><span>Palpite da rodada</span><h2>Escolha um lado.</h2></div>
           </div>
-        ) : (
-          <div className="empty">Novos palpites do Brasileirão e da Libertadores chegam em breve.</div>
-        )}
-        <Link to="/palpites" className="showMore">Ver todos os palpites</Link>
-      </Section>
+          {loading ? <div className={styles.emptyState}>Carregando palpite...</div> : <FeaturedPalpite market={featuredMarket} />}
+        </section>
 
-      <Section id="ranking" eyebrow="Ranking FuteTrends" title="Quem entende mais de futebol?">
-        {ranking.length ? (
-          <div className="rankingRows homeRanking">
-            {ranking.slice(0, 3).map((entry) => (
-              <div className="rankingRow" key={entry.id}>
-                <span className="rankPosition">{entry.rank}º</span>
-                <span className="rankAvatar">{entry.name.slice(0, 1).toUpperCase()}</span>
-                <strong>{entry.name}</strong>
-                <b>{entry.points} pts</b>
-              </div>
-            ))}
+        <RankingSection ranking={ranking} user={user} />
+
+        <section id="palpites" className={styles.section}>
+          <div className={styles.sectionHeading}>
+            <div><span>Mais palpites</span><h2>Acerte mais. Ganhe mais pontos.</h2></div>
           </div>
-        ) : (
-          <p className="rankingInvite">O ranking está começando. Faça seus palpites e seja um dos primeiros a chegar ao topo.</p>
-        )}
-        <Link to="/ranking" className="textLink rankingLink">Ver ranking completo</Link>
-      </Section>
+          {loading ? (
+            <div className={styles.emptyState}>Carregando palpites...</div>
+          ) : visibleMarkets.length ? (
+            <div className={styles.marketGrid}>
+              {visibleMarkets.map((market) => <MarketCard market={market} key={market._id} />)}
+            </div>
+          ) : (
+            <div className={styles.emptyState}>
+              <strong>Novos palpites chegam em breve.</strong>
+              <span>Quando uma nova pergunta abrir, ela aparece aqui.</span>
+            </div>
+          )}
+          <Link to="/palpites" className={styles.outlineAction}>Ver todos os palpites</Link>
+        </section>
 
-      <Section id="community" eyebrow="Comunidade" title="Acerte mais. Suba no ranking." description="Compare seus palpites com a torcida e acompanhe as perguntas da rodada.">
-        <div className="communityHighlights">
-          {openMarkets.slice(0, 3).map((market) => (
-            <Link to={`/markets/${market._id}`} key={market._id}>
-              <span>{market.category}</span>
-              <strong>{market.title}</strong>
-              <small>{market.totalVotes || 0} {market.totalVotes === 1 ? "palpite" : "palpites"}</small>
-            </Link>
-          ))}
-        </div>
-      </Section>
-
+        <section id="how-it-works" className={`${styles.section} ${styles.howItWorks}`}>
+          <span>Como funciona</span>
+          <div className={styles.steps}>
+            <div><Crosshair aria-hidden="true" /><strong>Palpite</strong></div><i aria-hidden="true" />
+            <div><Check aria-hidden="true" /><strong>Acerte</strong></div><i aria-hidden="true" />
+            <div><Trophy aria-hidden="true" /><strong>Ganhe pontos</strong></div><i aria-hidden="true" />
+            <div><TrendingUp aria-hidden="true" /><strong>Suba no ranking</strong></div>
+          </div>
+          <p>Sem apostas em dinheiro. Só futebol e competição.</p>
+        </section>
       </div>
-      <section className="homeFinalCta">
-        <div>
-          <span>FuteTrends</span>
-          <h2>Pronto para provar que entende de futebol?</h2>
-          <p>Comece grátis. Leva menos de 1 minuto.</p>
-        </div>
-        <div className="finalCtaActions">
-          <Link to="/signup" className="primaryLink">Criar conta grátis</Link>
-          <small>Sem apostas. Sem dinheiro. Só diversão.</small>
-        </div>
+
+      <section className={styles.finalCta}>
+        <div><h2>Mostre que você entende de futebol.</h2><p>Comece grátis.</p></div>
+        <Link to="/signup" className={styles.primaryAction}>Criar conta grátis</Link>
       </section>
     </div>
   );
