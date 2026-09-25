@@ -100,7 +100,7 @@
 .content {
   width: min(1180px, calc(100% - 40px));
   margin: 0 auto;
-  padding-bottom: 80px;
+  padding-bottom: 54px;
 }
 
 .section { padding-top: 76px; }
@@ -188,6 +188,37 @@
   padding: 21px;
   border-radius: 9px;
   background: #f1f7f1;
+}
+
+.votePrompt,
+.communityLabel {
+  margin: 0 0 12px;
+  color: #53675b;
+  font-size: .8rem;
+  font-weight: 850;
+}
+
+.voteConfirmation {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 17px;
+  color: var(--home-green);
+  font-size: .86rem;
+  font-weight: 900;
+}
+
+.voteConfirmation svg {
+  width: 18px;
+  height: 18px;
+}
+
+.communityLabel { margin-bottom: 9px; }
+
+.closedVote {
+  color: #698074;
+  font-size: .86rem;
+  font-weight: 800;
 }
 
 .votePercentages,
@@ -373,7 +404,7 @@
   color: var(--home-ink);
 }
 
-.howItWorks { text-align: center; }
+.howItWorks { padding-top: 52px; text-align: center; }
 
 .steps {
   display: flex;
@@ -425,6 +456,7 @@
   .hero h1 { font-size: clamp(2.9rem, 13vw, 4.2rem); }
   .primaryAction { width: 100%; }
   .section { padding-top: 58px; }
+  .howItWorks { padding-top: 42px; }
   .rankingSection { margin-top: 58px; padding: 26px 20px; }
   .sectionHeading { display: grid; gap: 13px; }
   .sectionHeading h2 { font-size: clamp(2rem, 10vw, 2.8rem); }

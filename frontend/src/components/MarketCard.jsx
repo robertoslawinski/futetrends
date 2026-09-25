@@ -1,4 +1,6 @@
 import { Link } from "react-router-dom";
+import { CheckCircle2 } from "lucide-react";
+import { getVoteViewState } from "../utils/voteVisibility.js";
 import styles from "./MarketCard.module.css";
 
 function deadlineLabel(deadline) {
@@ -11,8 +13,7 @@ function deadlineLabel(deadline) {
 export default function MarketCard({ market }) {
   const yesPercent = market.voteBreakdown?.yesPercent || 0;
   const noPercent = market.voteBreakdown?.noPercent || 0;
-  const isOpen = market.status === "open";
-  const showVoteCount = (market.totalVotes || 0) >= 10;
+  const { canVote, hasUserVote, isOpen, showCommunity, showVoteCount } = getVoteViewState(market);
 
   return (
     <article className={styles.card}>
@@ -20,22 +21,33 @@ export default function MarketCard({ market }) {
         <h3>{market.title}</h3>
       </Link>
 
-      <div className={styles.splitBar} aria-label={`SIM ${yesPercent}%, NÃO ${noPercent}%`}>
-        <i style={{ width: `${yesPercent}%` }} />
-        <b style={{ width: `${noPercent}%` }} />
-      </div>
+      {showCommunity && (
+        <div className={styles.voteResult}>
+          <div className={styles.voteConfirmation}>
+            <CheckCircle2 aria-hidden="true" />
+            Seu palpite: {market.userVote === "yes" ? "SIM" : "NÃO"}
+          </div>
+          <p className={styles.communityLabel}>O que a torcida acha</p>
+          <div className={styles.splitBar} aria-label={`SIM ${yesPercent}%, NÃO ${noPercent}%`}>
+            <i style={{ width: `${yesPercent}%` }} />
+            <b style={{ width: `${noPercent}%` }} />
+          </div>
+          <div className={styles.percentages}>
+            <strong>SIM <em>{yesPercent}%</em></strong>
+            <strong>NÃO <em>{noPercent}%</em></strong>
+          </div>
+        </div>
+      )}
 
-      <div className={styles.percentages}>
-        <strong>SIM <em>{yesPercent}%</em></strong>
-        <strong>NÃO <em>{noPercent}%</em></strong>
-      </div>
-
+      {canVote && <p className={styles.votePrompt}>Qual é o seu palpite?</p>}
       <div className={styles.actions}>
-        {isOpen ? (
+        {canVote ? (
           <>
             <Link to={`/markets/${market._id}`} state={{ choice: "yes" }} className={styles.yes}>SIM</Link>
             <Link to={`/markets/${market._id}`} state={{ choice: "no" }} className={styles.no}>NÃO</Link>
           </>
+        ) : hasUserVote ? (
+          <Link to={`/markets/${market._id}`} className={styles.result}>Ver detalhes</Link>
         ) : (
           <Link to={`/markets/${market._id}`} className={styles.result}>Ver resultado</Link>
         )}

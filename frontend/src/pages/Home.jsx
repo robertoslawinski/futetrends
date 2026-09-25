@@ -5,6 +5,7 @@ import { api, errorMessage } from "../api/client.js";
 import stadiumHero from "../assets/stadium-hero.png";
 import MarketCard from "../components/MarketCard.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
+import { getVoteViewState } from "../utils/voteVisibility.js";
 import styles from "./Home.module.css";
 
 function deadlineLabel(deadline) {
@@ -23,7 +24,7 @@ function FeaturedPalpite({ market }) {
 
   const yesPercent = market.voteBreakdown?.yesPercent || 0;
   const noPercent = market.voteBreakdown?.noPercent || 0;
-  const showVoteCount = (market.totalVotes || 0) >= 10;
+  const { canVote, showCommunity, showVoteCount } = getVoteViewState(market);
 
   return (
     <article className={styles.featuredCard}>
@@ -43,22 +44,33 @@ function FeaturedPalpite({ market }) {
       </div>
 
       <div className={styles.featuredVote}>
-        <div className={styles.votePercentages}>
-          <strong>SIM <b>{yesPercent}%</b></strong>
-          <strong>NÃO <b>{noPercent}%</b></strong>
-        </div>
-        <div className={styles.voteBar} aria-label={`SIM ${yesPercent}%, NÃO ${noPercent}%`}>
-          <i style={{ width: `${yesPercent}%` }} />
-          <b style={{ width: `${noPercent}%` }} />
-        </div>
-        <div className={styles.voteActions}>
-          <Link to={`/markets/${market._id}`} state={{ choice: "yes" }} className={market.userVote === "yes" ? styles.selectedVote : styles.yesVote}>
-            {market.userVote === "yes" ? <><CheckCircle2 aria-hidden="true" /> Seu palpite: SIM</> : "SIM"}
-          </Link>
-          <Link to={`/markets/${market._id}`} state={{ choice: "no" }} className={market.userVote === "no" ? styles.selectedVote : styles.noVote}>
-            {market.userVote === "no" ? <><CheckCircle2 aria-hidden="true" /> Seu palpite: NÃO</> : "NÃO"}
-          </Link>
-        </div>
+        {showCommunity ? (
+          <>
+            <div className={styles.voteConfirmation}>
+              <CheckCircle2 aria-hidden="true" />
+              Seu palpite: {market.userVote === "yes" ? "SIM" : "NÃO"}
+            </div>
+            <p className={styles.communityLabel}>O que a torcida acha</p>
+            <div className={styles.votePercentages}>
+              <strong>SIM <b>{yesPercent}%</b></strong>
+              <strong>NÃO <b>{noPercent}%</b></strong>
+            </div>
+            <div className={styles.voteBar} aria-label={`SIM ${yesPercent}%, NÃO ${noPercent}%`}>
+              <i style={{ width: `${yesPercent}%` }} />
+              <b style={{ width: `${noPercent}%` }} />
+            </div>
+          </>
+        ) : canVote ? (
+          <>
+            <p className={styles.votePrompt}>Qual é o seu palpite?</p>
+            <div className={styles.voteActions}>
+              <Link to={`/markets/${market._id}`} state={{ choice: "yes" }} className={styles.yesVote}>SIM</Link>
+              <Link to={`/markets/${market._id}`} state={{ choice: "no" }} className={styles.noVote}>NÃO</Link>
+            </div>
+          </>
+        ) : (
+          <div className={styles.closedVote}>Palpite encerrado</div>
+        )}
       </div>
     </article>
   );

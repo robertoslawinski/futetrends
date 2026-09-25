@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
+import { CheckCircle2 } from "lucide-react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { api, errorMessage } from "../api/client.js";
 import { useAuth } from "../context/AuthContext.jsx";
 import { trackEvent } from "../api/analytics.js";
 import { getMarketBadges } from "../utils/marketBadges.js";
 import { getDataValueCopy, getMarketInsight } from "../utils/marketInsights.js";
+import { getVoteViewState } from "../utils/voteVisibility.js";
 
 export default function MarketDetails() {
   const { id } = useParams();
@@ -35,7 +37,7 @@ export default function MarketDetails() {
     try {
       const { data } = await api.post(`/api/predictions/${id}/vote`, { selectedOption });
       setMarket(data.prediction);
-      setMessage("Palpite registrado. Seus pontos serão calculados quando o resultado for confirmado.");
+      setMessage("Palpite registrado.");
       trackEvent("vote_submitted", { market_id: id, selected_option: selectedOption });
     } catch (err) {
       setError(errorMessage(err));
@@ -52,6 +54,7 @@ export default function MarketDetails() {
   const statusLabel = { open: "aberto", closed: "fechado", resolved: "resolvido" }[market.status] || market.status;
   const badges = getMarketBadges(market);
   const insight = getMarketInsight(market);
+  const { canVote, hasUserVote, showCommunity, showVoteCount } = getVoteViewState(market);
 
   return (
     <div className="page detail">
@@ -73,29 +76,41 @@ export default function MarketDetails() {
         </article>
         <aside>
           <div className="voteBox">
-            <h2>Seu palpite</h2>
+            <h2>{hasUserVote ? "Seu palpite" : "Qual é o seu palpite?"}</h2>
             {!user ? (
               <div className="authPrompt">
                 <p>Entre para registrar seu palpite e competir no ranking.</p>
                 <Link to="/login" state={{ returnTo: location.pathname, choice }} className="primaryLink">Entrar para palpitar</Link>
               </div>
-            ) : (
+            ) : canVote ? (
               <div className="split">
-                <button className={choice === "yes" ? "preferredChoice" : ""} disabled={submitting || market.userVote || market.status !== "open"} onClick={() => vote("yes")}>{choice === "yes" ? "Confirmar SIM" : "Sim"}</button>
-                <button className={choice === "no" ? "preferredChoice" : ""} disabled={submitting || market.userVote || market.status !== "open"} onClick={() => vote("no")}>{choice === "no" ? "Confirmar NÃO" : "Não"}</button>
+                <button className={choice === "yes" ? "preferredChoice" : ""} disabled={submitting} onClick={() => vote("yes")}>{choice === "yes" ? "Confirmar SIM" : "Sim"}</button>
+                <button className={choice === "no" ? "preferredChoice" : ""} disabled={submitting} onClick={() => vote("no")}>{choice === "no" ? "Confirmar NÃO" : "Não"}</button>
+              </div>
+            ) : !hasUserVote ? (
+              <div className="voteUnavailable">Este palpite está encerrado.</div>
+            ) : null}
+            {hasUserVote && (
+              <div className="voteConfirmation">
+                <CheckCircle2 aria-hidden="true" />
+                Seu palpite: {market.userVote === "yes" ? "SIM" : "NÃO"}
               </div>
             )}
-            {market.userVote && <div className="success">Você marcou {market.userVote === "yes" ? "SIM" : "NÃO"}.</div>}
-            {message && <div className="success">{message}</div>}
+            {message && <div className="success voteFeedback" role="status">{message}</div>}
             {error && <div className="error">{error}</div>}
-            <div className="meter"><span style={{ width: `${market.voteBreakdown.yesPercent}%` }} /></div>
-            <div className="percentRow"><span>Sim {market.voteBreakdown.yesPercent}%</span><span>Não {market.voteBreakdown.noPercent}%</span></div>
-            <p className="muted">{market.totalVotes} {market.totalVotes === 1 ? "palpite" : "palpites"} no total</p>
-            <div className="dataSignal">
-              <span>{insight.label}</span>
-              <strong>{insight.leadingPercent ? `${insight.leadingPercent}% em ${insight.leadingOption}` : "Aguardando leitura"}</strong>
-              <p>{getDataValueCopy(market)}</p>
-            </div>
+            {showCommunity && (
+              <div className="communityDistribution">
+                <h3>O que a torcida acha</h3>
+                <div className="meter"><span style={{ width: `${market.voteBreakdown.yesPercent}%` }} /></div>
+                <div className="percentRow"><span>Sim {market.voteBreakdown.yesPercent}%</span><span>Não {market.voteBreakdown.noPercent}%</span></div>
+                {showVoteCount && <p className="muted">{market.totalVotes} palpites no total</p>}
+                <div className="dataSignal">
+                  <span>{insight.label}</span>
+                  <strong>{insight.leadingPercent ? `${insight.leadingPercent}% em ${insight.leadingOption}` : "Aguardando leitura"}</strong>
+                  <p>{getDataValueCopy(market)}</p>
+                </div>
+              </div>
+            )}
             {market.status === "resolved" && <strong>Resultado: {market.result === "yes" ? "SIM" : "NÃO"}</strong>}
           </div>
           {(message || market.userVote) && (

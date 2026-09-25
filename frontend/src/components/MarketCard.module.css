@@ -112,8 +112,43 @@
   font-style: normal;
 }
 
+.voteResult {
+  margin-top: 17px;
+}
+
+.voteConfirmation {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: #126640;
+  font-size: 0.78rem;
+  font-weight: 850;
+}
+
+.voteConfirmation svg {
+  width: 17px;
+  height: 17px;
+}
+
+.communityLabel,
+.votePrompt {
+  margin: 14px 0 0;
+  color: #698074;
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.votePrompt {
+  margin-top: 20px;
+  color: #35483d;
+}
+
+.voteResult .splitBar {
+  margin-top: 9px;
+}
+
 .actions {
-  margin-top: 13px;
+  margin-top: 9px;
 }
 
 .card footer {

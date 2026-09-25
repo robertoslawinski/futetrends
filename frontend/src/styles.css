@@ -495,6 +495,38 @@ button:disabled { opacity: .55; cursor: not-allowed; }
 }
 .authPrompt p { margin: 0; color: var(--soft); line-height: 1.45; }
 .authPrompt .primaryLink { text-align: center; }
+.voteUnavailable {
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--muted);
+  font-weight: 800;
+  text-align: center;
+}
+.voteConfirmation {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 16px;
+  padding: 13px 14px;
+  border: 1px solid rgba(0, 143, 90, .22);
+  border-radius: 8px;
+  background: rgba(0, 143, 90, .08);
+  color: #006b43;
+  font-weight: 900;
+}
+.voteConfirmation svg { width: 18px; height: 18px; }
+.communityDistribution {
+  margin-top: 20px;
+  padding-top: 18px;
+  border-top: 1px solid var(--border);
+}
+.communityDistribution h3 { margin: 0; font-size: 1rem; }
+.voteFeedback { animation: voteFeedbackIn 240ms ease-out; }
+@keyframes voteFeedbackIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
 .meter { height: 10px; background: rgba(255,255,255,.08); border-radius: 999px; overflow: hidden; margin-top: 18px; }
 .meter span { display: block; height: 100%; background: linear-gradient(90deg, var(--blue), var(--orange)); }
 .percentRow, .titleRow { display: flex; justify-content: space-between; gap: 12px; align-items: center; }
