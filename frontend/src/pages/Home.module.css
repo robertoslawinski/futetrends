@@ -37,7 +37,7 @@
 
 .hero h1 {
   max-width: 720px;
-  margin: 15px 0 17px;
+  margin: 0 0 17px;
   font-size: clamp(3.1rem, 6.5vw, 6rem);
   letter-spacing: -.055em;
   line-height: .95;
@@ -180,6 +180,8 @@
   font-size: .78rem;
   font-weight: 700;
 }
+
+.pointsValue { color: #806300; }
 
 .featuredVote {
   align-self: center;
@@ -332,6 +334,21 @@
   gap: 5px;
 }
 
+.rankingEmpty > a {
+  display: inline-flex;
+  min-height: 42px;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  margin-left: auto;
+  padding: 0 15px;
+  border-radius: 7px;
+  background: var(--home-yellow);
+  color: #142014;
+  font-size: .76rem;
+  font-weight: 900;
+}
+
 .emptyState { flex-direction: column; align-items: flex-start; }
 .rankingEmpty strong,
 .emptyState strong { color: var(--home-ink); }
@@ -416,6 +433,8 @@
   .marketGrid { grid-template-columns: 1fr; }
   .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px 12px; }
   .finalCta { display: grid; padding-top: 42px; padding-bottom: 42px; }
+  .rankingEmpty { align-items: flex-start; flex-wrap: wrap; }
+  .rankingEmpty > a { width: 100%; margin-left: 0; }
 }
 
 @media (max-width: 390px) {

@@ -1,9 +1,29 @@
 import { useEffect, useState } from "react";
-import { Menu, X } from "lucide-react";
+import { ChevronDown, Menu, X } from "lucide-react";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
 import logo from "../assets/futetrends-brand.png";
 import styles from "./Layout.module.css";
+
+function UserMenu({ user, isAdmin, onLogout, mobile = false }) {
+  const closeMenu = (event) => event.currentTarget.closest("details")?.removeAttribute("open");
+
+  return (
+    <details className={`${styles.userMenu} ${mobile ? styles.mobileUserMenu : ""}`}>
+      <summary>
+        <span className={styles.userAvatar}>{user.name.slice(0, 1).toUpperCase()}</span>
+        <span className={styles.userName}>{user.name}</span>
+        <ChevronDown size={16} aria-hidden="true" />
+      </summary>
+      <div className={styles.userMenuItems}>
+        <NavLink to="/dashboard" onClick={closeMenu}>Painel</NavLink>
+        <NavLink to="/profile" onClick={closeMenu}>Perfil</NavLink>
+        {isAdmin && <NavLink to="/admin" onClick={closeMenu}>Admin</NavLink>}
+        <button type="button" onClick={onLogout}>Sair</button>
+      </div>
+    </details>
+  );
+}
 
 export default function Layout() {
   const { user, logout } = useAuth();
@@ -35,11 +55,9 @@ export default function Layout() {
           <NavLink to="/palpites" onClick={() => setMenuOpen(false)}>Palpites</NavLink>
           <NavLink to="/ranking">Ranking</NavLink>
           <a href="/#how-it-works" onClick={() => setMenuOpen(false)}>Como funciona</a>
-          {user && <NavLink to="/dashboard">Painel</NavLink>}
-          {isAdmin && <NavLink to="/admin">Admin</NavLink>}
           <div className={styles.mobileActions}>
             {user ? (
-              <><NavLink to="/profile">Meu perfil</NavLink><button type="button" onClick={handleLogout}>Sair</button></>
+              <UserMenu user={user} isAdmin={isAdmin} onLogout={handleLogout} mobile />
             ) : (
               <><NavLink to="/login">Entrar</NavLink><NavLink to="/signup" className={styles.cta}>Criar conta grátis</NavLink></>
             )}
@@ -48,10 +66,7 @@ export default function Layout() {
 
         <div className={styles.actions}>
           {user ? (
-            <>
-              <NavLink to="/profile" className={styles.profileLink}>{user.name}</NavLink>
-              <button type="button" onClick={handleLogout}>Sair</button>
-            </>
+            <UserMenu user={user} isAdmin={isAdmin} onLogout={handleLogout} />
           ) : (
             <>
               <NavLink to="/login">Entrar</NavLink>
@@ -79,9 +94,8 @@ export default function Layout() {
           </div>
           <div>
             <strong>FuteTrends</strong>
-            <NavLink to="/ranking">Comunidade</NavLink>
-            <NavLink to="/rules">Regras</NavLink>
             <NavLink to="/about">Sobre</NavLink>
+            <NavLink to="/rules">Regras</NavLink>
           </div>
           <div>
             <strong>Legal</strong>

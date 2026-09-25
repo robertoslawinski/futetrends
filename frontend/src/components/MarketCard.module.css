@@ -16,7 +16,7 @@
   transform: translateY(-2px);
 }
 
-.card header,
+.card footer,
 .meta,
 .percentages,
 .actions {
@@ -54,23 +54,29 @@
 }
 
 .title h3 {
-  margin: 15px 0 0;
+  margin: 0;
   color: #15231a;
-  font-size: 1.08rem;
-  line-height: 1.35;
+  font-size: 1.12rem;
+  line-height: 1.38;
 }
 
 .meta {
-  margin-top: auto;
-  padding-top: 18px;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  margin-top: 16px;
   color: #7b8ba3;
-  font-size: 0.76rem;
+  font-size: 0.72rem;
+}
+
+.meta strong {
+  color: #806300;
+  font-size: 0.77rem;
 }
 
 .splitBar {
   display: flex;
   height: 5px;
-  margin-top: 12px;
+  margin-top: 18px;
   overflow: hidden;
   border-radius: 999px;
   background: #e7ede4;
@@ -107,7 +113,13 @@
 }
 
 .actions {
-  margin-top: 15px;
+  margin-top: 13px;
+}
+
+.card footer {
+  margin-top: auto;
+  padding-top: 14px;
+  border-top: 1px solid rgba(22, 49, 34, 0.08);
 }
 
 .actions a {

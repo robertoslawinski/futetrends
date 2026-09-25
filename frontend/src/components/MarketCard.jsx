@@ -12,23 +12,13 @@ export default function MarketCard({ market }) {
   const yesPercent = market.voteBreakdown?.yesPercent || 0;
   const noPercent = market.voteBreakdown?.noPercent || 0;
   const isOpen = market.status === "open";
+  const showVoteCount = (market.totalVotes || 0) >= 10;
 
   return (
     <article className={styles.card}>
-      <header>
-        <span className={styles.category}>{market.category}</span>
-        <span className={isOpen ? styles.open : styles.closed}>
-          {isOpen ? "Aberto" : market.status === "resolved" ? "Resolvido" : "Encerrado"}
-        </span>
-      </header>
-
       <Link to={`/markets/${market._id}`} className={styles.title}>
         <h3>{market.title}</h3>
       </Link>
-      <div className={styles.meta}>
-        <span>Encerra {deadlineLabel(market.deadline)}</span>
-        <span>{market.totalVotes || 0} {market.totalVotes === 1 ? "palpite" : "palpites"}</span>
-      </div>
 
       <div className={styles.splitBar} aria-label={`SIM ${yesPercent}%, NÃO ${noPercent}%`}>
         <i style={{ width: `${yesPercent}%` }} />
@@ -50,6 +40,19 @@ export default function MarketCard({ market }) {
           <Link to={`/markets/${market._id}`} className={styles.result}>Ver resultado</Link>
         )}
       </div>
+
+      <div className={styles.meta}>
+        {market.pointsValue && <strong>Vale {market.pointsValue} pts</strong>}
+        <span>Encerra {deadlineLabel(market.deadline)}</span>
+        {showVoteCount && <span>{market.totalVotes} palpites</span>}
+      </div>
+
+      <footer>
+        <span className={styles.category}>{market.category}</span>
+        <span className={isOpen ? styles.open : styles.closed}>
+          {isOpen ? "Aberto" : market.status === "resolved" ? "Resolvido" : "Encerrado"}
+        </span>
+      </footer>
     </article>
   );
 }

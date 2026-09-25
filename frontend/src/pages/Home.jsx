@@ -23,6 +23,7 @@ function FeaturedPalpite({ market }) {
 
   const yesPercent = market.voteBreakdown?.yesPercent || 0;
   const noPercent = market.voteBreakdown?.noPercent || 0;
+  const showVoteCount = (market.totalVotes || 0) >= 10;
 
   return (
     <article className={styles.featuredCard}>
@@ -36,8 +37,8 @@ function FeaturedPalpite({ market }) {
         </Link>
         <div className={styles.featuredMeta}>
           <span>Encerra {deadlineLabel(market.deadline)}</span>
-          <span>{market.totalVotes || 0} {market.totalVotes === 1 ? "palpite" : "palpites"}</span>
-          <span>{market.pointsValue} pontos</span>
+          {showVoteCount && <span>{market.totalVotes} palpites</span>}
+          {market.pointsValue && <span className={styles.pointsValue}>Vale {market.pointsValue} pts</span>}
         </div>
       </div>
 
@@ -66,6 +67,7 @@ function FeaturedPalpite({ market }) {
 function RankingSection({ ranking, user }) {
   const userId = user?._id || user?.id;
   const currentUser = userId ? ranking.find((entry) => entry.id === userId) : null;
+  const hasFullRanking = ranking.length >= 3;
 
   return (
     <section id="ranking" className={`${styles.section} ${styles.rankingSection}`}>
@@ -74,10 +76,10 @@ function RankingSection({ ranking, user }) {
           <span>Ranking FuteTrends</span>
           <h2>Quem entende mais de futebol?</h2>
         </div>
-        <Link to="/ranking" className={styles.textLink}>Ver ranking completo</Link>
+        {hasFullRanking && <Link to="/ranking" className={styles.textLink}>Ver ranking completo</Link>}
       </div>
 
-      {ranking.length ? (
+      {hasFullRanking ? (
         <div className={`${styles.rankingPanel} ${!user ? styles.rankingPanelPublic : ""}`}>
           <div className={styles.rankingList}>
             {ranking.slice(0, 3).map((entry, index) => (
@@ -109,9 +111,10 @@ function RankingSection({ ranking, user }) {
         <div className={styles.rankingEmpty}>
           <Trophy size={28} aria-hidden="true" />
           <div>
-            <strong>O ranking está começando.</strong>
-            <span>Faça seus palpites e seja um dos primeiros a chegar ao topo.</span>
+            <strong>O topo está livre.</strong>
+            <span>Acerte seus palpites e seja um dos primeiros a chegar ao topo.</span>
           </div>
+          <Link to="/palpites">FAZER UM PALPITE</Link>
         </div>
       )}
     </section>
@@ -153,7 +156,6 @@ export default function Home() {
     <div className={styles.home}>
       <section className={styles.hero} style={{ "--hero-image": `url(${stadiumHero})` }}>
         <div className={styles.heroInner}>
-          <span className={styles.heroEyebrow}>Palpites de futebol valendo pontos</span>
           <h1>Você entende de futebol? <strong>Prove.</strong></h1>
           <p>Dê seus palpites, ganhe pontos e suba no ranking.</p>
           <a href="#palpite-da-rodada" className={styles.primaryAction}>COMEÇAR A PALPITAR</a>
@@ -166,7 +168,7 @@ export default function Home() {
 
         <section id="palpite-da-rodada" className={styles.section}>
           <div className={styles.sectionHeading}>
-            <div><span>Palpite da rodada</span><h2>Escolha um lado.</h2></div>
+            <div><span>Palpite da rodada</span><h2>Dê seu palpite.</h2></div>
           </div>
           {loading ? <div className={styles.emptyState}>Carregando palpite...</div> : <FeaturedPalpite market={featuredMarket} />}
         </section>
@@ -175,7 +177,7 @@ export default function Home() {
 
         <section id="palpites" className={styles.section}>
           <div className={styles.sectionHeading}>
-            <div><span>Mais palpites</span><h2>Acerte mais. Ganhe mais pontos.</h2></div>
+            <div><h2>Mais palpites</h2></div>
           </div>
           {loading ? (
             <div className={styles.emptyState}>Carregando palpites...</div>
@@ -197,7 +199,7 @@ export default function Home() {
           <div className={styles.steps}>
             <div><Crosshair aria-hidden="true" /><strong>Palpite</strong></div><i aria-hidden="true" />
             <div><Target aria-hidden="true" /><strong>Acerte</strong></div><i aria-hidden="true" />
-            <div className={styles.pointsStep}><strong>+100 pts</strong></div><i aria-hidden="true" />
+            <div className={styles.pointsStep}><strong>+ Pontos</strong></div><i aria-hidden="true" />
             <div><Trophy aria-hidden="true" /><strong>Suba no ranking</strong></div>
           </div>
           <p>Quanto mais você acerta, mais sobe no ranking.</p>
@@ -205,8 +207,17 @@ export default function Home() {
       </div>
 
       <section className={styles.finalCta}>
-        <div><h2>Pronto para provar que entende de futebol?</h2><p>Comece grátis.</p></div>
-        <Link to="/signup" className={styles.primaryAction}>CRIAR CONTA GRÁTIS</Link>
+        {user ? (
+          <>
+            <div><h2>Continue subindo no ranking.</h2><p>Faça seus próximos palpites.</p></div>
+            <Link to="/palpites" className={styles.primaryAction}>VER PALPITES</Link>
+          </>
+        ) : (
+          <>
+            <div><h2>Pronto para provar que entende de futebol?</h2><p>Comece grátis.</p></div>
+            <Link to="/signup" className={styles.primaryAction}>CRIAR CONTA GRÁTIS</Link>
+          </>
+        )}
       </section>
     </div>
   );
