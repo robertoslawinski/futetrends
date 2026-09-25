@@ -1,110 +1,208 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import { CheckCircle2, Clock3, Medal, Target, Trophy } from "lucide-react";
 import { api, errorMessage } from "../api/client.js";
+import { formatPoints } from "../utils/rankingView.js";
+import { getPlayerProgress } from "../utils/playerProgress.js";
+import styles from "./Dashboard.module.css";
 
-function performanceTone(accuracy) {
-  if (accuracy >= 70) return "Leitura quente";
-  if (accuracy >= 45) return "Em evolução";
-  return "Radar em calibragem";
+const medalLabels = { 1: "Ouro", 2: "Prata", 3: "Bronze" };
+
+function choiceLabel(choice) {
+  return choice === "yes" ? "SIM" : "NÃO";
+}
+
+function formatDeadline(value) {
+  if (!value) return null;
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return null;
+  return new Intl.DateTimeFormat("pt-BR", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric"
+  }).format(date);
+}
+
+function PredictionMeta({ item, pending = false }) {
+  const deadline = formatDeadline(item.prediction?.deadline);
+
+  return (
+    <div className={styles.cardMeta}>
+      <span>Seu palpite <strong>{choiceLabel(item.selectedOption)}</strong></span>
+      {pending ? (
+        <span>Vale <strong>{formatPoints(item.prediction?.pointsValue)}</strong></span>
+      ) : (
+        <span className={item.isCorrect ? styles.reward : styles.neutralPoints}>
+          {item.isCorrect ? `+${formatPoints(item.pointsEarned)}` : "0 pts"}
+        </span>
+      )}
+      {pending && deadline && <span>Encerra {deadline}</span>}
+    </div>
+  );
 }
 
 export default function Dashboard() {
   const [data, setData] = useState(null);
+  const [ranking, setRanking] = useState([]);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    api.get("/api/users/me").then(({ data }) => setData(data)).catch((err) => setError(errorMessage(err)));
+    let active = true;
+
+    Promise.allSettled([
+      api.get("/api/users/me"),
+      api.get("/api/ranking")
+    ]).then(([profileResult, rankingResult]) => {
+      if (!active) return;
+      if (profileResult.status === "rejected") {
+        setError(errorMessage(profileResult.reason));
+        return;
+      }
+      setData(profileResult.value.data);
+      if (rankingResult.status === "fulfilled") {
+        setRanking(rankingResult.value.data.ranking || []);
+      }
+    });
+
+    return () => { active = false; };
   }, []);
 
-  const intelligence = useMemo(() => {
-    if (!data) return null;
-    const accuracy = data.user.accuracy || 0;
-    const total = data.user.totalPredictions || 0;
-    const correct = data.user.correctPredictions || 0;
-    return {
-      pressure: Math.min(99, 36 + total * 6 + correct * 4),
-      momentum: Math.min(99, 30 + accuracy),
-      narrative: Math.min(99, 44 + data.user.points),
-      tone: performanceTone(accuracy)
-    };
-  }, [data]);
+  const progress = useMemo(
+    () => getPlayerProgress(data?.history, ranking, data?.user),
+    [data, ranking]
+  );
 
   if (error) return <div className="page"><div className="error">{error}</div></div>;
-  if (!data) return <div className="page"><div className="notice">Carregando painel...</div></div>;
+  if (!data) return <div className="page"><div className="notice">Carregando seu desempenho...</div></div>;
+
+  const firstName = data.user.name?.trim().split(/\s+/)[0] || "jogador";
+  const hasVotes = progress.totalVotes > 0;
+  const stats = [
+    { label: "Pontos", value: formatPoints(data.user.points), featured: true, icon: Trophy },
+    progress.currentRank && { label: "Posição", value: `#${progress.currentRank.rank}`, featured: true, icon: Medal },
+    progress.totalVotes > 0 && { label: "Palpites", value: progress.totalVotes, icon: Target },
+    progress.resolvedTotal > 0 && { label: "Acertos", value: progress.correctTotal, icon: CheckCircle2 },
+    progress.accuracy !== null && { label: "Aproveitamento", value: `${progress.accuracy}%` }
+  ].filter(Boolean);
 
   return (
-    <div className="page dashboardPage">
-      <section className="dashboardHero">
+    <div className={`page ${styles.page}`}>
+      <header className={styles.header}>
+        <span>Seu desempenho</span>
+        <h1>Olá, {firstName}.</h1>
+        <p>Acompanhe seu progresso no FuteTrends.</p>
+      </header>
+
+      <section className={styles.stats} aria-label="Estatísticas principais">
+        {stats.map(({ label, value, featured, icon: Icon }) => (
+          <article className={featured ? styles.featuredStat : undefined} key={label}>
+            <div>
+              {Icon && <Icon aria-hidden="true" />}
+              <span>{label}</span>
+            </div>
+            <strong>{value}</strong>
+          </article>
+        ))}
+      </section>
+
+      <section className={styles.rankCard} aria-labelledby="player-rank-title">
         <div>
-          <span className="livePill"><i /> Meu radar</span>
-          <h1>{intelligence.tone}</h1>
-          <p>{data.user.name} · {data.user.email}</p>
+          <span id="player-rank-title">Sua posição</span>
+          {progress.currentRank ? (
+            <>
+              <strong>#{progress.currentRank.rank}</strong>
+              <p>{formatPoints(progress.currentRank.points)} no ranking geral</p>
+            </>
+          ) : (
+            <>
+              <strong>Entre no ranking</strong>
+              <p>Sua posição aparecerá assim que seus resultados forem contabilizados.</p>
+            </>
+          )}
         </div>
-        <Link to="/palpites" className="primaryLink">Ver palpites</Link>
+        <div className={styles.rankAction}>
+          {progress.isTopThree && (
+            <span className={styles.medal}>
+              <Medal aria-hidden="true" /> Top 3 · {medalLabels[progress.currentRank.rank]}
+            </span>
+          )}
+          <Link to="/ranking">VER RANKING COMPLETO</Link>
+        </div>
       </section>
 
-      <section className="statGrid intelligenceStats">
-        <strong>{data.user.points}<span>pontos</span></strong>
-        <strong>{data.user.accuracy}%<span>aproveitamento</span></strong>
-        <strong>{data.user.totalPredictions}<span>palpites resolvidos</span></strong>
-        <strong>{data.user.correctPredictions}<span>acertos confirmados</span></strong>
-      </section>
+      <div className={styles.progressGrid}>
+        <section className={styles.progressSection} aria-labelledby="pending-title">
+          <div className={styles.sectionTitle}>
+            <div>
+              <span>Em jogo</span>
+              <h2 id="pending-title">Palpites pendentes</h2>
+            </div>
+            {progress.pending.length > 0 && <b>{progress.pendingTotal}</b>}
+          </div>
 
-      <section className="radarGrid dashboardRadar">
-        <article className="panel signalPanel">
-          <div className="panelTitle">
-            <span>Pressure Index™</span>
-            <strong>{intelligence.pressure}</strong>
-          </div>
-          <div className="indexBar"><i style={{ width: `${intelligence.pressure}%` }} /></div>
-          <p className="muted">Sua capacidade de ler tensão antes do consenso aparecer.</p>
-        </article>
-        <article className="panel signalPanel">
-          <div className="panelTitle">
-            <span>Club Momentum™</span>
-            <strong>{intelligence.momentum}</strong>
-          </div>
-          <div className="indexBar"><i style={{ width: `${intelligence.momentum}%` }} /></div>
-          <p className="muted">Precisão acumulada em narrativas de rodada e tabela.</p>
-        </article>
-        <article className="panel signalPanel">
-          <div className="panelTitle">
-            <span>Narrative Score™</span>
-            <strong>{intelligence.narrative}</strong>
-          </div>
-          <div className="indexBar"><i style={{ width: `${intelligence.narrative}%` }} /></div>
-          <p className="muted">Reputação gerada por acertos em histórias resolvidas.</p>
-        </article>
-      </section>
-
-      <section className="dashboardSplit">
-        <article className="panel">
-          <div className="panelTitle">
-            <span>Desafios</span>
-            <strong>Próximos passos</strong>
-          </div>
-          <div className="missionList">
-            <Link to="/palpites">Dar um palpite sobre o futebol brasileiro</Link>
-            <Link to="/palpites">Encontrar uma pergunta dividida entre SIM e NÃO</Link>
-            <Link to="/ranking">Comparar seus pontos no ranking</Link>
-          </div>
-        </article>
-
-        <article className="panel">
-          <div className="panelTitle">
-            <span>Histórico</span>
-            <strong>Palpites recentes</strong>
-          </div>
-          <div className="table compactTable">
-            {data.history.length ? data.history.slice(0, 8).map((item) => (
-              <Link key={item.id} to={`/markets/${item.prediction?._id}`} className="row">
-                <span>{item.prediction?.title}</span>
-                <span>{item.selectedOption === "yes" ? "SIM" : "NÃO"}</span>
-                <span>{item.pointsEarned} pts</span>
+          <div className={styles.cardList}>
+            {progress.pending.length ? progress.pending.map((item) => (
+              <Link className={styles.predictionCard} to={`/markets/${item.prediction._id}`} key={item.id}>
+                <div className={styles.cardTopline}>
+                  <span>{item.prediction.category || "Futebol"}</span>
+                  <span className={styles.pendingStatus}><Clock3 aria-hidden="true" /> Aguardando resultado</span>
+                </div>
+                <h3>{item.prediction.title}</h3>
+                <PredictionMeta item={item} pending />
               </Link>
-            )) : <div className="empty">Faça seu primeiro palpite para calibrar seu radar.</div>}
+            )) : (
+              <div className={styles.emptyState}>
+                <Clock3 aria-hidden="true" />
+                <div>
+                  <strong>Nenhum palpite aguardando resultado.</strong>
+                  <p>{hasVotes ? "Quando você participar de um palpite aberto, ele aparecerá aqui." : "Seus palpites abertos aparecerão aqui."}</p>
+                </div>
+              </div>
+            )}
           </div>
-        </article>
+        </section>
+
+        <section className={styles.progressSection} aria-labelledby="results-title">
+          <div className={styles.sectionTitle}>
+            <div>
+              <span>Histórico</span>
+              <h2 id="results-title">Últimos resultados</h2>
+            </div>
+          </div>
+
+          <div className={styles.cardList}>
+            {progress.results.length ? progress.results.map((item) => (
+              <Link className={styles.predictionCard} to={`/markets/${item.prediction._id}`} key={item.id}>
+                <div className={styles.cardTopline}>
+                  <span>{item.prediction.category || "Futebol"}</span>
+                  <span className={item.isCorrect ? styles.correctStatus : styles.missedStatus}>
+                    {item.isCorrect ? <CheckCircle2 aria-hidden="true" /> : <Target aria-hidden="true" />}
+                    {item.isCorrect ? "Acertou" : "Não foi dessa vez"}
+                  </span>
+                </div>
+                <h3>{item.prediction.title}</h3>
+                <PredictionMeta item={item} />
+              </Link>
+            )) : (
+              <div className={styles.emptyState}>
+                <CheckCircle2 aria-hidden="true" />
+                <div>
+                  <strong>Ainda não há resultados.</strong>
+                  <p>Seus resultados aparecerão aqui quando os palpites forem resolvidos.</p>
+                </div>
+              </div>
+            )}
+          </div>
+        </section>
+      </div>
+
+      <section className={styles.cta}>
+        <div>
+          <span>{hasVotes ? "Continue subindo" : "Comece sua jornada"}</span>
+          <h2>{hasVotes ? "Quer somar mais pontos?" : "Faça seu primeiro palpite."}</h2>
+          <p>{hasVotes ? "Faça seus próximos palpites." : "Escolha uma pergunta, vote em SIM ou NÃO e entre no ranking."}</p>
+        </div>
+        <Link to="/palpites">{hasVotes ? "VER PALPITES" : "FAZER PRIMEIRO PALPITE"}</Link>
       </section>
     </div>
   );

@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "test:dashboard": "node --test --test-isolation=none src/utils/playerProgress.test.js",
     "preview": "vite preview"
   },
   "dependencies": {

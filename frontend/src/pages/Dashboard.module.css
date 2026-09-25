@@ -1,0 +1,370 @@
+.page {
+  --player-green: #0b3d2e;
+  --player-green-soft: #eaf4ef;
+  --player-yellow: #f4b400;
+  --player-ink: #102a43;
+  display: grid;
+  gap: 28px;
+  padding-top: 48px;
+}
+
+.header { max-width: 720px; }
+
+.header > span,
+.sectionTitle span,
+.rankCard > div:first-child > span,
+.cta span {
+  color: #147c4a;
+  font-size: .76rem;
+  font-weight: 900;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.header h1 {
+  margin: 8px 0;
+  color: var(--player-ink);
+  font-size: clamp(2.35rem, 5vw, 4.35rem);
+  line-height: 1;
+  letter-spacing: 0;
+}
+
+.header p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 1.08rem;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+}
+
+.stats article {
+  min-width: 0;
+  padding: 18px;
+  border: 1px solid rgba(16, 42, 67, .1);
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 10px 28px rgba(16, 42, 67, .06);
+}
+
+.stats article > div {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: #64748b;
+}
+
+.stats article svg {
+  width: 16px;
+  height: 16px;
+  color: #147c4a;
+}
+
+.stats article span {
+  font-size: .75rem;
+  font-weight: 850;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+.stats article strong {
+  display: block;
+  margin-top: 9px;
+  color: var(--player-ink);
+  font-size: clamp(1.7rem, 3vw, 2.35rem);
+  line-height: 1;
+}
+
+.stats .featuredStat {
+  border-color: rgba(11, 61, 46, .18);
+  background: var(--player-green);
+}
+
+.stats .featuredStat div,
+.stats .featuredStat svg { color: #b8d8ca; }
+.stats .featuredStat strong { color: #fff; }
+
+.rankCard {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 24px 26px;
+  border: 1px solid rgba(11, 61, 46, .15);
+  border-left: 5px solid var(--player-yellow);
+  border-radius: 10px;
+  background: linear-gradient(110deg, #f4faf7 0%, #fff 62%);
+}
+
+.rankCard strong {
+  display: block;
+  margin-top: 5px;
+  color: var(--player-green);
+  font-size: clamp(2rem, 4vw, 3.3rem);
+  line-height: 1;
+}
+
+.rankCard p {
+  margin: 7px 0 0;
+  color: var(--muted);
+}
+
+.rankAction {
+  display: grid;
+  justify-items: end;
+  gap: 12px;
+}
+
+.rankAction > a,
+.cta > a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 11px 15px;
+  border-radius: 8px;
+  background: var(--player-yellow);
+  color: #183153;
+  font-size: .82rem;
+  font-weight: 950;
+}
+
+.rankAction > a:hover,
+.cta > a:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 22px rgba(244, 180, 0, .22);
+}
+
+.rankAction > a:focus-visible,
+.cta > a:focus-visible,
+.predictionCard:focus-visible {
+  outline: 3px solid rgba(30, 79, 255, .35);
+  outline-offset: 3px;
+}
+
+.medal {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: #9a6500;
+  font-size: .82rem;
+  font-weight: 900;
+}
+
+.medal svg {
+  width: 18px;
+  height: 18px;
+  color: var(--player-yellow);
+}
+
+.progressGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px;
+  align-items: start;
+}
+
+.progressSection { min-width: 0; }
+
+.sectionTitle {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.sectionTitle h2 {
+  margin: 4px 0 0;
+  color: var(--player-ink);
+  font-size: 1.55rem;
+  line-height: 1.15;
+}
+
+.sectionTitle > b {
+  display: grid;
+  place-items: center;
+  min-width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--player-green-soft);
+  color: var(--player-green);
+  font-size: .8rem;
+}
+
+.cardList { display: grid; gap: 10px; }
+
+.predictionCard,
+.emptyState {
+  min-width: 0;
+  padding: 18px;
+  border: 1px solid rgba(16, 42, 67, .1);
+  border-radius: 10px;
+  background: #fff;
+}
+
+.predictionCard {
+  transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+}
+
+.predictionCard:hover {
+  transform: translateY(-2px);
+  border-color: rgba(20, 124, 74, .3);
+  box-shadow: 0 13px 30px rgba(16, 42, 67, .08);
+}
+
+.cardTopline,
+.cardMeta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px 16px;
+  flex-wrap: wrap;
+}
+
+.cardTopline > span:first-child {
+  color: #147c4a;
+  font-size: .72rem;
+  font-weight: 900;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+.pendingStatus,
+.correctStatus,
+.missedStatus {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: .75rem;
+  font-weight: 850;
+}
+
+.pendingStatus { color: #8a6200; }
+.correctStatus { color: #087443; }
+.missedStatus { color: #64748b; }
+
+.pendingStatus svg,
+.correctStatus svg,
+.missedStatus svg {
+  width: 15px;
+  height: 15px;
+}
+
+.predictionCard h3 {
+  margin: 13px 0 16px;
+  color: var(--player-ink);
+  font-size: 1.08rem;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.cardMeta {
+  justify-content: flex-start;
+  padding-top: 13px;
+  border-top: 1px solid rgba(16, 42, 67, .08);
+  color: #64748b;
+  font-size: .79rem;
+}
+
+.cardMeta span:not(:last-child) {
+  padding-right: 16px;
+  border-right: 1px solid rgba(16, 42, 67, .1);
+}
+
+.cardMeta strong { color: var(--player-ink); }
+
+.cardMeta .reward {
+  color: #9a6500;
+  font-size: .92rem;
+  font-weight: 950;
+}
+
+.cardMeta .neutralPoints {
+  color: #64748b;
+  font-weight: 850;
+}
+
+.emptyState {
+  display: flex;
+  align-items: flex-start;
+  gap: 13px;
+  min-height: 116px;
+  color: var(--muted);
+}
+
+.emptyState > svg {
+  flex: 0 0 auto;
+  width: 21px;
+  height: 21px;
+  color: #147c4a;
+}
+
+.emptyState strong { color: var(--player-ink); }
+
+.emptyState p {
+  margin: 6px 0 0;
+  font-size: .9rem;
+  line-height: 1.45;
+}
+
+.cta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 26px;
+  padding: 27px 30px;
+  border-radius: 12px;
+  background: var(--player-green);
+  color: #fff;
+}
+
+.cta span { color: #b8d8ca; }
+
+.cta h2 {
+  margin: 6px 0 4px;
+  font-size: clamp(1.5rem, 3vw, 2.05rem);
+  line-height: 1.1;
+}
+
+.cta p {
+  margin: 0;
+  color: #d6e7df;
+}
+
+.cta > a {
+  flex: 0 0 auto;
+  max-width: 100%;
+}
+
+@media (max-width: 820px) {
+  .page { padding-top: 34px; }
+  .progressGrid { grid-template-columns: 1fr; gap: 28px; }
+}
+
+@media (max-width: 600px) {
+  .page { gap: 24px; }
+  .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .stats article { padding: 15px; }
+  .stats article strong { font-size: 1.72rem; }
+  .rankCard,
+  .cta { align-items: stretch; flex-direction: column; padding: 21px; }
+  .rankAction { justify-items: stretch; }
+  .rankAction > a,
+  .cta > a { width: 100%; }
+  .medal { justify-content: flex-start; }
+  .cardMeta span:not(:last-child) { padding-right: 10px; }
+}
+
+@media (max-width: 390px) {
+  .stats { grid-template-columns: 1fr 1fr; gap: 9px; }
+  .stats article { padding: 14px 12px; }
+  .stats article span { font-size: .69rem; }
+  .stats article strong { font-size: 1.5rem; }
+  .predictionCard,
+  .emptyState { padding: 15px; }
+  .cardMeta span:not(:last-child) { border-right: 0; }
+}
