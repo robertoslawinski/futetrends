@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { CheckCircle2, Crosshair, Flame, Medal, Target, TrendingDown, TrendingUp, Trophy } from "lucide-react";
+import { ArrowRight, CheckCircle2, CircleDot, Flame, Medal, Target, TrendingDown, TrendingUp, Trophy } from "lucide-react";
 import { api, errorMessage } from "../api/client.js";
 import stadiumHero from "../assets/stadium-hero.png";
 import MarketCard from "../components/MarketCard.jsx";
@@ -226,9 +226,9 @@ export default function Home() {
         <section id="how-it-works" className={`${styles.section} ${styles.howItWorks}`}>
           <span>Como funciona</span>
           <div className={styles.steps}>
-            <div><Crosshair aria-hidden="true" /><strong>Palpite</strong></div><i aria-hidden="true" />
-            <div><Target aria-hidden="true" /><strong>Acerte</strong></div><i aria-hidden="true" />
-            <div className={styles.pointsStep}><strong>+ Pontos</strong></div><i aria-hidden="true" />
+            <div><CircleDot aria-hidden="true" /><strong>Palpite</strong></div><ArrowRight className={styles.stepArrow} aria-hidden="true" />
+            <div><Target aria-hidden="true" /><strong>Acerte</strong></div><ArrowRight className={styles.stepArrow} aria-hidden="true" />
+            <div className={styles.pointsStep}><strong>+ Pontos</strong></div><ArrowRight className={styles.stepArrow} aria-hidden="true" />
             <div><Trophy aria-hidden="true" /><strong>Suba no ranking</strong></div>
           </div>
           <p>Quanto mais você acerta, mais sobe no ranking.</p>
@@ -238,7 +238,7 @@ export default function Home() {
       <section className={styles.finalCta}>
         {user ? (
           <>
-            <div><h2>Continue subindo no ranking.</h2><p>Faça seus próximos palpites.</p></div>
+            <div><h2>Quer somar mais pontos?</h2><p>Faça seus próximos palpites.</p></div>
             <Link to="/palpites" className={styles.primaryAction}>VER PALPITES</Link>
           </>
         ) : (

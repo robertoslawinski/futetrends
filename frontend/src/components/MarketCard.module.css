@@ -1,6 +1,6 @@
 .card {
   display: flex;
-  min-height: 245px;
+  min-height: 232px;
   flex-direction: column;
   padding: 20px;
   border: 1px solid rgba(22, 49, 34, 0.13);
@@ -29,7 +29,7 @@
 .category,
 .open,
 .closed {
-  font-size: 0.68rem;
+  font-size: 0.64rem;
   font-style: normal;
   font-weight: 800;
   letter-spacing: 0.05em;
@@ -65,12 +65,12 @@
   justify-content: flex-start;
   margin-top: 16px;
   color: #7b8ba3;
-  font-size: 0.72rem;
+  font-size: 0.68rem;
 }
 
 .meta strong {
   color: #806300;
-  font-size: 0.77rem;
+  font-size: 0.75rem;
 }
 
 .splitBar {
@@ -185,6 +185,7 @@
 }
 
 .result {
-  background: #e8f4e9;
+  border: 1px solid rgba(20, 124, 74, 0.18);
+  background: transparent;
   color: #126640;
 }

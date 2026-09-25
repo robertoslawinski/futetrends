@@ -100,7 +100,7 @@
 .content {
   width: min(1180px, calc(100% - 40px));
   margin: 0 auto;
-  padding-bottom: 54px;
+  padding-bottom: 44px;
 }
 
 .section { padding-top: 76px; }
@@ -475,6 +475,8 @@
 .rankingSection .rankingEmpty strong { color: #fff; }
 .rankingSection .rankingEmpty span { color: rgba(255, 255, 255, .62); }
 
+.rankingSection + .section { padding-top: 60px; }
+
 .marketGrid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 15px; }
 
 .outlineAction {
@@ -485,31 +487,31 @@
   color: var(--home-ink);
 }
 
-.howItWorks { padding-top: 52px; text-align: center; }
+.howItWorks { padding-top: 44px; text-align: center; }
 
 .steps {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: clamp(15px, 3vw, 34px);
-  margin-top: 20px;
-  padding: 25px 28px;
+  gap: clamp(13px, 2.4vw, 28px);
+  margin-top: 16px;
+  padding: 20px 24px;
   border-radius: 11px;
   background: #eaf3e9;
 }
 
 .steps div { display: flex; align-items: center; gap: 9px; color: var(--home-ink); }
 .steps svg { width: 21px; color: var(--home-green); }
-.steps i { width: 28px; height: 1px; background: rgba(16, 37, 25, .2); }
+.steps .stepArrow { width: 18px; color: rgba(16, 37, 25, .34); }
 .steps .pointsStep strong { color: #8b6a00; font-size: 1.05rem; text-transform: uppercase; }
-.howItWorks p { margin: 15px 0 0; color: #698074; font-size: .86rem; }
+.howItWorks p { margin: 12px 0 0; color: #698074; font-size: .86rem; }
 
 .finalCta {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 28px;
-  padding: 50px max(20px, calc((100% - 1180px) / 2));
+  padding: 44px max(20px, calc((100% - 1180px) / 2));
   background: #0b2818;
   color: #fff;
 }
@@ -528,7 +530,7 @@
   .marketGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .steps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
   .steps div { flex-direction: column; text-align: center; }
-  .steps i { display: none; }
+  .steps .stepArrow { display: none; }
 }
 
 @media (max-width: 640px) {
@@ -539,7 +541,8 @@
   .hero h1 { font-size: clamp(2.9rem, 13vw, 4.2rem); }
   .primaryAction { width: 100%; }
   .section { padding-top: 58px; }
-  .howItWorks { padding-top: 42px; }
+  .rankingSection + .section { padding-top: 48px; }
+  .howItWorks { padding-top: 36px; }
   .rankingSection { margin-top: 58px; padding: 26px 20px; }
   .rankingSectionEmpty { padding-top: 22px; padding-bottom: 22px; }
   .rankingList,
@@ -550,7 +553,7 @@
   .featuredQuestion h3 { font-size: 1.65rem; }
   .marketGrid { grid-template-columns: 1fr; }
   .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px 12px; }
-  .finalCta { display: grid; padding-top: 42px; padding-bottom: 42px; }
+  .finalCta { display: grid; padding-top: 36px; padding-bottom: 36px; }
   .rankingEmpty { align-items: flex-start; flex-wrap: wrap; }
   .rankingEmpty > a { width: 100%; margin-left: 0; }
   .rankingFooter { align-items: stretch; flex-direction: column; }

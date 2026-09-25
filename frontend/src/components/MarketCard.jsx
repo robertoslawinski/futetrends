@@ -40,24 +40,26 @@ export default function MarketCard({ market }) {
       )}
 
       {canVote && <p className={styles.votePrompt}>Qual é o seu palpite?</p>}
-      <div className={styles.actions}>
-        {canVote ? (
-          <>
-            <Link to={`/markets/${market._id}`} state={{ choice: "yes" }} className={styles.yes}>SIM</Link>
-            <Link to={`/markets/${market._id}`} state={{ choice: "no" }} className={styles.no}>NÃO</Link>
-          </>
-        ) : hasUserVote ? (
-          <Link to={`/markets/${market._id}`} className={styles.result}>Ver detalhes</Link>
-        ) : (
-          <Link to={`/markets/${market._id}`} className={styles.result}>Ver resultado</Link>
-        )}
-      </div>
+      {canVote && (
+        <div className={styles.actions}>
+          <Link to={`/markets/${market._id}`} state={{ choice: "yes" }} className={styles.yes}>SIM</Link>
+          <Link to={`/markets/${market._id}`} state={{ choice: "no" }} className={styles.no}>NÃO</Link>
+        </div>
+      )}
 
       <div className={styles.meta}>
         {market.pointsValue && <strong>Vale {market.pointsValue} pts</strong>}
         <span>Encerra {deadlineLabel(market.deadline)}</span>
         {showVoteCount && <span>{market.totalVotes} palpites</span>}
       </div>
+
+      {!canVote && (
+        <div className={styles.actions}>
+          <Link to={`/markets/${market._id}`} className={styles.result}>
+            {hasUserVote ? "Ver detalhes" : "Ver resultado"}
+          </Link>
+        </div>
+      )}
 
       <footer>
         <span className={styles.category}>{market.category}</span>
