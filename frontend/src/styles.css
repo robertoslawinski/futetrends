@@ -522,6 +522,8 @@ button:disabled { opacity: .55; cursor: not-allowed; }
   border-top: 1px solid var(--border);
 }
 .communityDistribution h3 { margin: 0; font-size: 1rem; }
+.communityDistribution .meter { background: #d7dee8; }
+.communityDistribution .meter span { background: #147c4a; }
 .voteFeedback { animation: voteFeedbackIn 240ms ease-out; }
 @keyframes voteFeedbackIn {
   from { opacity: 0; transform: translateY(4px); }

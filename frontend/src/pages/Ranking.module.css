@@ -1,0 +1,77 @@
+.page { max-width: 1120px; }
+
+.header { margin-bottom: 28px; }
+.header > span { color: #147c4a; font-size: .74rem; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
+.header h1 { max-width: 780px; margin: 8px 0 12px; color: #102519; font-size: clamp(2.5rem, 5vw, 4.5rem); letter-spacing: -.045em; line-height: .98; }
+.header p { margin: 0; color: #698074; font-size: 1rem; }
+
+.podium { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); overflow: hidden; border: 1px solid rgba(16, 37, 25, .12); border-radius: 14px; background: #0b2818; box-shadow: 0 18px 48px rgba(5, 24, 12, .13); }
+.podium[data-count="1"] { grid-template-columns: 1fr; }
+.podium[data-count="2"] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.podium article { display: grid; justify-items: start; gap: 11px; min-width: 0; padding: 26px; border-right: 1px solid rgba(255, 255, 255, .09); color: #fff; }
+.podium article:last-child { border-right: 0; }
+.podium article[data-leader="true"] { padding-top: 23px; border-top: 3px solid #f0d21b; background: rgba(240, 210, 27, .08); }
+
+.place { display: flex; align-items: center; gap: 7px; color: rgba(255, 255, 255, .72); font-size: .82rem; font-weight: 900; }
+.place svg { width: 23px; color: #cbd5e1; }
+.podium article:first-child .place svg { color: #f0d21b; }
+.podium article:nth-child(3) .place svg { color: #d89254; }
+
+.avatar { display: grid; width: 42px; height: 42px; place-items: center; border-radius: 50%; background: rgba(255, 255, 255, .1); color: #fff; font-style: normal; font-weight: 900; }
+.podium article > strong { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 1.08rem; }
+.podium article > b { color: #f0d21b; font-size: 1.65rem; }
+.podium article > small { color: rgba(255, 255, 255, .55); }
+
+@media (min-width: 769px) {
+  .podium[data-count="1"] article {
+    grid-template-columns: auto 42px minmax(0, 1fr) auto;
+    align-items: center;
+  }
+
+  .podium[data-count="1"] article > small {
+    grid-column: 3 / -1;
+  }
+}
+
+.currentUser { display: grid; grid-template-columns: auto auto 1fr; gap: 6px 18px; align-items: end; margin-top: 18px; padding: 20px 24px; border: 1px solid rgba(20, 124, 74, .22); border-left: 4px solid #147c4a; border-radius: 10px; background: #fff; }
+.currentUser span { grid-column: 1 / -1; color: #147c4a; font-size: .7rem; font-weight: 900; letter-spacing: .07em; text-transform: uppercase; }
+.currentUser strong { color: #102519; font-size: 1.55rem; }
+.currentUser b { color: #806300; font-size: 1.15rem; }
+.currentUser small { justify-self: end; color: #698074; }
+
+.list { display: grid; gap: 8px; margin-top: 20px; }
+.row { display: grid; grid-template-columns: 44px 42px minmax(0, 1fr) auto; gap: 14px; align-items: center; padding: 15px 18px; border: 1px solid rgba(16, 37, 25, .1); border-radius: 9px; background: #fff; }
+.row[data-current="true"] { border-color: rgba(20, 124, 74, .32); background: #f1f7f1; }
+.row > strong { color: #698074; }
+.row div { display: grid; gap: 3px; min-width: 0; }
+.row div b { overflow: hidden; color: #102519; text-overflow: ellipsis; white-space: nowrap; }
+.row small { color: #7b8ba3; }
+.row em { color: #806300; font-size: 1rem; font-style: normal; font-weight: 900; }
+
+.cta,
+.empty > a { display: inline-flex; min-height: 46px; align-items: center; justify-content: center; padding: 0 18px; border-radius: 7px; background: #f0d21b; color: #142014; font-size: .78rem; font-weight: 900; }
+.cta { margin-top: 22px; }
+.empty { display: flex; align-items: center; gap: 17px; padding: 22px; border-radius: 12px; background: #0b2818; color: #2bc461; }
+.empty div { display: grid; gap: 5px; }
+.empty strong { color: #fff; }
+.empty span { color: rgba(255, 255, 255, .62); }
+.empty > a { flex: 0 0 auto; margin-left: auto; }
+
+@media (max-width: 768px) {
+  .podium,
+  .podium[data-count="2"] { grid-template-columns: 1fr; }
+  .podium article { border-right: 0; border-bottom: 1px solid rgba(255, 255, 255, .09); }
+  .podium article:last-child { border-bottom: 0; }
+  .currentUser { grid-template-columns: auto 1fr; }
+  .currentUser small { grid-column: 1 / -1; justify-self: start; }
+}
+
+@media (max-width: 520px) {
+  .header h1 { font-size: 2.55rem; }
+  .row { grid-template-columns: 34px 38px minmax(0, 1fr); padding: 14px; }
+  .row .avatar { width: 38px; height: 38px; }
+  .row em { grid-column: 3; }
+  .empty { align-items: flex-start; flex-wrap: wrap; }
+  .empty > a { width: 100%; margin-left: 0; }
+  .cta { width: 100%; }
+}

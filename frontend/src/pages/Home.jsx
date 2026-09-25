@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { CheckCircle2, Crosshair, Medal, Target, Trophy } from "lucide-react";
+import { CheckCircle2, Crosshair, Flame, Medal, Target, TrendingDown, TrendingUp, Trophy } from "lucide-react";
 import { api, errorMessage } from "../api/client.js";
 import stadiumHero from "../assets/stadium-hero.png";
 import MarketCard from "../components/MarketCard.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
+import { formatPoints, getRankingSignals, getRankingView } from "../utils/rankingView.js";
 import { getVoteViewState } from "../utils/voteVisibility.js";
 import styles from "./Home.module.css";
 
@@ -76,48 +77,64 @@ function FeaturedPalpite({ market }) {
   );
 }
 
-function RankingSection({ ranking, user }) {
-  const userId = user?._id || user?.id;
-  const currentUser = userId ? ranking.find((entry) => entry.id === userId) : null;
-  const hasFullRanking = ranking.length >= 3;
+function RankingSignals({ entry }) {
+  const signals = getRankingSignals(entry);
+  if (!signals.length) return null;
 
   return (
-    <section id="ranking" className={`${styles.section} ${styles.rankingSection}`}>
+    <div className={styles.rankingSignals}>
+      {signals.map((signal) => (
+        <span key={`${signal.type}-${signal.value}`} data-tone={signal.type}>
+          {signal.type === "streak" ? <Flame aria-hidden="true" /> : signal.type === "up" ? <TrendingUp aria-hidden="true" /> : <TrendingDown aria-hidden="true" />}
+          {signal.value}
+        </span>
+      ))}
+    </div>
+  );
+}
+
+function RankingSection({ ranking, user }) {
+  const { currentUser, hasRanking, leaders } = getRankingView(ranking, user);
+
+  return (
+    <section id="ranking" className={`${styles.section} ${styles.rankingSection} ${!hasRanking ? styles.rankingSectionEmpty : ""}`}>
       <div className={styles.sectionHeading}>
         <div>
           <span>Ranking FuteTrends</span>
           <h2>Quem entende mais de futebol?</h2>
         </div>
-        {hasFullRanking && <Link to="/ranking" className={styles.textLink}>Ver ranking completo</Link>}
       </div>
 
-      {hasFullRanking ? (
-        <div className={`${styles.rankingPanel} ${!user ? styles.rankingPanelPublic : ""}`}>
-          <div className={styles.rankingList}>
-            {ranking.slice(0, 3).map((entry, index) => (
-              <div className={styles.rankingEntry} data-leader={index === 0 || undefined} key={entry.id}>
-                <span className={styles.rankMedal} data-rank={index + 1} aria-label={`${entry.rank}º lugar`}><Medal aria-hidden="true" /></span>
-                <span className={styles.rankAvatar}>{entry.name.slice(0, 1).toUpperCase()}</span>
-                <div>
-                  <strong>{entry.name}</strong>
-                  <small>{entry.accuracy}% de acerto</small>
+      {hasRanking ? (
+        <div className={styles.rankingPanel}>
+          <div className={styles.rankingList} data-count={leaders.length}>
+            {leaders.map((entry) => (
+              <article className={styles.rankingEntry} data-leader={entry.rank === 1 || undefined} key={entry.id}>
+                <div className={styles.rankingPlace}>
+                  <span className={styles.rankMedal} data-rank={entry.rank} aria-label={`${entry.rank}º lugar`}><Medal aria-hidden="true" /></span>
+                  <strong>#{entry.rank}</strong>
                 </div>
-                <b>{entry.points} pts</b>
-              </div>
+                <span className={styles.rankAvatar}>{entry.name.slice(0, 1).toUpperCase()}</span>
+                <div className={styles.rankingIdentity}>
+                  <strong>{entry.name}</strong>
+                  <small>{entry.correctPredictions} acertos · {entry.accuracy}% de aproveitamento</small>
+                </div>
+                <b className={styles.rankingPoints}>{formatPoints(entry.points)}</b>
+                <RankingSignals entry={entry} />
+              </article>
             ))}
           </div>
-          {user && (
-            <div className={styles.userRank}>
-              <span>Sua posição</span>
-              {currentUser ? (
-                <strong>#{currentUser.rank} · {currentUser.points} pts</strong>
-              ) : user.points ? (
-                <strong>{user.points} pts · veja sua posição completa</strong>
-              ) : (
-                <strong>Faça seu primeiro palpite para entrar.</strong>
-              )}
-            </div>
-          )}
+          <div className={`${styles.rankingFooter} ${!currentUser ? styles.rankingFooterPublic : ""}`}>
+            {currentUser && (
+              <div className={styles.userRank}>
+                <span>Sua posição</span>
+                <strong>#{currentUser.rank}</strong>
+                <b>{formatPoints(currentUser.points)}</b>
+                <RankingSignals entry={currentUser} />
+              </div>
+            )}
+            <Link to="/ranking" className={styles.rankingCta}>VER RANKING COMPLETO</Link>
+          </div>
         </div>
       ) : (
         <div className={styles.rankingEmpty}>
