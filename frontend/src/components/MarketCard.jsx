@@ -4,9 +4,12 @@ import { getVoteViewState } from "../utils/voteVisibility.js";
 import styles from "./MarketCard.module.css";
 
 function deadlineLabel(deadline) {
-  return new Date(deadline).toLocaleDateString("pt-BR", {
+  return new Date(deadline).toLocaleString("pt-BR", {
+    weekday: "short",
     day: "2-digit",
-    month: "short"
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit"
   });
 }
 

@@ -7,7 +7,7 @@ const currentCategories = new Set(["Brasileirão 2026", "Libertadores 2026"]);
 export default function Palpites() {
   const [markets, setMarkets] = useState([]);
   const [categories, setCategories] = useState([]);
-  const [status, setStatus] = useState("");
+  const [status, setStatus] = useState("open");
   const [category, setCategory] = useState("");
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
@@ -19,7 +19,10 @@ export default function Palpites() {
       params: { status: status || undefined, category: category || undefined }
     })
       .then(({ data }) => {
-        setMarkets(data.predictions.filter((market) => currentCategories.has(market.category)));
+        setMarkets(data.predictions.filter((market) => (
+          currentCategories.has(market.category)
+          && (status !== "open" || new Date(market.deadline) > new Date())
+        )));
         setCategories(data.categories.filter((item) => currentCategories.has(item)));
         setError("");
       })
@@ -36,9 +39,9 @@ export default function Palpites() {
 
   return (
     <div className="page palpitesPage">
-      <span className="sectionKicker">Brasileirão 2026 · Libertadores 2026</span>
-      <h1>Todos os palpites</h1>
-      <p className="muted">Escolha uma pergunta, responda SIM ou NÃO e dispute pontos no ranking.</p>
+      <span className="sectionKicker">Novos palpites toda semana</span>
+      <h1>Palpites da rodada</h1>
+      <p className="muted">Perguntas de curto prazo que fecham antes de cada jogo. Responda SIM ou NÃO e dispute pontos no ranking.</p>
 
       <div className="toolbar">
         <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Buscar time, jogador ou categoria" aria-label="Buscar palpites" />

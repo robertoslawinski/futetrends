@@ -66,6 +66,19 @@ In production, the protected endpoint `POST /admin/upsert-markets` does the same
 
 The API also upserts this season's markets on startup when an admin exists. Existing votes and resolved markets are preserved. The homepage highlights only the Brasileirão 2026 and Libertadores 2026 categories; older markets remain available in user history and admin views.
 
+## Weekly Market Cadence
+
+The public experience prioritizes short-term questions. Publish a new batch every Friday covering the following seven days, and close each question one hour before its related kickoff instead of using one shared weekly deadline.
+
+When updating `backend/src/data/seasonMarkets.js`:
+
+- verify fixtures against an official CBF or CONMEBOL source;
+- publish 5 to 10 clear YES/NO questions;
+- prioritize Flamengo, Vasco, Fluminense, Botafogo, Corinthians, Palmeiras, São Paulo, and Santos;
+- use objective resolution criteria and an official source;
+- run `npm run test:markets --prefix backend` and `npm run build --prefix frontend`;
+- deploy the backend so startup safely upserts the new titles without changing markets that already have votes.
+
 ## API Routes
 
 - `POST /auth/signup`

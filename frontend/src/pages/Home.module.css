@@ -113,6 +113,15 @@
   margin-bottom: 22px;
 }
 
+.weeklyNote {
+  max-width: 390px;
+  margin: 0 0 4px;
+  color: #698074;
+  font-size: .9rem;
+  line-height: 1.45;
+  text-align: right;
+}
+
 .sectionHeading span,
 .howItWorks > span { color: var(--home-green); }
 
@@ -548,6 +557,7 @@
   .rankingList,
   .rankingList[data-count="2"] { grid-template-columns: 1fr; }
   .sectionHeading { display: grid; gap: 13px; }
+  .weeklyNote { max-width: 100%; text-align: left; }
   .sectionHeading h2 { font-size: clamp(2rem, 10vw, 2.8rem); }
   .featuredCard { gap: 25px; padding: 22px; }
   .featuredQuestion h3 { font-size: 1.65rem; }

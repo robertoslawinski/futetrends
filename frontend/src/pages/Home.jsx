@@ -10,7 +10,13 @@ import { getVoteViewState } from "../utils/voteVisibility.js";
 import styles from "./Home.module.css";
 
 function deadlineLabel(deadline) {
-  return new Date(deadline).toLocaleDateString("pt-BR", { day: "2-digit", month: "short" });
+  return new Date(deadline).toLocaleString("pt-BR", {
+    weekday: "short",
+    day: "2-digit",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit"
+  });
 }
 
 function FeaturedPalpite({ market }) {
@@ -173,7 +179,11 @@ export default function Home() {
     [markets]
   );
   const featuredMarket = useMemo(
-    () => [...openMarkets].sort((a, b) => ((b.totalVotes || 0) + b.pointsValue) - ((a.totalVotes || 0) + a.pointsValue))[0],
+    () => [...openMarkets].sort((a, b) => {
+      const deadlineDifference = new Date(a.deadline) - new Date(b.deadline);
+      if (deadlineDifference) return deadlineDifference;
+      return (b.totalVotes || 0) - (a.totalVotes || 0);
+    })[0],
     [openMarkets]
   );
   const visibleMarkets = useMemo(
@@ -197,7 +207,8 @@ export default function Home() {
 
         <section id="palpite-da-rodada" className={styles.section}>
           <div className={styles.sectionHeading}>
-            <div><span>Palpite da rodada</span><h2>Dê seu palpite.</h2></div>
+            <div><span>Rodada da semana</span><h2>Dê seu palpite.</h2></div>
+            <p className={styles.weeklyNote}>Novas perguntas toda semana. Cada palpite fecha antes da bola rolar.</p>
           </div>
           {loading ? <div className={styles.emptyState}>Carregando palpite...</div> : <FeaturedPalpite market={featuredMarket} />}
         </section>
@@ -206,7 +217,7 @@ export default function Home() {
 
         <section id="palpites" className={styles.section}>
           <div className={styles.sectionHeading}>
-            <div><h2>Mais palpites</h2></div>
+            <div><span>Curto prazo</span><h2>Mais palpites da semana</h2></div>
           </div>
           {loading ? (
             <div className={styles.emptyState}>Carregando palpites...</div>
