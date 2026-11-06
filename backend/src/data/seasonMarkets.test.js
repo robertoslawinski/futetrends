@@ -8,8 +8,14 @@ test("a rodada semanal tem perguntas curtas e títulos únicos", () => {
 });
 
 test("todos os palpites têm dados completos e critérios objetivos", () => {
+  const categories = new Set([
+    "Brasileirão 2026",
+    "Libertadores 2026",
+    "Copa do Brasil 2026",
+    "Copa do Brasil Feminina 2026"
+  ]);
   for (const market of seasonMarkets) {
-    assert.equal(market.category, "Brasileirão 2026");
+    assert.ok(categories.has(market.category), market.category);
     assert.ok(market.title.length >= 8 && market.title.length <= 180);
     assert.ok(market.description.length >= 20);
     assert.ok(market.resolutionSource.includes("CBF"));

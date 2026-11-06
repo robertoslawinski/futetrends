@@ -1,63 +1,53 @@
 const deadlineBeforeKickoff = (iso) => new Date(Date.parse(iso) - 60 * 60 * 1000).toISOString();
 
-// Rodada de 30/10 a 05/11/2026. Agenda conferida na CBF em 30/10/2026.
-// Horários de início em Brasília (UTC-3); os prazos são calculados em UTC.
-// A agenda da CONMEBOL não prevê Libertadores ou Sul-Americana nesta janela.
-const serieASource = "CBF — agenda oficial do Brasileirão Série A 2026: https://credencial.cbf.com.br/competicoes/listar/42/1; resultado e súmula oficiais da CBF.";
+// Agenda conferida na CBF em 06/11/2026. Horários de início em Brasília (UTC-3).
+const copaSource = "CBF — https://www.cbf.com.br/futebol-brasileiro/tabelas/copa-do-brasil/masculino/2026/2002?documento=Tabela+Detalhada";
+const reschedulingCriteria = "Em caso de adiamento, aguardar a partida. Cancelamento definitivo sem resultado oficial resolve NÃO.";
 
 export const seasonMarkets = [
   {
-    title: "O Santos vencerá o Red Bull Bragantino?",
-    description: "Em 02/11, às 20h de Brasília, o Santos visita o Bragantino no Cícero de Souza Marques pela 34ª rodada.",
+    title: "O Fluminense vencerá o Vitória?",
+    description: "Em 06/11, às 20h de Brasília, o Fluminense visita o Vitória no Barradão pela 34ª rodada.",
     category: "Brasileirão 2026",
-    deadline: deadlineBeforeKickoff("2026-11-02T20:00:00-03:00"),
-    resolutionSource: serieASource,
-    resolutionCriteria: "Resolver SIM se o Santos vencer o Red Bull Bragantino nos 90 minutos regulamentares, incluindo os acréscimos, conforme resultado oficial da CBF; empate ou derrota resolve NÃO. Em caso de adiamento, aguardar o jogo. Cancelamento definitivo sem resultado oficial resolve NÃO.",
+    deadline: deadlineBeforeKickoff("2026-11-06T20:00:00-03:00"),
+    resolutionSource: "CBF — https://www.cbf.com.br/futebol-brasileiro/jogos/campeonato-brasileiro/serie-a/2026/vitoria-x-fluminense/832229",
+    resolutionCriteria: `Resolver SIM se o Fluminense vencer nos 90 minutos e acréscimos, conforme o placar oficial da CBF. Empate ou derrota resolve NÃO. ${reschedulingCriteria}`,
     pointsValue: 150
   },
   {
-    title: "O Flamengo vencerá o Grêmio?",
-    description: "Em 04/11, às 19h30 de Brasília, o Flamengo recebe o Grêmio no Maracanã pela 34ª rodada.",
-    category: "Brasileirão 2026",
-    deadline: deadlineBeforeKickoff("2026-11-04T19:30:00-03:00"),
-    resolutionSource: serieASource,
-    resolutionCriteria: "Resolver SIM se o Flamengo vencer o Grêmio nos 90 minutos regulamentares, incluindo os acréscimos, conforme resultado oficial da CBF; empate ou derrota resolve NÃO. Em caso de adiamento, aguardar o jogo. Cancelamento definitivo sem resultado oficial resolve NÃO.",
+    title: "O Grêmio vai à final da Copa do Brasil?",
+    description: "Em 07/11, às 18h de Brasília, o Atlético-MG recebe o Grêmio na Arena MRV pela volta da semifinal.",
+    category: "Copa do Brasil 2026",
+    deadline: deadlineBeforeKickoff("2026-11-07T18:00:00-03:00"),
+    resolutionSource: copaSource,
+    resolutionCriteria: `Resolver SIM se a CBF confirmar o Grêmio como classificado para a final, incluindo eventual decisão por pênaltis. Classificação do Atlético-MG resolve NÃO. ${reschedulingCriteria}`,
     pointsValue: 130
   },
   {
-    title: "O Vasco vencerá o Athletico-PR fora de casa?",
-    description: "Em 04/11, às 19h30 de Brasília, o Vasco visita o Athletico-PR na Arena da Baixada pela 34ª rodada.",
-    category: "Brasileirão 2026",
-    deadline: deadlineBeforeKickoff("2026-11-04T19:30:00-03:00"),
-    resolutionSource: serieASource,
-    resolutionCriteria: "Resolver SIM se o Vasco vencer o Athletico-PR nos 90 minutos regulamentares, incluindo os acréscimos, conforme resultado oficial da CBF; empate ou derrota resolve NÃO. Em caso de adiamento, aguardar o jogo. Cancelamento definitivo sem resultado oficial resolve NÃO.",
-    pointsValue: 150
-  },
-  {
-    title: "O Botafogo vencerá o Atlético-MG?",
-    description: "Em 04/11, às 21h30 de Brasília, o Botafogo recebe o Atlético-MG no Nilton Santos pela 34ª rodada.",
-    category: "Brasileirão 2026",
-    deadline: deadlineBeforeKickoff("2026-11-04T21:30:00-03:00"),
-    resolutionSource: serieASource,
-    resolutionCriteria: "Resolver SIM se o Botafogo vencer o Atlético-MG nos 90 minutos regulamentares, incluindo os acréscimos, conforme resultado oficial da CBF; empate ou derrota resolve NÃO. Em caso de adiamento, aguardar o jogo. Cancelamento definitivo sem resultado oficial resolve NÃO.",
+    title: "O Flamengo vai à final da Copa do Brasil Feminina?",
+    description: "Em 07/11, às 21h30 de Brasília, o Flamengo recebe o Bahia no Luso Brasileiro pela volta da semifinal.",
+    category: "Copa do Brasil Feminina 2026",
+    deadline: deadlineBeforeKickoff("2026-11-07T21:30:00-03:00"),
+    resolutionSource: "CBF — https://www.cbf.com.br/futebol-brasileiro/noticias/copa-brasil-feminina/a/copa-do-brasil-feminina-cbf-marca-sorteio-que-definira-mando-de-campo-da-final",
+    resolutionCriteria: `Resolver SIM se a CBF confirmar o Flamengo como classificado para a final, incluindo eventual decisão por pênaltis. Classificação do Bahia resolve NÃO. ${reschedulingCriteria}`,
     pointsValue: 140
   },
   {
-    title: "São Paulo e Corinthians terão gols dos dois times?",
-    description: "Em 04/11, às 21h30 de Brasília, São Paulo e Corinthians disputam o clássico na Vila Belmiro pela 34ª rodada.",
-    category: "Brasileirão 2026",
-    deadline: deadlineBeforeKickoff("2026-11-04T21:30:00-03:00"),
-    resolutionSource: serieASource,
-    resolutionCriteria: "Resolver SIM se São Paulo e Corinthians marcarem pelo menos um gol cada nos 90 minutos regulamentares, incluindo os acréscimos, conforme resultado oficial da CBF; se um dos times terminar sem marcar, resolve NÃO. Em caso de adiamento, aguardar o jogo. Cancelamento definitivo sem resultado oficial resolve NÃO.",
-    pointsValue: 150
+    title: "O Internacional vai à final da Copa do Brasil Feminina?",
+    description: "Em 08/11, às 11h de Brasília, o Bragantino recebe o Internacional no Cícero de Souza Marques pela volta da semifinal.",
+    category: "Copa do Brasil Feminina 2026",
+    deadline: deadlineBeforeKickoff("2026-11-08T11:00:00-03:00"),
+    resolutionSource: "CBF — https://www.cbf.com.br/futebol-brasileiro/jogos/copa-do-brasil/feminino/2026/red-bull-bragantino-x-internacional/835452",
+    resolutionCriteria: `Resolver SIM se a CBF confirmar o Internacional como classificado para a final, incluindo eventual decisão por pênaltis. Classificação do Bragantino resolve NÃO. ${reschedulingCriteria}`,
+    pointsValue: 120
   },
   {
-    title: "O Palmeiras vencerá o Remo?",
-    description: "Em 05/11, às 19h30 de Brasília, o Palmeiras recebe o Remo no Nubank Parque pela 34ª rodada.",
-    category: "Brasileirão 2026",
-    deadline: deadlineBeforeKickoff("2026-11-05T19:30:00-03:00"),
-    resolutionSource: serieASource,
-    resolutionCriteria: "Resolver SIM se o Palmeiras vencer o Remo nos 90 minutos regulamentares, incluindo os acréscimos, conforme resultado oficial da CBF; empate ou derrota resolve NÃO. Em caso de adiamento, aguardar o jogo. Cancelamento definitivo sem resultado oficial resolve NÃO.",
-    pointsValue: 120
+    title: "O Vasco vai à final da Copa do Brasil?",
+    description: "Em 08/11, às 17h de Brasília, o Vasco recebe o Palmeiras em São Januário pela volta da semifinal.",
+    category: "Copa do Brasil 2026",
+    deadline: deadlineBeforeKickoff("2026-11-08T17:00:00-03:00"),
+    resolutionSource: copaSource,
+    resolutionCriteria: `Resolver SIM se a CBF confirmar o Vasco como classificado para a final, incluindo eventual decisão por pênaltis. Classificação do Palmeiras resolve NÃO. ${reschedulingCriteria}`,
+    pointsValue: 150
   }
 ];

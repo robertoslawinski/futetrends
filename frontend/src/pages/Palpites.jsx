@@ -2,7 +2,12 @@ import { useEffect, useMemo, useState } from "react";
 import { api, errorMessage } from "../api/client.js";
 import MarketCard from "../components/MarketCard.jsx";
 
-const currentCategories = new Set(["Brasileirão 2026", "Libertadores 2026"]);
+const currentCategories = new Set([
+  "Brasileirão 2026",
+  "Libertadores 2026",
+  "Copa do Brasil 2026",
+  "Copa do Brasil Feminina 2026"
+]);
 
 export default function Palpites() {
   const [markets, setMarkets] = useState([]);
