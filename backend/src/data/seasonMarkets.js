@@ -1,17 +1,18 @@
 const deadlineBeforeKickoff = (iso) => new Date(Date.parse(iso) - 60 * 60 * 1000).toISOString();
 
-// Agenda conferida na CBF em 06/11/2026. Horários de início em Brasília (UTC-3).
+// Agenda conferida na CBF em 06/11/2026; prazos revisados em 07/11 antes do push.
+// Horários de início em Brasília (UTC-3).
 const copaSource = "CBF — https://www.cbf.com.br/futebol-brasileiro/tabelas/copa-do-brasil/masculino/2026/2002?documento=Tabela+Detalhada";
 const reschedulingCriteria = "Em caso de adiamento, aguardar a partida. Cancelamento definitivo sem resultado oficial resolve NÃO.";
 
 export const seasonMarkets = [
   {
-    title: "O Fluminense vencerá o Vitória?",
-    description: "Em 06/11, às 20h de Brasília, o Fluminense visita o Vitória no Barradão pela 34ª rodada.",
-    category: "Brasileirão 2026",
-    deadline: deadlineBeforeKickoff("2026-11-06T20:00:00-03:00"),
-    resolutionSource: "CBF — https://www.cbf.com.br/futebol-brasileiro/jogos/campeonato-brasileiro/serie-a/2026/vitoria-x-fluminense/832229",
-    resolutionCriteria: `Resolver SIM se o Fluminense vencer nos 90 minutos e acréscimos, conforme o placar oficial da CBF. Empate ou derrota resolve NÃO. ${reschedulingCriteria}`,
+    title: "Vasco e Palmeiras terão gols dos dois times?",
+    description: "Em 08/11, às 17h de Brasília, Vasco e Palmeiras jogam em São Januário pela volta da semifinal.",
+    category: "Copa do Brasil 2026",
+    deadline: deadlineBeforeKickoff("2026-11-08T17:00:00-03:00"),
+    resolutionSource: copaSource,
+    resolutionCriteria: `Resolver SIM se Vasco e Palmeiras marcarem pelo menos um gol cada nos 90 minutos e acréscimos, conforme o placar oficial da CBF. Se um dos times terminar sem marcar, resolve NÃO. Excluir cobranças de desempate por pênaltis. ${reschedulingCriteria}`,
     pointsValue: 150
   },
   {
